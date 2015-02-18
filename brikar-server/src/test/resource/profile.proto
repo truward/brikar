@@ -1,0 +1,13 @@
+package profile;
+
+// How to run:
+// in directory with this file execute:
+// protoc profile.proto --java_out=../java/
+
+option java_package = "com.truward.brikar.server.test.fixture";
+option java_outer_classname = "ProfileModel";
+
+message Profile {
+  required int32 id = 2;
+  required string name = 1;
+}

@@ -13,7 +13,7 @@ import org.springframework.util.StringUtils;
 import java.lang.reflect.Method;
 
 /**
- * Base class for logging aspects.
+ * Base class for regula logging aspects.
  *
  * @author Alexander Shabanov
  */

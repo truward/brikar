@@ -21,15 +21,6 @@ public class StandardRegulaLoggerAspect extends RegulaLoggerAspectBase implement
   private Logger logger;
   private TimeSource timeSource;
 
-  public StandardRegulaLoggerAspect() {
-  }
-
-  public StandardRegulaLoggerAspect(Logger logger, TimeSource timeSource) {
-    this();
-    setLogger(logger);
-    setTimeSource(timeSource);
-  }
-
   public void setLogger(Logger logger) {
     this.logger = logger;
   }
@@ -45,7 +36,7 @@ public class StandardRegulaLoggerAspect extends RegulaLoggerAspectBase implement
     }
 
     if (timeSource == null) {
-      timeSource = StandardTimeSource.INSTANCE;
+      setTimeSource(StandardTimeSource.INSTANCE);
     }
   }
 
