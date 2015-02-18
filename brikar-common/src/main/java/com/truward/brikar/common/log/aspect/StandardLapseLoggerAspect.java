@@ -1,6 +1,6 @@
 package com.truward.brikar.common.log.aspect;
 
-import com.truward.brikar.common.log.LogRegula;
+import com.truward.brikar.common.log.LogLapse;
 import com.truward.time.TimeSource;
 import com.truward.time.support.StandardTimeSource;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -17,7 +17,7 @@ import org.springframework.beans.factory.InitializingBean;
  * @author Alexander Shabanov
  */
 @Aspect
-public class StandardRegulaLoggerAspect extends RegulaLoggerAspectBase implements InitializingBean {
+public class StandardLapseLoggerAspect extends LapseLoggerAspectBase implements InitializingBean {
   private Logger logger;
   private TimeSource timeSource;
 
@@ -32,7 +32,7 @@ public class StandardRegulaLoggerAspect extends RegulaLoggerAspectBase implement
   @Override
   public void afterPropertiesSet() throws Exception {
     if (logger == null) {
-      setLogger(LoggerFactory.getLogger(StandardRegulaLoggerAspect.class));
+      setLogger(LoggerFactory.getLogger(StandardLapseLoggerAspect.class));
     }
 
     if (timeSource == null) {
@@ -46,9 +46,9 @@ public class StandardRegulaLoggerAspect extends RegulaLoggerAspectBase implement
   @Pointcut("@within(org.springframework.stereotype.Service)")
   public void withinService() {}
 
-  @Around("publicMethod() && withinService() && @annotation(logRegula)")
-  public Object around(ProceedingJoinPoint jp, LogRegula logRegula) throws Throwable {
-    return around(logger, jp, logRegula);
+  @Around("publicMethod() && withinService() && @annotation(logLapse)")
+  public Object around(ProceedingJoinPoint jp, LogLapse logLapse) throws Throwable {
+    return around(logger, jp, logLapse);
   }
 
   @Override

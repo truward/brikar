@@ -1,4 +1,4 @@
-package com.truward.brikar.common.log.regula;
+package com.truward.brikar.common.log.lapse;
 
 import com.truward.brikar.common.log.LogUtil;
 import com.truward.time.TimeSource;
@@ -7,7 +7,7 @@ import org.springframework.util.Assert;
 /**
  * @author Alexander Shabanov
  */
-public final class SimpleRegula implements Regula {
+public final class SimpleLapse implements Lapse {
   private String place = LogUtil.UNKNOWN_PLACE;
   private long startTime = -1L;
   private long timeDelta = -1L;
@@ -49,11 +49,6 @@ public final class SimpleRegula implements Regula {
   @Override
   public String getPlace() {
     return place;
-  }
-
-  @Override
-  public long getStartTimeMillis() {
-    return startTime;
   }
 
   @Override

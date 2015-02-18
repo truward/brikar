@@ -1,10 +1,8 @@
 package com.truward.brikar.common.test.log;
 
-import com.truward.brikar.common.log.LogRegula;
-import com.truward.brikar.common.log.aspect.StandardRegulaLoggerAspect;
+import com.truward.brikar.common.log.LogLapse;
 import com.truward.brikar.common.test.util.TestLoggerProvider;
 import com.truward.time.TimeSource;
-import org.aspectj.lang.annotation.Aspect;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,8 +21,8 @@ import static org.mockito.Mockito.when;
  * @author Alexander Shabanov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "/spring/RegulaLoggerAspectTest-context.xml")
-public class RegulaLoggerAspectTest {
+@ContextConfiguration(locations = "/spring/LapseLoggerAspectTest-context.xml")
+public class LapseLoggerAspectTest {
   @Resource TimeSource timeSource;
   @Resource(name = "test.mock.calcService") CalcService mockCalcService;
   @Resource(name = "test.real.calcService") CalcService realCalcService;
@@ -53,7 +51,7 @@ public class RegulaLoggerAspectTest {
     // Then:
     assertEquals(3, result);
     final String logContent = loggerProvider.getRawLogContents();
-    assertTrue(logContent.contains("@regula={place=CalcService.plus, startTime=1000, timeDelta=200}"));
+    assertTrue(logContent.contains("@lapse={place=CalcService.plus, timeDelta=200}"));
   }
 
   @Test
@@ -106,13 +104,13 @@ public class RegulaLoggerAspectTest {
       this.calcService = calcService;
     }
 
-    @LogRegula("CalcService.plus")
+    @LogLapse("CalcService.plus")
     @Override
     public int add(int x, int y) {
       return calcService.add(x, y);
     }
 
-    @LogRegula
+    @LogLapse
     @Override
     public void foo() {
       calcService.foo();
@@ -131,19 +129,19 @@ public class RegulaLoggerAspectTest {
       this.calcService = calcService;
     }
 
-    @LogRegula
+    @LogLapse
     @Override
     public int add(int x, int y) {
       return calcService.add(x, y);
     }
 
-    @LogRegula
+    @LogLapse
     @Override
     public void foo() {
       calcService.foo();
     }
 
-    @LogRegula
+    @LogLapse
     @Override
     public void bar() {
       calcService.bar();

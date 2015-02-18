@@ -1,8 +1,8 @@
 package com.truward.brikar.common.log.aspect;
 
-import com.truward.brikar.common.log.LogRegula;
+import com.truward.brikar.common.log.LogLapse;
 import com.truward.brikar.common.log.LogUtil;
-import com.truward.brikar.common.log.regula.SimpleRegula;
+import com.truward.brikar.common.log.lapse.SimpleLapse;
 import com.truward.time.TimeSource;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -13,18 +13,18 @@ import org.springframework.util.StringUtils;
 import java.lang.reflect.Method;
 
 /**
- * Base class for regula logging aspects.
+ * Base class for lapse logging aspects.
  *
  * @author Alexander Shabanov
  */
-public abstract class RegulaLoggerAspectBase {
+public abstract class LapseLoggerAspectBase {
 
-  protected final Object around(Logger log, ProceedingJoinPoint jp, LogRegula logRegula) throws Throwable {
-    final SimpleRegula regula = new SimpleRegula();
+  protected final Object around(Logger log, ProceedingJoinPoint jp, LogLapse logLapse) throws Throwable {
+    final SimpleLapse regula = new SimpleLapse();
 
     regula.setStartTime(getTimeSource());
 
-    String place = logRegula.value();
+    String place = logLapse.value();
     if (!StringUtils.hasLength(place)) {
       // no text in annotation value - fallback to signature name
       place = getPlaceFromJoinPoint(jp);
@@ -40,7 +40,7 @@ public abstract class RegulaLoggerAspectBase {
       return result;
     } catch (Exception e) {
 
-      // record end of call time and write regula
+      // record end of call time and write lapse
       regula.setEndTime(getTimeSource());
       regula.setFailed(true);
       LogUtil.writeRegula(log, regula);

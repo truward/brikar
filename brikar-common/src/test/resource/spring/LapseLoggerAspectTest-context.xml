@@ -16,7 +16,7 @@
     <constructor-arg value="com.truward.time.TimeSource"/>
   </bean>
 
-  <bean class="com.truward.brikar.common.log.aspect.StandardRegulaLoggerAspect">
+  <bean class="com.truward.brikar.common.log.aspect.StandardLapseLoggerAspect">
     <property name="timeSource" ref="test.timeSource"/>
     <property name="logger">
       <bean factory-bean="test.loggerProvider" factory-method="getLogger"/>
@@ -24,14 +24,14 @@
   </bean>
 
   <bean id="test.mock.calcService" class="org.mockito.Mockito" factory-method="mock">
-    <constructor-arg value="com.truward.brikar.common.test.log.RegulaLoggerAspectTest$CalcService" />
+    <constructor-arg value="com.truward.brikar.common.test.log.LapseLoggerAspectTest$CalcService" />
   </bean>
 
-  <bean id="test.real.calcService" class="com.truward.brikar.common.test.log.RegulaLoggerAspectTest$TestCalcService">
+  <bean id="test.real.calcService" class="com.truward.brikar.common.test.log.LapseLoggerAspectTest$TestCalcService">
     <constructor-arg ref="test.mock.calcService" />
   </bean>
 
-  <bean id="test.real.calcService2" class="com.truward.brikar.common.test.log.RegulaLoggerAspectTest$TestCalcService2">
+  <bean id="test.real.calcService2" class="com.truward.brikar.common.test.log.LapseLoggerAspectTest$TestCalcService2">
     <constructor-arg ref="test.mock.calcService" />
   </bean>
 </beans>
