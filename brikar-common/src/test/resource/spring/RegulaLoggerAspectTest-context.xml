@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+  <context:annotation-config/>
+  <aop:aspectj-autoproxy/>
+
+  <bean id="test.loggerProvider" class="com.truward.brikar.common.test.util.TestLoggerProvider"/>
+
+  <bean class="com.truward.brikar.common.test.log.RegulaLoggerAspectTest$TestLoggerAspect">
+    <constructor-arg ref="test.loggerProvider"/>
+  </bean>
+
+  <bean id="test.mock.calcService" class="org.mockito.Mockito" factory-method="mock">
+    <constructor-arg value="com.truward.brikar.common.test.log.RegulaLoggerAspectTest$CalcService" />
+  </bean>
+
+  <bean id="test.real.calcService" class="com.truward.brikar.common.test.log.RegulaLoggerAspectTest$TestCalcService">
+    <constructor-arg ref="test.mock.calcService" />
+  </bean>
+
+  <bean id="test.real.calcService2" class="com.truward.brikar.common.test.log.RegulaLoggerAspectTest$TestCalcService2">
+    <constructor-arg ref="test.mock.calcService" />
+  </bean>
+</beans>
