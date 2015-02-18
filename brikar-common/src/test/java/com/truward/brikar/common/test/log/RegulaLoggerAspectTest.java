@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -26,16 +25,16 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/spring/RegulaLoggerAspectTest-context.xml")
 public class RegulaLoggerAspectTest {
-  @Resource TestLoggerAspect aspect;
+  @Resource TimeSource timeSource;
   @Resource(name = "test.mock.calcService") CalcService mockCalcService;
   @Resource(name = "test.real.calcService") CalcService realCalcService;
   @Resource(name = "test.real.calcService2") CalcService realCalcService2;
   @Resource TestLoggerProvider loggerProvider;
 
-  
+
   @Before
   public void initMocks() {
-    when(aspect.getTimeSource().getTimeUnit()).thenReturn(TimeUnit.MILLISECONDS);
+    when(timeSource.getTimeUnit()).thenReturn(TimeUnit.MILLISECONDS);
     loggerProvider.reset();
   }
 
@@ -43,7 +42,7 @@ public class RegulaLoggerAspectTest {
   @Test
   public void shouldLogRegulaEntry() {
     // Given:
-    when(aspect.getTimeSource().currentTime())
+    when(timeSource.currentTime())
         .thenReturn(1000L) // 1st time
         .thenReturn(1200L); // 2nd time
     when(mockCalcService.add(1, 2)).thenReturn(3);
@@ -60,7 +59,7 @@ public class RegulaLoggerAspectTest {
   @Test
   public void shouldNotLogAnyEntriesForNonServiceBean() {
     // Given:
-    when(aspect.getTimeSource().currentTime()).thenReturn(1000L);
+    when(timeSource.currentTime()).thenReturn(1000L);
     when(mockCalcService.add(1, 2)).thenReturn(3);
 
     // When:
@@ -76,7 +75,7 @@ public class RegulaLoggerAspectTest {
   @Test
   public void shouldInferPlace() {
     // Given:
-    when(aspect.getTimeSource().currentTime()).thenReturn(1000L);
+    when(timeSource.currentTime()).thenReturn(1000L);
 
     // When:
     realCalcService.foo();
@@ -90,18 +89,6 @@ public class RegulaLoggerAspectTest {
   //
   // Helper classes
   //
-
-  @Aspect
-  public static final class TestLoggerAspect extends StandardRegulaLoggerAspect {
-    public TestLoggerAspect(TestLoggerProvider loggerProvider) {
-      super(loggerProvider.getLogger(), mock(TimeSource.class));
-    }
-
-    @Override
-    public TimeSource getTimeSource() {
-      return super.getTimeSource();
-    }
-  }
 
   public interface CalcService {
     int add(int x, int y);

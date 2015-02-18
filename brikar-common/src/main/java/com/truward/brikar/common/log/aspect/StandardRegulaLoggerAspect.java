@@ -2,31 +2,52 @@ package com.truward.brikar.common.log.aspect;
 
 import com.truward.brikar.common.log.LogRegula;
 import com.truward.time.TimeSource;
+import com.truward.time.support.StandardTimeSource;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
-import org.springframework.util.Assert;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Standard spring aspect that enables processing
  *
  * @author Alexander Shabanov
  */
-public class StandardRegulaLoggerAspect extends RegulaLoggerAspectBase {
-  private final Logger logger;
-  private final TimeSource timeSource;
+@Aspect
+public class StandardRegulaLoggerAspect extends RegulaLoggerAspectBase implements InitializingBean {
+  private Logger logger;
+  private TimeSource timeSource;
+
+  public StandardRegulaLoggerAspect() {
+  }
 
   public StandardRegulaLoggerAspect(Logger logger, TimeSource timeSource) {
-    Assert.notNull(logger, "logger");
-    Assert.notNull(timeSource, "timeSource");
+    this();
+    setLogger(logger);
+    setTimeSource(timeSource);
+  }
+
+  public void setLogger(Logger logger) {
     this.logger = logger;
+  }
+
+  public void setTimeSource(TimeSource timeSource) {
     this.timeSource = timeSource;
   }
 
-//  public StandardRegulaLoggerAspect() {
-//    this(LoggerFactory.getLogger(StandardRegulaLoggerAspect.class), StandardTimeSource.INSTANCE);
-//  }
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    if (logger == null) {
+      setLogger(LoggerFactory.getLogger(StandardRegulaLoggerAspect.class));
+    }
+
+    if (timeSource == null) {
+      timeSource = StandardTimeSource.INSTANCE;
+    }
+  }
 
   @Pointcut("execution(public * *(..))")
   public void publicMethod() {}
