@@ -4,6 +4,8 @@ import com.truward.brikar.common.log.LogUtil;
 import com.truward.time.TimeSource;
 import org.springframework.util.Assert;
 
+import javax.annotation.Nonnull;
+
 /**
  * @author Alexander Shabanov
  */
@@ -13,7 +15,7 @@ public final class SimpleLapse implements Lapse {
   private long timeDelta = -1L;
   private boolean failed;
 
-  public void setPlace(String value) {
+  public void setPlace(@Nonnull String value) {
     this.place = value;
   }
 
@@ -21,7 +23,7 @@ public final class SimpleLapse implements Lapse {
     this.startTime = timeMillis;
   }
 
-  public void setStartTime(TimeSource timeSource) {
+  public void setStartTime(@Nonnull TimeSource timeSource) {
     Assert.notNull(timeSource, "timeSource");
     setStartTime(timeSource.getTimeUnit().toMillis(timeSource.currentTime()));
   }
@@ -37,7 +39,7 @@ public final class SimpleLapse implements Lapse {
     setTimeDelta(timeMillis - startTime);
   }
 
-  public void setEndTime(TimeSource timeSource) {
+  public void setEndTime(@Nonnull TimeSource timeSource) {
     Assert.notNull(timeSource, "timeSource");
     setEndTime(timeSource.getTimeUnit().toMillis(timeSource.currentTime()));
   }
@@ -46,6 +48,7 @@ public final class SimpleLapse implements Lapse {
     this.failed = failed;
   }
 
+  @Nonnull
   @Override
   public String getPlace() {
     return place;

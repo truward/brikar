@@ -25,7 +25,7 @@
     <aspectj.version>1.6.10</aspectj.version>
     <spring.version>3.2.3.RELEASE</spring.version>
 
-    <apache.httpcomponents.version>4.2.1</apache.httpcomponents.version>
+    <apache.httpcomponents.version>4.4</apache.httpcomponents.version>
 
     <jackson.version>2.4.2</jackson.version>
 
@@ -96,6 +96,13 @@
         <groupId>com.truward.time</groupId>
         <artifactId>utc-time-sql</artifactId>
         <version>${utc-time.version}</version>
+      </dependency>
+
+      <!-- FindBugs - JSR-305 for @Nonnull etc. -->
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>1.3.9</version>
       </dependency>
 
       <!-- Jetty -->

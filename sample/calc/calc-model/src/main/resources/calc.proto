@@ -1,0 +1,38 @@
+package truward.brikar.sample.calc;
+
+option java_package = "com.truward.brikar.sample.calc.model";
+option java_outer_classname = "CalcModel";
+
+enum OperationType {
+  PLUS = 1;
+  MINUS = 2;
+}
+
+message Operand {
+  optional int32 value = 1;
+  optional string varName = 2;
+}
+
+message Result {
+  optional int32 value = 1;
+}
+
+message Operation {
+  required OperationType type = 1;
+  repeated Operand operands = 2;
+}
+
+message SaveVariable {
+  required string varName = 1;
+  required int32 value = 2;
+}
+
+message VariableHolder {
+  required string varName = 1;
+  required int32 value = 2;
+}
+
+message GetVariables {
+  repeated VariableHolder vars = 1;
+}
+
