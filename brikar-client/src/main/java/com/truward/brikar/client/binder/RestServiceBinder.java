@@ -3,7 +3,6 @@ package com.truward.brikar.client.binder;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriTemplate;
 
 import javax.annotation.Nonnull;
@@ -72,6 +71,26 @@ public class RestServiceBinder {
     }
   }
 
+  private static final class StandardUriExtractor extends AbstractUriExtractor implements UriExtractor {
+    final PosToNamePair[] variables;
+
+    public StandardUriExtractor(@Nonnull String baseUri, @Nonnull PosToNamePair[] variables) {
+      super(baseUri);
+      this.variables = variables;
+    }
+
+    @Nonnull
+    @Override
+    public URI extract(@Nonnull Object[] arguments) {
+      final UriTemplate uriTemplate = new UriTemplate(baseUrl);
+      final Map<String, Object> params = new HashMap<>(variables.length * 2);
+      for (final PosToNamePair pair : variables) {
+        params.put(pair.argName, arguments[pair.argPos]);
+      }
+      return uriTemplate.expand(params);
+    }
+  }
+
   private static final class PosToNamePair {
     final int argPos;
     final String argName;
@@ -81,35 +100,4 @@ public class RestServiceBinder {
       this.argName = argName;
     }
   }
-
-  private static final class StandardUriExtractor extends AbstractUriExtractor implements UriExtractor {
-    public StandardUriExtractor(@Nonnull String baseUri) {
-      super(baseUri);
-    }
-
-    // from PathVariable
-    PosToNamePair[] pathVariables;
-
-
-    // from RequestParam
-    PosToNamePair[] requestParams;
-
-    @Nonnull
-    @Override
-    public URI extract(@Nonnull Object[] arguments) {
-      final UriTemplate uriTemplate = new UriTemplate(baseUrl);
-      final Map<String, Object> params = new HashMap<>();
-
-      return uriTemplate.expand(params);
-    }
-
-
-
-
-  }
-
-  private void makeRequest() {
-    RestOperations restOperations;
-  }
-
 }

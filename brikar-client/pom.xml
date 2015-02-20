@@ -25,6 +25,16 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- Apache HTTP components -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+
     <!-- test scope -->
     <dependency>
       <groupId>org.springframework</groupId>
