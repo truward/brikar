@@ -8,5 +8,7 @@ import javax.annotation.Nonnull;
 public interface RestServiceBinder {
 
   @Nonnull
-  <T> T createClient(@Nonnull String serviceBaseUrl, @Nonnull Class<T> restServiceClass);
+  <T> T createClient(@Nonnull String serviceBaseUrl,
+                     @Nonnull Class<T> restServiceClass,
+                     @Nonnull Class<?> ... extraClasses);
 }

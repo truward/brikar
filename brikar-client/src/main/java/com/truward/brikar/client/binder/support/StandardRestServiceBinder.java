@@ -33,14 +33,19 @@ public class StandardRestServiceBinder implements RestServiceBinder {
 
   @Override
   @Nonnull
-  public <T> T createClient(@Nonnull String serviceBaseUrl, @Nonnull Class<T> restServiceClass) {
+  public <T> T createClient(@Nonnull String serviceBaseUrl,
+                            @Nonnull Class<T> restServiceClass,
+                            @Nonnull Class<?> ... extraClasses) {
     final Map<Method, MethodInvocationHandler> handlerMap = new HashMap<>();
     for (final Method method : restServiceClass.getMethods()) {
       handlerMap.put(method, getMethodInvocationHandler(method, restServiceClass, serviceBaseUrl));
     }
 
+    final Class[] classes = Arrays.copyOf(extraClasses, extraClasses.length + 1);
+    classes[extraClasses.length] = restServiceClass;
+
     final Object o = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-        new Class[]{restServiceClass}, new MethodMapBasedInvocationHandler(handlerMap));
+        classes, new MethodMapBasedInvocationHandler(handlerMap));
     return restServiceClass.cast(o);
   }
 
