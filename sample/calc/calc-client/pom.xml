@@ -14,8 +14,15 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
+      <groupId>com.truward.brikar</groupId>
+      <artifactId>brikar-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.truward.brikar.sample</groupId>
+      <artifactId>calc-model</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <!-- test scope -->

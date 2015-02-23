@@ -7,6 +7,15 @@ Launch CalcLauncher.main in calc-server
 
 ## How to verify
 
+Run sample client (``CalcClient`` class in ``calc-client`` module):
+
+```
+variables = vars {
+  varName: "over"
+  value: 9000
+}
+```
+
 Sample (local server assumed to be up and running at port 8080):
 
 ```
