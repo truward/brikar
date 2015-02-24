@@ -10,6 +10,7 @@
   <name>Brikar Parent</name>
 
   <modules>
+    <module>brikar-protobuf</module>
     <module>brikar-common</module>
     <module>brikar-client</module>
     <module>brikar-server</module>
