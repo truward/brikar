@@ -1,4 +1,4 @@
-package com.truward.brikar.common.protobuf.http;
+package com.truward.brikar.protobuf.http;
 
 import org.springframework.http.MediaType;
 

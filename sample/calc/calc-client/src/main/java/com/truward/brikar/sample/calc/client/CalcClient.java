@@ -1,7 +1,7 @@
 package com.truward.brikar.sample.calc.client;
 
 import com.truward.brikar.client.binder.support.StandardRestServiceBinder;
-import com.truward.brikar.common.protobuf.http.ProtobufHttpMessageConverter;
+import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
 import com.truward.brikar.sample.calc.model.CalcModel;
 import com.truward.brikar.sample.calc.model.CalcRestService;
 import org.springframework.http.converter.HttpMessageConverter;

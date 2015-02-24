@@ -16,7 +16,7 @@
   <mvc:annotation-driven>
     <!-- custom marshallers -->
     <mvc:message-converters>
-      <bean class="com.truward.brikar.common.protobuf.http.ProtobufHttpMessageConverter" />
+      <bean class="com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter" />
     </mvc:message-converters>
   </mvc:annotation-driven>
 

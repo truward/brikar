@@ -1,10 +1,7 @@
 package com.truward.brikar.common.executor;
 
-
 import com.truward.brikar.common.log.LogUtil;
 import org.slf4j.MDC;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 
 /**
   * @author Alexander Shabanov
@@ -35,21 +32,23 @@ public enum StandardThreadParametersBinder implements ThreadParametersBinder {
     }
   },
 
-  REQUEST_SCOPE {
-    @Override
-    public Object getLocalObjects() {
-      return RequestContextHolder.getRequestAttributes();
-    }
-
-    @Override
-    public void setLocalObjects(Object tag) {
-      final RequestAttributes requestAttributes = (RequestAttributes) tag;
-      RequestContextHolder.setRequestAttributes(requestAttributes);
-    }
-
-    @Override
-    public void unsetLocalObjects(Object tag) {
-      RequestContextHolder.resetRequestAttributes();
-    }
-  }
+//import org.springframework.web.context.request.RequestAttributes;
+//import org.springframework.web.context.request.RequestContextHolder;
+//  REQUEST_SCOPE {
+//    @Override
+//    public Object getLocalObjects() {
+//      return RequestContextHolder.getRequestAttributes();
+//    }
+//
+//    @Override
+//    public void setLocalObjects(Object tag) {
+//      final RequestAttributes requestAttributes = (RequestAttributes) tag;
+//      RequestContextHolder.setRequestAttributes(requestAttributes);
+//    }
+//
+//    @Override
+//    public void unsetLocalObjects(Object tag) {
+//      RequestContextHolder.resetRequestAttributes();
+//    }
+//  }
 }

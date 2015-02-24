@@ -1,4 +1,4 @@
-package com.truward.brikar.common.protobuf.http;
+package com.truward.brikar.protobuf.http;
 
 import com.google.protobuf.Message;
 import org.springframework.http.HttpInputMessage;

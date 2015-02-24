@@ -20,6 +20,12 @@
     </dependency>
 
     <dependency>
+      <groupId>com.truward.brikar.protobuf</groupId>
+      <artifactId>brikar-protobuf-http-bin</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.truward.brikar.sample</groupId>
       <artifactId>calc-model</artifactId>
       <version>${project.version}</version>
