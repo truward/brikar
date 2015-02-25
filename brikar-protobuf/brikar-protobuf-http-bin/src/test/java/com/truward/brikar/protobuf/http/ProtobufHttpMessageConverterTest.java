@@ -1,6 +1,6 @@
 package com.truward.brikar.protobuf.http;
 
-import com.truward.brikar.protobuf.http.fixture.AddressBookModel;
+import com.truward.brikar.protobuf.test.AddressBookModel;
 import org.junit.Test;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.mock.http.MockHttpInputMessage;
@@ -8,8 +8,8 @@ import org.springframework.mock.http.MockHttpOutputMessage;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Alexander Shabanov

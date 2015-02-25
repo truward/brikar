@@ -4,7 +4,7 @@ package profile;
 // in directory with this file execute:
 // protoc profile.proto --java_out=../java/
 
-option java_package = "com.truward.brikar.client.test.fixture";
+option java_package = "com.truward.brikar.protobuf.test";
 option java_outer_classname = "ProfileModel";
 
 message Profile {

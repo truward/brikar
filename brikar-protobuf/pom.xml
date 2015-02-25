@@ -15,6 +15,7 @@
   <name>Brikar Protocol Buffers Library Parent</name>
 
   <modules>
+    <module>brikar-protobuf-test</module>
     <module>brikar-protobuf-jackson</module>
     <module>brikar-protobuf-http-bin</module>
     <module>brikar-protobuf-http-json</module>

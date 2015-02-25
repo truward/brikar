@@ -34,6 +34,11 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>com.truward.brikar.protobuf</groupId>
+      <artifactId>brikar-protobuf-test</artifactId>
+    </dependency>
   </dependencies>
 </project>
 

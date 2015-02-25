@@ -26,6 +26,8 @@
     <aspectj.version>1.6.10</aspectj.version>
     <spring.version>3.2.3.RELEASE</spring.version>
 
+    <jackson.version>2.3.0</jackson.version>
+
     <apache.httpcomponents.version>4.4</apache.httpcomponents.version>
 
     <jackson.version>2.4.2</jackson.version>
@@ -46,6 +48,48 @@
   <dependencyManagement>
 
     <dependencies>
+      <!-- Project artifacts -->
+      <dependency>
+        <groupId>com.truward.brikar.protobuf</groupId>
+        <artifactId>brikar-protobuf-test</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.truward.brikar.protobuf</groupId>
+        <artifactId>brikar-protobuf-http-bin</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.truward.brikar.protobuf</groupId>
+        <artifactId>brikar-protobuf-jackson</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.truward.brikar.protobuf</groupId>
+        <artifactId>brikar-protobuf-http-json</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.truward.brikar</groupId>
+        <artifactId>brikar-common</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.truward.brikar</groupId>
+        <artifactId>brikar-client</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.truward.brikar</groupId>
+        <artifactId>brikar-server</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+
       <!-- Logging -->
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -85,6 +129,13 @@
         <groupId>com.googlecode.protobuf-java-format</groupId>
         <artifactId>protobuf-java-format</artifactId>
         <version>1.2</version>
+      </dependency>
+
+      <!-- Jackson -->
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}</version>
       </dependency>
 
       <!-- UTC time -->

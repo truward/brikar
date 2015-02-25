@@ -4,7 +4,7 @@ package addressbook;
 // in directory with this file execute:
 // protoc addressbook.proto --java_out=../java/
 
-option java_package = "com.truward.brikar.protobuf.http.fixture";
+option java_package = "com.truward.brikar.protobuf.test";
 option java_outer_classname = "AddressBookModel";
 
 message Person {

@@ -2,8 +2,7 @@ package com.truward.brikar.client.test.binder;
 
 import com.truward.brikar.client.binder.RestServiceBinder;
 import com.truward.brikar.client.binder.support.StandardRestServiceBinder;
-import com.truward.brikar.client.test.fixture.ProfileModel;
-import org.junit.Ignore;
+import com.truward.brikar.protobuf.test.ProfileModel;
 import org.junit.Test;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -16,7 +15,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
