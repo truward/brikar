@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utility class for protobuf->jackson bridge and vice versa.
@@ -32,12 +34,9 @@ public final class ProtobufJacksonUtil {
       throw new IOException("Reflection Error: unable to read an instance of " + messageClass, e);
     }
 
-    // prepare message data
-    final Descriptors.Descriptor descriptor = message.getDescriptorForType();
-
     // construct the result object
     jp.nextToken();
-    final Message result = readMessage(descriptor, jp);
+    final Message result = readMessage(message.newBuilderForType(), jp);
     return messageClass.cast(result);
   }
 
@@ -122,9 +121,8 @@ public final class ProtobufJacksonUtil {
 
 
   @Nonnull
-  private static Message readMessage(@Nonnull Descriptors.Descriptor descriptor, @Nonnull JsonParser jp) throws IOException {
-    final Message.Builder builder = descriptor.getOptions().newBuilderForType();
-
+  private static Message readMessage(@Nonnull Message.Builder builder,
+                                     @Nonnull JsonParser jp) throws IOException {
     // make sure current token is the start object
     JsonToken token = jp.getCurrentToken();
     if (token != JsonToken.START_OBJECT) {
@@ -143,26 +141,48 @@ public final class ProtobufJacksonUtil {
       // advance to the next token (field value)
       jp.nextToken();
 
-      final Descriptors.FieldDescriptor field = descriptor.findFieldByName(fieldName);
+      final Descriptors.FieldDescriptor field = builder.getDescriptorForType().findFieldByName(fieldName);
       if (field == null) {
         // TODO: handle unknown fields
         throw new JsonParseException("Unknown field " + fieldName, jp.getCurrentLocation());
       }
 
-      final Object object = readObject(field, jp);
+      final Object object = readObject(builder, field, jp);
       builder.setField(field, object);
     }
 
     // construct the result object
     final Message result = builder.build();
     if (result == null) {
-      throw new IllegalStateException("Builder failed to construct a message of type " + descriptor); // unlikely
+      throw new IllegalStateException("Builder failed to construct a message of " +
+          "type " + builder.getDescriptorForType()); // unlikely
     }
     return result;
   }
 
   @Nonnull
-  private static Object readObject(@Nonnull Descriptors.FieldDescriptor descriptor, @Nonnull JsonParser jp) throws IOException {
+  private static Object readObject(@Nonnull Message.Builder parentBuilder,
+                                   @Nonnull Descriptors.FieldDescriptor descriptor,
+                                   @Nonnull JsonParser jp) throws IOException {
+    if (descriptor.isRepeated()) {
+      if (jp.getCurrentToken() != JsonToken.START_ARRAY) {
+        throw new JsonParseException("Array expected for field=" + descriptor, jp.getCurrentLocation());
+      }
+
+      final List<Object> messages = new ArrayList<>();
+      for (JsonToken token = jp.nextToken(); token != JsonToken.END_ARRAY; token = jp.nextToken()) {
+        messages.add(readNonRepeatedObject(parentBuilder, descriptor, jp));
+      }
+      return messages;
+    }
+
+    return readNonRepeatedObject(parentBuilder, descriptor, jp);
+  }
+
+  @Nonnull
+  private static Object readNonRepeatedObject(@Nonnull Message.Builder parentBuilder,
+                                              @Nonnull Descriptors.FieldDescriptor descriptor,
+                                              @Nonnull JsonParser jp) throws IOException {
     switch (descriptor.getJavaType()) {
       case INT:case LONG:case FLOAT:case DOUBLE:
         return jp.getNumberValue();
@@ -177,10 +197,33 @@ public final class ProtobufJacksonUtil {
         return jp.getBinaryValue();
 
       case ENUM:
-        throw new UnsupportedOperationException();
+        final Descriptors.EnumValueDescriptor valueDescriptor;
+        switch (jp.getCurrentToken()) {
+          case VALUE_NUMBER_INT:
+            valueDescriptor = descriptor.getEnumType().findValueByNumber(jp.getIntValue());
+            break;
+
+          case VALUE_STRING:
+            valueDescriptor = descriptor.getEnumType().findValueByName(jp.getText());
+            break;
+
+          default:
+            throw new JsonParseException("Unexpected value for enum=" + descriptor, jp.getCurrentLocation());
+        }
+
+        if (valueDescriptor == null) {
+          throw new JsonParseException("Unknown enum value", jp.getCurrentLocation());
+        }
+
+        return valueDescriptor;
 
       case MESSAGE:
-        throw new UnsupportedOperationException();
+        final Message.Builder builder = parentBuilder.newBuilderForField(descriptor);
+        if (builder == null) {
+          throw new JsonParseException("Unable to create a builder for field=" + descriptor, jp.getCurrentLocation());
+        }
+
+        return readMessage(builder, jp);
 
       default:
         throw new IOException("Unknown descriptor=" + descriptor);

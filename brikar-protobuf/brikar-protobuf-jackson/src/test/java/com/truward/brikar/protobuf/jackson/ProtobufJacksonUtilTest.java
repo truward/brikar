@@ -39,6 +39,10 @@ public final class ProtobufJacksonUtilTest {
 
   @Ignore
   @Test
+  public void shouldNotReadMalformedInput() {
+  }
+
+  @Test
   public void shouldReadJson() throws IOException {
     // Given:
     final AddressBookModel.Person person = this.person;
@@ -51,6 +55,7 @@ public final class ProtobufJacksonUtilTest {
 
     final AddressBookModel.Person p2;
     final byte[] b = os.toByteArray();
+    System.out.println(os.toString());
     try (JsonParser jp = jsonParser(new ByteArrayInputStream(b))) {
       p2 = ProtobufJacksonUtil.readJson(AddressBookModel.Person.class, jp);
     }
