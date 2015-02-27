@@ -29,7 +29,7 @@
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
     </dependency>
-    
+
     <!-- Test scope -->
     <dependency>
       <groupId>com.truward.brikar.protobuf</groupId>

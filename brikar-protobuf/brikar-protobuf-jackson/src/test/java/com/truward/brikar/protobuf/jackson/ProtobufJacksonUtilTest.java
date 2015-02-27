@@ -2,6 +2,7 @@ package com.truward.brikar.protobuf.jackson;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.truward.brikar.protobuf.test.AddressBookModel;
 import org.junit.Ignore;
@@ -10,6 +11,7 @@ import org.junit.Test;
 import javax.annotation.Nonnull;
 import java.io.*;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public final class ProtobufJacksonUtilTest {
@@ -37,9 +39,32 @@ public final class ProtobufJacksonUtilTest {
     assertNotNull(json);
   }
 
-  @Ignore
-  @Test
-  public void shouldNotReadMalformedInput() {
+  @Test(expected = JsonParseException.class)
+  public void shouldNotReadMalformedInput1() throws IOException {
+    try (JsonParser jp = jsonParser(new ByteArrayInputStream("{".getBytes()))) {
+      ProtobufJacksonUtil.readJson(AddressBookModel.Person.class, jp);
+    }
+  }
+
+  @Test(expected = JsonParseException.class)
+  public void shouldNotReadMalformedInput2() throws IOException {
+    try (JsonParser jp = jsonParser(new ByteArrayInputStream("{\"phone\":[".getBytes()))) {
+      ProtobufJacksonUtil.readJson(AddressBookModel.Person.class, jp);
+    }
+  }
+
+  @Test(expected = JsonParseException.class)
+  public void shouldNotReadMalformedInput3() throws IOException {
+    try (JsonParser jp = jsonParser(new ByteArrayInputStream("{\"phone\":[{".getBytes()))) {
+      ProtobufJacksonUtil.readJson(AddressBookModel.Person.class, jp);
+    }
+  }
+
+  @Test(expected = JsonParseException.class)
+  public void shouldNotReadMalformedInput4() throws IOException {
+    try (JsonParser jp = jsonParser(new ByteArrayInputStream("{\"phone\":[{\"number\":\"111\",".getBytes()))) {
+      ProtobufJacksonUtil.readJson(AddressBookModel.Person.class, jp);
+    }
   }
 
   @Test
@@ -53,14 +78,13 @@ public final class ProtobufJacksonUtilTest {
       ProtobufJacksonUtil.writeJson(person, jg);
     }
 
+    // Then
     final AddressBookModel.Person p2;
-    final byte[] b = os.toByteArray();
-    System.out.println(os.toString());
-    try (JsonParser jp = jsonParser(new ByteArrayInputStream(b))) {
+    try (JsonParser jp = jsonParser(new ByteArrayInputStream(os.toByteArray()))) {
       p2 = ProtobufJacksonUtil.readJson(AddressBookModel.Person.class, jp);
     }
 
-    assertNotNull(p2);
+    assertEquals(person, p2);
   }
 
   //
