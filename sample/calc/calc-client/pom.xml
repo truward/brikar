@@ -16,7 +16,6 @@
     <dependency>
       <groupId>com.truward.brikar</groupId>
       <artifactId>brikar-client</artifactId>
-      <version>${project.version}</version>
     </dependency>
 
     <dependency>
