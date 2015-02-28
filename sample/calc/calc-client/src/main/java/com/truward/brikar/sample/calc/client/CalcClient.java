@@ -7,7 +7,7 @@ import com.truward.brikar.sample.calc.model.CalcRestService;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
+import java.util.Arrays;
 
 /**
  * @author Alexander Shabanov
@@ -16,7 +16,7 @@ public class CalcClient {
 
   public static void main(String[] args) {
     final RestTemplate restTemplate = new RestTemplate();
-    restTemplate.setMessageConverters(Collections.<HttpMessageConverter<?>>singletonList(new ProtobufHttpMessageConverter()));
+    restTemplate.setMessageConverters(Arrays.<HttpMessageConverter<?>>asList(new ProtobufHttpMessageConverter()));
 
     // Creating a client so that all the methods will be usable against the particular endpoint
     final CalcRestService calcRestService = new StandardRestServiceBinder(restTemplate)

@@ -18,6 +18,22 @@ variables = vars {
 
 Sample (local server assumed to be up and running at port 8080):
 
+JSON:
+
+```
+curl -H 'Accept: application/json; charset=UTF-8' 127.0.0.1:8080/rest/calc/variable -v -s | python -mjson.tool
+{
+    "vars": [
+        {
+            "value": 9000,
+            "varName": "over"
+        }
+    ]
+}
+```
+
+Protobuf:
+
 ```
 curl 127.0.0.1:8080/rest/calc/variable -s | protoc --decode_raw --proto_path=$PROJ/brikar/sample/calc/calc-model/src/main/resources/
 1 {

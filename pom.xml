@@ -51,12 +51,6 @@
       <!-- Project artifacts -->
       <dependency>
         <groupId>com.truward.brikar.protobuf</groupId>
-        <artifactId>brikar-protobuf-test</artifactId>
-        <version>${project.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.truward.brikar.protobuf</groupId>
         <artifactId>brikar-protobuf-http-bin</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -74,21 +68,25 @@
         <groupId>com.truward.brikar</groupId>
         <artifactId>brikar-common</artifactId>
         <version>${project.version}</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>com.truward.brikar</groupId>
         <artifactId>brikar-client</artifactId>
         <version>${project.version}</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>com.truward.brikar</groupId>
         <artifactId>brikar-server</artifactId>
         <version>${project.version}</version>
-        <scope>test</scope>
       </dependency>
 
+      <!-- Project Artifacts for Testing Only -->
+      <dependency>
+        <groupId>com.truward.brikar.protobuf</groupId>
+        <artifactId>brikar-protobuf-test</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
 
       <!-- Logging -->
       <dependency>

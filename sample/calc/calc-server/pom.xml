@@ -26,6 +26,16 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- Protobuf Message Converters -->
+    <dependency>
+      <groupId>com.truward.brikar.protobuf</groupId>
+      <artifactId>brikar-protobuf-http-bin</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.truward.brikar.protobuf</groupId>
+      <artifactId>brikar-protobuf-http-json</artifactId>
+    </dependency>
+
     <!-- Exposure Base -->
     <dependency>
       <groupId>com.truward.brikar</groupId>

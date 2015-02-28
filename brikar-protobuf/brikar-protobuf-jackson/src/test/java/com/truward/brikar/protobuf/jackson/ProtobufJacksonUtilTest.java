@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.truward.brikar.protobuf.test.AddressBookModel;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.annotation.Nonnull;
@@ -22,6 +21,9 @@ public final class ProtobufJacksonUtilTest {
           .setNumber("111")
           .build())
       .build();
+
+  private final String personJsonHead = "{\"name\":\"n\",\"id\":1,\"email\":\"e\"," +
+      "\"phone\":[{\"number\":\"111\",\"type\":\"HOME\"}]";
 
   @Test
   public void shouldWriteAsJson() throws IOException {
@@ -65,6 +67,34 @@ public final class ProtobufJacksonUtilTest {
     try (JsonParser jp = jsonParser(new ByteArrayInputStream("{\"phone\":[{\"number\":\"111\",".getBytes()))) {
       ProtobufJacksonUtil.readJson(AddressBookModel.Person.class, jp);
     }
+  }
+
+  @Test
+  public void shouldIgnoreUnknownField1() throws IOException {
+    AddressBookModel.Person p;
+    try (JsonParser jp = jsonParser(new ByteArrayInputStream((personJsonHead + ",\"unk\":5}").getBytes()))) {
+      p = ProtobufJacksonUtil.readJson(AddressBookModel.Person.class, jp);
+    }
+    assertEquals(person, p);
+  }
+
+  @Test
+  public void shouldIgnoreUnknownField2() throws IOException {
+    AddressBookModel.Person p;
+    try (JsonParser jp = jsonParser(new ByteArrayInputStream((personJsonHead + ",\"unk\":[[], 1, {}]}").getBytes()))) {
+      p = ProtobufJacksonUtil.readJson(AddressBookModel.Person.class, jp);
+    }
+    assertEquals(person, p);
+  }
+
+  @Test
+  public void shouldIgnoreUnknownField3() throws IOException {
+    AddressBookModel.Person p;
+    try (JsonParser jp = jsonParser(new ByteArrayInputStream((personJsonHead +
+        ",\"unk\":{\"a\":1,\"b\":\"2\",\"c\":null,\"d\":true,\"f\":[{}],\"e\":{\"g\":1}}}").getBytes()))) {
+      p = ProtobufJacksonUtil.readJson(AddressBookModel.Person.class, jp);
+    }
+    assertEquals(person, p);
   }
 
   @Test

@@ -143,8 +143,10 @@ public final class ProtobufJacksonUtil {
 
       final Descriptors.FieldDescriptor field = builder.getDescriptorForType().findFieldByName(fieldName);
       if (field == null) {
-        // TODO: handle unknown fields
-        throw new JsonParseException("Unknown field " + fieldName, jp.getCurrentLocation());
+        // unknown field - ignore
+        //throw new JsonParseException("Unknown field " + fieldName, jp.getCurrentLocation());
+        ignoreValue(jp);
+        continue;
       }
 
       final Object object = readObject(builder, field, jp);
@@ -158,6 +160,27 @@ public final class ProtobufJacksonUtil {
           "type " + builder.getDescriptorForType()); // unlikely
     }
     return result;
+  }
+
+  private static void ignoreValue(@Nonnull JsonParser jp) throws IOException {
+    JsonToken token = jp.getCurrentToken();
+    if (!token.isStructStart()) {
+      return; // skip primitive value in one turn
+    }
+
+    // skip structure, keeping in mind that braces should be balanced
+    int nesting = 1;
+    for (;;) {
+      token = jp.nextToken();
+      if (token.isStructEnd()) {
+        --nesting;
+        if (nesting == 0) {
+          break;
+        }
+      } else if (token.isStructStart()) {
+        ++nesting;
+      }
+    }
   }
 
   @Nonnull

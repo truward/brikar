@@ -17,6 +17,7 @@
     <!-- custom marshallers -->
     <mvc:message-converters>
       <bean class="com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter" />
+      <bean class="com.truward.brikar.protobuf.http.json.ProtobufJsonHttpMessageConverter" />
     </mvc:message-converters>
   </mvc:annotation-driven>
 

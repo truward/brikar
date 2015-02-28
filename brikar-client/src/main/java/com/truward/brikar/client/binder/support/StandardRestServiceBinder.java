@@ -1,5 +1,8 @@
 package com.truward.brikar.client.binder.support;
 
+import com.truward.brikar.client.backoff.BackoffMark;
+import com.truward.brikar.client.backoff.BackoffStrategy;
+import com.truward.brikar.client.backoff.support.NoRetryBackoffStrategy;
 import com.truward.brikar.client.binder.RestServiceBinder;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.http.HttpEntity;
@@ -7,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriTemplate;
 
@@ -19,16 +23,28 @@ import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Alexander Shabanov
  */
 public class StandardRestServiceBinder implements RestServiceBinder {
   private final RestOperations restOperations;
+  private BackoffStrategy backoffStrategy;
 
   public StandardRestServiceBinder(@Nonnull RestOperations restOperations) {
     Assert.notNull(restOperations, "restOperations");
     this.restOperations = restOperations;
+    setBackoffStrategy(NoRetryBackoffStrategy.getInstance());
+  }
+
+  public void setBackoffStrategy(@Nonnull BackoffStrategy backoffStrategy) {
+    //noinspection ConstantConditions
+    if (backoffStrategy == null) {
+      throw new IllegalArgumentException("backoffStrategy is null");
+    }
+
+    this.backoffStrategy = backoffStrategy;
   }
 
   @Override
@@ -100,7 +116,9 @@ public class StandardRestServiceBinder implements RestServiceBinder {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy,
+                         @SuppressWarnings("NullableProblems") Method method,
+                         Object[] args) throws Throwable {
       final MethodInvocationHandler handler = handlers.get(method);
       if (handler == null) {
         throw new UnsupportedOperationException("Unsupported method=" + method);
@@ -121,8 +139,8 @@ public class StandardRestServiceBinder implements RestServiceBinder {
     final RequestMethod requestMethod = getRequestMethod(requestMapping);
     final MethodParseResult parseResult = parseMethod(method, serviceBaseUrl, requestMapping);
 
-    return new RestMethodInvocationHandler(getHttpMethod(requestMethod),
-        parseResult.uriExtractor, parseResult.bodyExtractor, restOperations);
+    return new RestMethodInvocationHandler(getHttpMethod(requestMethod), parseResult.uriExtractor,
+        parseResult.bodyExtractor, restOperations, backoffStrategy);
   }
 
   @Nonnull
@@ -279,15 +297,18 @@ public class StandardRestServiceBinder implements RestServiceBinder {
     final UriExtractor uriExtractor;
     final RequestBodyExtractor bodyExtractor;
     final RestOperations restOperations;
+    final BackoffStrategy backoffStrategy;
 
     public RestMethodInvocationHandler(@Nonnull HttpMethod httpMethod,
                                        @Nonnull UriExtractor uriExtractor,
                                        @Nonnull RequestBodyExtractor bodyExtractor,
-                                       @Nonnull RestOperations restOperations) {
+                                       @Nonnull RestOperations restOperations,
+                                       @Nonnull BackoffStrategy backoffStrategy) {
       this.httpMethod = httpMethod;
       this.uriExtractor = uriExtractor;
       this.bodyExtractor = bodyExtractor;
       this.restOperations = restOperations;
+      this.backoffStrategy = backoffStrategy;
     }
 
     @Override
@@ -302,7 +323,30 @@ public class StandardRestServiceBinder implements RestServiceBinder {
         entity = new HttpEntity<>(body);
       }
 
-      final ResponseEntity<?> responseEntity = restOperations.exchange(uri, httpMethod, entity, method.getReturnType());
+      ResponseEntity<?> responseEntity;
+
+      for (final BackoffMark mark = backoffStrategy.newMark();;) {
+        try {
+          responseEntity = restOperations.exchange(uri, httpMethod, entity, method.getReturnType());
+        } catch (HttpServerErrorException e) {
+          // retry on server error
+          final long retryTimeMillis = mark.getNextRetryTime(TimeUnit.MILLISECONDS);
+          if (retryTimeMillis >= 0L) {
+            try {
+              Thread.sleep(retryTimeMillis);
+            } catch (InterruptedException ignored) {
+              Thread.interrupted();
+            }
+            continue;
+          }
+
+          // can not retry? - rethrow exception
+          throw e;
+        }
+
+        break;
+      }
+
       if (responseEntity == null) {
         throw new IllegalStateException("responseEntity is null"); // should not happen
       }
