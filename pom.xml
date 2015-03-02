@@ -9,6 +9,51 @@
   <packaging>pom</packaging>
   <name>Brikar Parent</name>
 
+  <description>
+    A set of libraries for exposing microservices as
+    Spring MVC applications using Jetty as servlet container
+  </description>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <inceptionYear>2015</inceptionYear>
+
+  <developers>
+    <developer>
+      <id>alexshabanov</id>
+      <name>Alexander Shabanov</name>
+      <email>avshabanov@gmail.com</email>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git@github.com:truward/brikar.git</connection>
+    <developerConnection>scm:git:git@github.com:truward/brikar.git</developerConnection>
+    <url>git@github.com:truward/brikar.git</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+
+  <issueManagement>
+    <url>https://github.com/truward/brikar/issues</url>
+    <system>GitHub Issues</system>
+  </issueManagement>
+
   <modules>
     <module>brikar-protobuf</module>
     <module>brikar-common</module>
