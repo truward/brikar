@@ -29,6 +29,7 @@ public class StandardLauncher {
     final int result = argParser.parse();
     if (result != 0) {
       System.exit(result);
+      return;
     }
 
 
