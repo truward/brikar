@@ -9,7 +9,7 @@ public final class ZooLauncher {
   public static void main(String[] args) throws Exception {
     final StandardLauncher launcher = new StandardLauncher() {
       @Override
-      public boolean isSpringSecurityEnabled() {
+      protected boolean isSpringSecurityEnabled() {
         return true;
       }
     };

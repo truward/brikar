@@ -3,10 +3,15 @@ zoo
 
 Zoo Sample.
 
-## TODO
-
 ```
-~~ [main] INFO   - o.e.jetty.server.AbstractConnector - Started SelectChannelConnector@0.0.0.0:8080
-~~ [qtp1360303985-16] WARN   - o.e.jetty.servlet.ServletHandler - /rest/zoo/animal/1
-java.lang.IllegalStateException: No SessionManager
+curl -u testonly:test -H 'Accept: application/json' http://127.0.0.1:8080/rest/zoo/animal/1 -s | python -mjson.tool
+```
+
+Results in:
+
+```js
+{
+    "id": 1,
+    "name": "crow"
+}
 ```

@@ -11,7 +11,7 @@
   <http security="none" pattern="/robots.txt"/>
   <http security="none" pattern="/assets/*"/>
 
-  <http use-expressions="true" auto-config="true">
+  <http create-session="never" use-expressions="true" auto-config="true">
     <http-basic/>
     <intercept-url pattern="/rest/**" access="hasRole('ROLE_SERVICE_USER')" />
   </http>

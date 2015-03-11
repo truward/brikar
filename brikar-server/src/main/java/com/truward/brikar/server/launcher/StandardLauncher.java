@@ -40,10 +40,6 @@ public class StandardLauncher {
     startServer(argParser.getStartArgs());
   }
 
-  public boolean isSpringSecurityEnabled() {
-    return false;
-  }
-
   //
   // Protected
   //
@@ -55,6 +51,15 @@ public class StandardLauncher {
   @Nonnull
   protected String getSpringContextLocations() {
     return "classpath:/spring/service.xml";
+  }
+
+  @Nonnull
+  protected String getDispatcherServletConfigLocations() {
+    return "classpath:/spring/webmvc.xml";
+  }
+
+  protected boolean isSpringSecurityEnabled() {
+    return false;
   }
 
   protected void initContextFilters(@Nonnull ServletContextHandler contextHandler) {
@@ -80,7 +85,7 @@ public class StandardLauncher {
   protected void initServlets(@Nonnull ServletContextHandler contextHandler) {
     final ServletHolder dispatcherServlet = contextHandler.addServlet(DispatcherServlet.class,
         "/g/*,/rest/*,/j_spring_security_check");
-    dispatcherServlet.setInitParameter("contextConfigLocation", "classpath:/spring/webmvc.xml");
+    dispatcherServlet.setInitParameter("contextConfigLocation", getDispatcherServletConfigLocations());
   }
 
   //
