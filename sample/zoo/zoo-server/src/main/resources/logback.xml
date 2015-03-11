@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <!--
+    Properties
+  -->
+
+  <property name="logBaseName" value="${app.logback.logBaseName:-${java.io.tmpdir}/appdevmode}"/>
+  <property name="rootLogId" value="${app.logback.rootLogId:-STDOUT}"/>
+  <property name="logPattern"
+            value="%d{ISO8601, UTC} [%thread] %-5level %X - %logger{36} - %msg%n"/>
+
+
+  <!--
+    Appenders
+  -->
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>${logPattern}</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${logBaseName}.log</file>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${logBaseName}_%d{yyyy-MM-dd_HH}.log</fileNamePattern>
+      <maxHistory>32</maxHistory>
+    </rollingPolicy>
+
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>${logPattern}</pattern>
+    </encoder>
+  </appender>
+
+  <!--
+    Root
+  -->
+
+  <root level="INFO">
+    <appender-ref ref="${rootLogId}" />
+  </root>
+
+  <!--
+    Finer-grained configuration
+  -->
+</configuration>

@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>zoo</artifactId>
+    <groupId>com.truward.brikar.sample</groupId>
+    <version>1.0.3-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>zoo-server</artifactId>
+
+  <name>Brikar Sample Zoo Server</name>
+
+  <dependencies>
+    <!-- Logging -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+    </dependency>
+
+    <!-- Service Model -->
+    <dependency>
+      <groupId>com.truward.brikar.sample</groupId>
+      <artifactId>zoo-model</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Protobuf Message Converters -->
+    <dependency>
+      <groupId>com.truward.brikar.protobuf</groupId>
+      <artifactId>brikar-protobuf-http-bin</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.truward.brikar.protobuf</groupId>
+      <artifactId>brikar-protobuf-http-json</artifactId>
+    </dependency>
+
+    <!-- Exposure Base -->
+    <dependency>
+      <groupId>com.truward.brikar</groupId>
+      <artifactId>brikar-server</artifactId>
+    </dependency>
+
+    <!-- Spring security -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-config</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- test scope -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+    </dependency>
+  </dependencies>
+</project>
+

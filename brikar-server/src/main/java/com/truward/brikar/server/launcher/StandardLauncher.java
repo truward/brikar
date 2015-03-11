@@ -40,6 +40,10 @@ public class StandardLauncher {
     startServer(argParser.getStartArgs());
   }
 
+  public boolean isSpringSecurityEnabled() {
+    return false;
+  }
+
   //
   // Protected
   //
@@ -53,14 +57,13 @@ public class StandardLauncher {
     return "classpath:/spring/service.xml";
   }
 
-  protected boolean isSpringSecurityEnabled() {
-    return false;
-  }
-
   protected void initContextFilters(@Nonnull ServletContextHandler contextHandler) {
-    // Enforce UTF-8 encoding
+    // Enforce UTF-8 encoding -
+    // this should be done on the LB side for browsers and this doesn't needed to be done for protobuf API
+    //
     // enable this if and only if UTF-8 needs to be unconditionally appended to the Content-Type
     // this is usually not needed
+
 //    final FilterHolder encFilterHolder = contextHandler.addFilter(CharacterEncodingFilter.class,
 //        "/*", EnumSet.allOf(DispatcherType.class));
 //    encFilterHolder.setInitParameter("encoding", "UTF-8");

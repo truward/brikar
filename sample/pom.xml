@@ -16,6 +16,7 @@
 
   <modules>
     <module>calc</module>
+    <module>zoo</module>
   </modules>
 
   <dependencyManagement>

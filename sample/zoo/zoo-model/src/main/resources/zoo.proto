@@ -1,0 +1,9 @@
+package truward.brikar.sample.zoo;
+
+option java_package = "com.truward.brikar.sample.zoo.model";
+option java_outer_classname = "ZooModel";
+
+message Animal {
+  required int64 id = 1;
+  required string name = 2;
+}
