@@ -1,12 +1,12 @@
-package com.truward.brikar.sample.calc.client;
+package com.truward.brikar.sample.zoo.client;
 
-import com.truward.brikar.client.binder.support.StandardRestServiceBinder;
+import com.truward.brikar.client.rest.support.StandardRestBinder;
 import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
-import com.truward.brikar.sample.calc.model.CalcModel;
-import com.truward.brikar.sample.calc.model.CalcRestService;
+import com.truward.brikar.sample.zoo.model.ZooModel;
+import com.truward.brikar.sample.zoo.model.ZooRestService;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.Arrays;
 
 /**
@@ -15,23 +15,21 @@ import java.util.Arrays;
 public final class ZooClient {
 
   public static void main(String[] args) {
-    final RestTemplate restTemplate = new RestTemplate();
-    restTemplate.setMessageConverters(Arrays.<HttpMessageConverter<?>>asList(new ProtobufHttpMessageConverter()));
+    final StandardRestBinder restBinder = new StandardRestBinder(
+        Arrays.<HttpMessageConverter<?>>asList(new ProtobufHttpMessageConverter()));
+    restBinder.afterPropertiesSet();
 
-    // Creating a client so that all the methods will be usable against the particular endpoint
-    final CalcRestService calcRestService = new StandardRestServiceBinder(restTemplate)
-        .createClient("http://127.0.0.1:8080/rest/zoo", CalcRestService.class);
+    final ZooRestService service = restBinder.newClient(ZooRestService.class)
+        .setUsername("testonly").setPassword("test")
+        .setUri(URI.create("http://127.0.0.1:8080/rest/zoo"))
+        .build();
 
-    final CalcModel.GetVariables variables = calcRestService.getAllVariables();
-    System.out.println("variables = " + variables);
+    final ZooModel.Animal animal = service.getAnimal(1L);
+    System.out.println("animal = " + animal);
 
-    final CalcModel.Result result = calcRestService.execute(CalcModel.Operation.newBuilder()
-        .setType(CalcModel.OperationType.PLUS)
-        .addOperands(CalcModel.Operand.newBuilder().setValue(3).build())
-        .addOperands(CalcModel.Operand.newBuilder().setValue(120).build())
-        .addOperands(CalcModel.Operand.newBuilder().setVarName("one").build())
-        .build());
+    final ZooModel.Animal unkAnimal = service.getAnimal(2L);
+    System.out.println("unknown animal = " + unkAnimal);
 
-    System.out.println("result = " + result.getValue());
+    restBinder.close();
   }
 }
