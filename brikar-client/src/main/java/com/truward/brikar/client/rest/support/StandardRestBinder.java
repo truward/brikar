@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -33,6 +34,10 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
 
   public StandardRestBinder(@Nonnull List<HttpMessageConverter<?>> messageConverters) {
     this.messageConverters = messageConverters;
+  }
+
+  public StandardRestBinder(@Nonnull HttpMessageConverter<?>... messageConverters) {
+    this(Arrays.asList(messageConverters));
   }
 
   @Nonnull
