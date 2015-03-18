@@ -5,7 +5,7 @@
   <parent>
     <artifactId>brikar</artifactId>
     <groupId>com.truward.brikar</groupId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
   </parent>
 
   <groupId>com.truward.brikar.sample</groupId>
@@ -17,6 +17,7 @@
   <modules>
     <module>calc</module>
     <module>zoo</module>
+    <module>todo</module>
   </modules>
 
   <dependencyManagement>

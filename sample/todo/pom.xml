@@ -8,15 +8,15 @@
     <version>1.0.4-SNAPSHOT</version>
   </parent>
 
-  <artifactId>calc</artifactId>
+  <artifactId>todo</artifactId>
 
   <packaging>pom</packaging>
-  <name>Brikar Sample Calc Parent</name>
+  <name>Brikar Sample Todo Parent</name>
 
   <modules>
-    <module>calc-model</module>
-    <module>calc-client</module>
-    <module>calc-server</module>
+    <module>todo-model</module>
+    <module>todo-client</module>
+    <module>todo-server</module>
   </modules>
 </project>
 

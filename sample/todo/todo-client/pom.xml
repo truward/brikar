@@ -3,14 +3,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>calc</artifactId>
+    <artifactId>todo</artifactId>
     <groupId>com.truward.brikar.sample</groupId>
     <version>1.0.4-SNAPSHOT</version>
   </parent>
 
-  <artifactId>calc-client</artifactId>
+  <artifactId>todo-client</artifactId>
 
-  <name>Brikar Sample Calc Client</name>
+  <name>Brikar Sample Todo Client</name>
 
   <dependencies>
     <!-- Logging -->
@@ -32,7 +32,7 @@
 
     <dependency>
       <groupId>com.truward.brikar.sample</groupId>
-      <artifactId>calc-model</artifactId>
+      <artifactId>todo-model</artifactId>
       <version>${project.version}</version>
     </dependency>
 

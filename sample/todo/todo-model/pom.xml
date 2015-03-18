@@ -3,14 +3,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>zoo</artifactId>
+    <artifactId>todo</artifactId>
     <groupId>com.truward.brikar.sample</groupId>
     <version>1.0.4-SNAPSHOT</version>
   </parent>
 
-  <artifactId>zoo-model</artifactId>
+  <artifactId>todo-model</artifactId>
 
-  <name>Brikar Sample Zoo Model</name>
+  <name>Brikar Sample Todo Model</name>
 
   <dependencies>
     <dependency>
@@ -48,7 +48,7 @@
 
                 <exec executable="protoc">
                   <arg value="--java_out=target/generated-sources/java"/>
-                  <arg value="src/main/resources/zoo.proto"/>
+                  <arg value="src/main/resources/todo.proto"/>
                 </exec>
               </tasks>
               <sourceRoot>target/generated-sources/java</sourceRoot>

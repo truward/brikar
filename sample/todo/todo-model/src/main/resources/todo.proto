@@ -1,0 +1,13 @@
+package truward.brikar.sample.zoo;
+
+option java_package = "com.truward.brikar.sample.todo.model";
+option java_outer_classname = "TodoModel";
+
+message Item {
+  required int64 id = 1;
+  required string name = 2;
+}
+
+message ItemList {
+  repeated Item items = 1;
+}
