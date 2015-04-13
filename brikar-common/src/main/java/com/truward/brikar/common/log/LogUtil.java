@@ -60,9 +60,9 @@ public final class LogUtil {
   // Private
   //
 
-  private static final String REGULA_HEADING = REGULA_ENTRY + "={" + PLACE + "={}, " + TIME_DELTA + "={}";
+  private static final String REGULA_HEADING = REGULA_ENTRY + " " + PLACE + "={}, " + TIME_DELTA + "={}";
 
-  private static final String SHORT_REGULA_FORMAT = REGULA_HEADING + "}";
+  private static final String SHORT_REGULA_FORMAT = REGULA_HEADING;
 
-  private static final String SHORT_FAILED_REGULA_FORMAT = REGULA_HEADING + ", failed=true}";
+  private static final String SHORT_FAILED_REGULA_FORMAT = REGULA_HEADING + ", failed=true";
 }

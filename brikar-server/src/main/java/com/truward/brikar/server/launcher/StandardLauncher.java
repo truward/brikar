@@ -35,6 +35,8 @@ public class StandardLauncher {
   }
 
   public final void start(@Nonnull String[] args) throws Exception {
+    configureLoggers();
+
     final StandardArgParser argParser = new StandardArgParser(args, defaultDirPrefix + "default.properties");
     final int result = argParser.parse();
     if (result != 0) {
@@ -60,6 +62,10 @@ public class StandardLauncher {
   //
   // Protected
   //
+
+  protected void configureLoggers() {
+    System.setProperty("logback.configurationFile", "default-service-logback.xml");
+  }
 
   protected List<Handler> getHandlers() {
     return Collections.<Handler>singletonList(contextHandler);
