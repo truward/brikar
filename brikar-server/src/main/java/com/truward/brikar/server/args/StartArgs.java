@@ -6,9 +6,6 @@ import javax.annotation.Nonnull;
  * @author Alexander Shabanov
  */
 public class StartArgs {
-  public static final int DEFAULT_PORT = 8080;
-  public static final String DEFAULT_CONFIG_PATH = "classpath:settings/default.properties";
-
   private final int port;
   private final String configPath;
 

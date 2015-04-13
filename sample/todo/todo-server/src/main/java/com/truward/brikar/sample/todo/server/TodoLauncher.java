@@ -11,18 +11,15 @@ import java.util.Collections;
 /**
  * @author Alexander Shabanov
  */
-public final class TodoLauncher {
+public final class TodoLauncher extends StandardLauncher {
   public static void main(String[] args) throws Exception {
-    final StandardLauncher launcher = new StandardLauncher() {
-      @Override
-      protected void initServlets(@Nonnull ServletContextHandler contextHandler) {
-        super.initServlets(contextHandler);
+    new TodoLauncher().setDefaultDirPrefix("classpath:/todoService/").start(args);
+  }
 
-        contextHandler.setSecurityHandler(SimpleAuthenticatorUtil.newSecurityHandler(Collections.singletonList(
-            new SimpleServiceUser("testonly", "test"))));
-      }
-    };
-
-    launcher.start(args);
+  @Override
+  protected void initServlets(@Nonnull ServletContextHandler contextHandler) {
+    super.initServlets(contextHandler);
+    contextHandler.setSecurityHandler(SimpleAuthenticatorUtil.newSecurityHandler(Collections.singletonList(
+        new SimpleServiceUser("testonly", "test"))));
   }
 }

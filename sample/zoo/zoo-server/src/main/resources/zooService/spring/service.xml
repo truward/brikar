@@ -12,9 +12,11 @@
   <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="locations">
       <util:list>
-        <value>classpath:/settings/core.properties</value>
+        <value>classpath:/zooService/core.properties</value>
         <value>${brikar.settings.path}</value>
       </util:list>
     </property>
   </bean>
+
+  <import resource="classpath:/spring/default-service-security.xml"/>
 </beans>

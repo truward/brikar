@@ -8,9 +8,15 @@ import javax.annotation.Nonnull;
  * @author Alexander Shabanov
  */
 public abstract class AbstractArgParser<A extends StartArgs> {
-  public AbstractArgParser(@Nonnull String[] args) {
+  public static final int DEFAULT_PORT = 8080;
+
+  public AbstractArgParser(@Nonnull String[] args, @Nonnull String defaultConfigPath) {
     Assert.notNull(args, "args");
+    Assert.notNull(defaultConfigPath, "defaultConfigPath");
+
     this.args = args;
+    this.defaultConfigPath = defaultConfigPath;
+    this.configPath = defaultConfigPath;
   }
 
   public final int parse() {
@@ -41,22 +47,22 @@ public abstract class AbstractArgParser<A extends StartArgs> {
   //
 
   private final String[] args;
-  protected int pos = 0;
+  private final String defaultConfigPath;
   protected boolean readyToStart;
-  protected int port = StartArgs.DEFAULT_PORT;
-  protected String configPath = StartArgs.DEFAULT_CONFIG_PATH;
+  protected int port = DEFAULT_PORT;
+  protected String configPath;
 
 
   private void showHelp() {
     System.out.println("Usage:\n" +
         "--help,-h        Show help.\n" +
-        "--port {NUMBER}  Port number, default value=" + StartArgs.DEFAULT_PORT + "\n" +
-        "--config {PATH}  Path to config file, default value=" + StartArgs.DEFAULT_CONFIG_PATH + "\n" +
+        "--port {NUMBER}  Port number, default value=" + DEFAULT_PORT + "\n" +
+        "--config {PATH}  Path to config file, default value=" + defaultConfigPath + "\n" +
         "\n");
   }
 
   @Nonnull
-  private String argValue(String valueName) {
+  private String argValue(int pos, String valueName) {
     int nextPos = pos + 1;
     if (nextPos < args.length) {
       pos = nextPos;
@@ -66,33 +72,35 @@ public abstract class AbstractArgParser<A extends StartArgs> {
   }
 
   private int doParse() {
-    while (pos < args.length) {
-      if ("--help".equals(args[pos]) || "-h".equals(args[pos])) {
+    // try find help switch (position doesn't matter, it overrides anything)
+    for (final String arg : args) {
+      if ("--help".equals(arg) || "-h".equals(arg)) {
         showHelp();
         return 0;
       }
+    }
 
-      if (!parseCurrentArg()) {
+    // parse arguments
+    for (int pos = 0; pos < args.length; ++pos) {
+      if (!parseCurrentArg(pos)) {
         showHelp();
         return -1;
       }
-
-      ++pos; // go to the next position
     }
 
     readyToStart = true;
     return 0;
   }
 
-  protected boolean parseCurrentArg() {
+  protected boolean parseCurrentArg(int pos) {
     if ("--port".equals(args[pos])) {
       try {
-        port = Integer.parseInt(argValue("port number"));
+        port = Integer.parseInt(argValue(pos, "port number"));
       } catch (NumberFormatException e) {
         throw new IllegalStateException("Unable to parse port number", e);
       }
     } else if ("--config".equals(args[pos])) {
-      configPath = argValue("config location");
+      configPath = argValue(pos, "config location");
     }
 
     return true;

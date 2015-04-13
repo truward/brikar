@@ -7,8 +7,8 @@ import javax.annotation.Nonnull;
  */
 public final class StandardArgParser extends AbstractArgParser<StartArgs> {
 
-  public StandardArgParser(@Nonnull String[] args) {
-    super(args);
+  public StandardArgParser(@Nonnull String[] args, @Nonnull String defaultConfigPath) {
+    super(args, defaultConfigPath);
   }
 
   @Override

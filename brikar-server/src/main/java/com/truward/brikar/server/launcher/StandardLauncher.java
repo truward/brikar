@@ -8,6 +8,7 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.springframework.util.Assert;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -23,9 +24,18 @@ import java.util.List;
  */
 public class StandardLauncher {
   private ServletContextHandler contextHandler;
+  private String defaultDirPrefix;
+
+  public StandardLauncher(@Nonnull String defaultDirPrefix) {
+    setDefaultDirPrefix(defaultDirPrefix);
+  }
+
+  public StandardLauncher() {
+    this("classpath:/");
+  }
 
   public final void start(@Nonnull String[] args) throws Exception {
-    final StandardArgParser argParser = new StandardArgParser(args);
+    final StandardArgParser argParser = new StandardArgParser(args, defaultDirPrefix + "default.properties");
     final int result = argParser.parse();
     if (result != 0) {
       System.exit(result);
@@ -40,6 +50,13 @@ public class StandardLauncher {
     startServer(argParser.getStartArgs());
   }
 
+  @Nonnull
+  public StandardLauncher setDefaultDirPrefix(@Nonnull String defaultDirPrefix) {
+    Assert.notNull(defaultDirPrefix, "defaultDirPrefix can't be null");
+    this.defaultDirPrefix = defaultDirPrefix;
+    return this;
+  }
+
   //
   // Protected
   //
@@ -50,12 +67,12 @@ public class StandardLauncher {
 
   @Nonnull
   protected String getSpringContextLocations() {
-    return "classpath:/spring/service.xml";
+    return defaultDirPrefix + "spring/service.xml";
   }
 
   @Nonnull
   protected String getDispatcherServletConfigLocations() {
-    return "classpath:/spring/webmvc.xml";
+    return defaultDirPrefix + "spring/webmvc.xml";
   }
 
   protected boolean isSpringSecurityEnabled() {

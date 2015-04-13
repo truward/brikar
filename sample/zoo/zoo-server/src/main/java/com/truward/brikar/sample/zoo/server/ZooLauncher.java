@@ -5,15 +5,13 @@ import com.truward.brikar.server.launcher.StandardLauncher;
 /**
  * @author Alexander Shabanov
  */
-public final class ZooLauncher {
+public final class ZooLauncher extends StandardLauncher {
   public static void main(String[] args) throws Exception {
-    final StandardLauncher launcher = new StandardLauncher() {
-      @Override
-      protected boolean isSpringSecurityEnabled() {
-        return true;
-      }
-    };
+    new ZooLauncher().setDefaultDirPrefix("classpath:/zooService/").start(args);
+  }
 
-    launcher.start(args);
+  @Override
+  protected boolean isSpringSecurityEnabled() {
+    return true;
   }
 }

@@ -16,7 +16,7 @@ public final class StandardArgParserTest {
   public void shouldParseArgs() {
     // Given:
     final String[] args = { "--port", "5555", "--config", "cfgfile" };
-    final StandardArgParser argParser = new StandardArgParser(args);
+    final StandardArgParser argParser = new StandardArgParser(args, "classpath:/");
 
     // When:
     final int result = argParser.parse();
