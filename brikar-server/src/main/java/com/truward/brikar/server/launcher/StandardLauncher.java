@@ -27,6 +27,9 @@ public class StandardLauncher {
   private String defaultDirPrefix;
 
   public StandardLauncher(@Nonnull String defaultDirPrefix) {
+    // Loggers need to be configured as soon as possible, otherwise jetty will use its own default logger
+    configureLoggers();
+
     setDefaultDirPrefix(defaultDirPrefix);
   }
 
@@ -35,8 +38,6 @@ public class StandardLauncher {
   }
 
   public final void start(@Nonnull String[] args) throws Exception {
-    configureLoggers();
-
     final StandardArgParser argParser = new StandardArgParser(args, defaultDirPrefix + "default.properties");
     final int result = argParser.parse();
     if (result != 0) {
