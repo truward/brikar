@@ -3,8 +3,11 @@ package com.truward.brikar.server.auth;
 import org.springframework.util.Assert;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
 import java.util.List;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.unmodifiableList;
 
 /**
  * Represents a simple user account data. Password is not encrypted and stored in the clear text.
@@ -12,8 +15,8 @@ import java.util.List;
  * @author Alexander Shabanov
  */
 public final class SimpleServiceUser {
-  private static final String ROLE_USER = "ROLE_USER";
-  private static final List<String> DEFAULT_ROLES = Collections.unmodifiableList(Collections.singletonList(ROLE_USER));
+  public static final String ROLE_USER = "ROLE_USER";
+  public static final List<String> DEFAULT_ROLES = unmodifiableList(singletonList(ROLE_USER));
 
   private final String username;
   private final String password;
@@ -22,9 +25,10 @@ public final class SimpleServiceUser {
   public SimpleServiceUser(@Nonnull  String username, @Nonnull String password, @Nonnull List<String> roles) {
     Assert.notNull(username, "username");
     Assert.notNull(password, "password");
+    Assert.notNull(roles, "roles");
     this.username = username;
     this.password = password;
-    this.roles = roles;
+    this.roles = unmodifiableList(asList(roles.toArray(new String[roles.size()])));
   }
 
   public SimpleServiceUser(@Nonnull  String username, @Nonnull String password) {
@@ -54,7 +58,6 @@ public final class SimpleServiceUser {
     SimpleServiceUser that = (SimpleServiceUser) o;
 
     return password.equals(that.password) && roles.equals(that.roles) && username.equals(that.username);
-
   }
 
   @Override
