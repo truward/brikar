@@ -4,7 +4,7 @@ todo
 TODO Sample.
 
 ```
-curl -u testonly:test -H 'Accept: application/json' http://127.0.0.1:8080/rest/todo/items -s | python -mjson.tool
+curl -u todoServiceUser:todoPassword -H 'Accept: application/json' http://127.0.0.1:8080/rest/todo/items -s | python -mjson.tool
 ```
 
 Results in:

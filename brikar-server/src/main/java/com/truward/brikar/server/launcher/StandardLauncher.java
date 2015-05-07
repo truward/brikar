@@ -2,12 +2,18 @@ package com.truward.brikar.server.launcher;
 
 import com.truward.brikar.server.args.StandardArgParser;
 import com.truward.brikar.server.args.StartArgs;
+import com.truward.brikar.server.auth.SimpleAuthenticatorUtil;
+import com.truward.brikar.server.auth.SimpleServiceUser;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.Assert;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.filter.DelegatingFilterProxy;
@@ -15,6 +21,9 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 import javax.annotation.Nonnull;
 import javax.servlet.DispatcherType;
+import java.io.File;
+import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -25,6 +34,8 @@ import java.util.List;
 public class StandardLauncher {
   private ServletContextHandler contextHandler;
   private String defaultDirPrefix;
+  private boolean simpleSecurityEnabled;
+  private String authPropertiesPrefix = "auth";
 
   public StandardLauncher(@Nonnull String defaultDirPrefix) {
     // Loggers need to be configured as soon as possible, otherwise jetty will use its own default logger
@@ -35,6 +46,18 @@ public class StandardLauncher {
 
   public StandardLauncher() {
     this("classpath:/");
+  }
+
+  @Nonnull
+  public StandardLauncher setSimpleSecurityEnabled(boolean enabled) {
+    this.simpleSecurityEnabled = enabled;
+    return this;
+  }
+
+  @Nonnull
+  public StandardLauncher setAuthPropertiesPrefix(@Nonnull String authPropertiesPrefix) {
+    this.authPropertiesPrefix = authPropertiesPrefix;
+    return this;
   }
 
   public final void start(@Nonnull String[] args) throws Exception {
@@ -63,6 +86,11 @@ public class StandardLauncher {
   //
   // Protected
   //
+
+  @Nonnull
+  protected Logger getLogger() {
+    return LoggerFactory.getLogger(getClass());
+  }
 
   protected void configureLoggers() {
     System.setProperty("logback.configurationFile", "default-service-logback.xml");
@@ -110,6 +138,46 @@ public class StandardLauncher {
     final ServletHolder dispatcherServlet = contextHandler.addServlet(DispatcherServlet.class,
         "/g/*,/rest/*,/j_spring_security_check");
     dispatcherServlet.setInitParameter("contextConfigLocation", getDispatcherServletConfigLocations());
+
+    if (simpleSecurityEnabled) {
+      initSimpleSecurity(contextHandler);
+    }
+  }
+
+  protected void initSimpleSecurity(@Nonnull ServletContextHandler contextHandler) {
+    try {
+      contextHandler.setSecurityHandler(SimpleAuthenticatorUtil.newSecurityHandler(getSimpleServiceUsers()));
+    } catch (IOException e) {
+      throw new IllegalStateException("Can't initialize simple security", e);
+    }
+  }
+
+  @Nonnull
+  protected List<SimpleServiceUser> getSimpleServiceUsers() throws IOException {
+    // [1] Try to use system variable
+    String path = System.getProperty("brikar.settings.simpleSecuritySettingsFile");
+    if (path != null) {
+      return SimpleAuthenticatorUtil.loadUsers(new File(path), authPropertiesPrefix);
+    }
+
+    // [2] Try to load from the default location
+    final String authResourceLocation = defaultDirPrefix + "auth.properties";
+    getLogger().info("Simple security: trying to load users from {}", authResourceLocation);
+    final ResourceLoader loader = new DefaultResourceLoader();
+    final org.springframework.core.io.Resource resource = loader.getResource(authResourceLocation);
+    if (resource.exists()) {
+      return SimpleAuthenticatorUtil.loadUsers(resource.getInputStream(),
+          SimpleAuthenticatorUtil.DEFAULT_CHARSET, authPropertiesPrefix);
+    } else {
+      getLogger().warn("Simple security: missing configuration at {}", authResourceLocation);
+    }
+
+    // [3] Fallback: there is no settings, use default username and generate password on the fly
+    final SecureRandom random = new SecureRandom();
+    final String username = "serviceuser";
+    final String password = Long.toHexString(random.nextLong());
+    getLogger().warn("Simple security: using username={} and password={}", username, password);
+    return Collections.singletonList(new SimpleServiceUser(username, password));
   }
 
   //

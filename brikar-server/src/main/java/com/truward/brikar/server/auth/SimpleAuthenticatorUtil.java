@@ -28,6 +28,16 @@ public final class SimpleAuthenticatorUtil {
 
   public static final String DEFAULT_REALM_NAME = "defaultRealm";
 
+  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+
+  /**
+   * Creates a handler for jetty server with the given list of users.
+   * The list of users can be conveniently loaded by using the other method in
+   * this utility class: {@link #loadUsers(Reader, String)}.
+   *
+   * @param users List of user entries
+   * @return Jetty security handler
+   */
   @Nonnull
   public static SecurityHandler newSecurityHandler(@Nonnull List<SimpleServiceUser> users) {
     final HashLoginService loginService = new HashLoginService();
@@ -59,13 +69,47 @@ public final class SimpleAuthenticatorUtil {
     return csh;
   }
 
+  /**
+   * Loads user records from a given reader.
+   * The text stream produced by reader should contain records in java properties format (see also {@link Properties}).
+   * Each property related to authorization entries should be prefixed. This prefix should be passed as
+   * a second parameter to this method, {@code authPropertiesPrefix}.
+   *
+   * <p>
+   * Example of property file:
+   * <code>
+   *   myService.auth.1.username=alice
+   *   myService.auth.1.password=test
+   *   myService.auth.1.roles=ROLE_USER, ROLE_ADMIN
+   *
+   *   myService.auth.1.username=bob
+   *   myService.auth.1.password=password
+   * </code>
+   *
+   * Sample call that would read {@code alice} and {@code bob} user entries from a sample property file given above:
+   * <code>
+   *   users = loadUsers(reader, "myService.auth");
+   * </code>
+   * </p>
+   *
+   * <p>
+   * Note: if {@code .roles} property entry is missing for a user, the default value will be used, which is a list
+   * of single element which is {@code ROLE_USER}.
+   * See also {@link SimpleServiceUser}.
+   * </p>
+   *
+   * @param reader Reader instance, that produces text content in a java properties format
+   * @param authPropertiesPrefix Prefix for properties in a given reader, that should be treated as user record entries
+   * @return List of the parsed user entries
+   * @throws IOException On I/O or parsing error
+   */
   @Nonnull
   public static List<SimpleServiceUser> loadUsers(@Nonnull Reader reader,
-                                                  @Nonnull String authEntryPrefix) throws IOException {
+                                                  @Nonnull String authPropertiesPrefix) throws IOException {
     final Properties properties = new Properties();
     properties.load(reader);
 
-    final PropertyEntrySink sink = new PropertyEntrySink(authEntryPrefix);
+    final PropertyEntrySink sink = new PropertyEntrySink(authPropertiesPrefix);
 
     for (final Map.Entry<?, ?> entry : properties.entrySet()) {
       final Object key = entry.getKey();
@@ -80,20 +124,27 @@ public final class SimpleAuthenticatorUtil {
   }
 
   @Nonnull
-  public static List<SimpleServiceUser> loadUsers(@Nonnull File file,
+  public static List<SimpleServiceUser> loadUsers(@Nonnull InputStream inputStream,
                                                   @Nonnull Charset charset,
-                                                  @Nonnull String authEntryPrefix) throws IOException {
-    try (final FileInputStream fs = new FileInputStream(file)) {
-      try (final InputStreamReader reader = new InputStreamReader(fs, charset)) {
-        return loadUsers(reader, authEntryPrefix);
-      }
+                                                  @Nonnull String authPropertiesPrefix) throws IOException {
+    try (final InputStreamReader reader = new InputStreamReader(inputStream, charset)) {
+      return loadUsers(reader, authPropertiesPrefix);
     }
   }
 
   @Nonnull
   public static List<SimpleServiceUser> loadUsers(@Nonnull File file,
-                                                  @Nonnull String authEntryPrefix) throws IOException {
-    return loadUsers(file, StandardCharsets.UTF_8, authEntryPrefix);
+                                                  @Nonnull Charset charset,
+                                                  @Nonnull String authPropertiesPrefix) throws IOException {
+    try (final FileInputStream fs = new FileInputStream(file)) {
+      return loadUsers(fs, charset, authPropertiesPrefix);
+    }
+  }
+
+  @Nonnull
+  public static List<SimpleServiceUser> loadUsers(@Nonnull File file,
+                                                  @Nonnull String authPropertiesPrefix) throws IOException {
+    return loadUsers(file, DEFAULT_CHARSET, authPropertiesPrefix);
   }
 
   //
@@ -101,30 +152,30 @@ public final class SimpleAuthenticatorUtil {
   //
 
   private static final class PropertyEntrySink {
-    private final String authEntryPrefix;
+    private final String authPropertiesPrefix;
     private final Map<String, MutableUserEntry> codeToMutableEntryMap = new HashMap<>();
 
-    public PropertyEntrySink(@Nonnull String authEntryPrefix) {
-      this.authEntryPrefix = authEntryPrefix;
+    public PropertyEntrySink(@Nonnull String authPropertiesPrefix) {
+      this.authPropertiesPrefix = authPropertiesPrefix;
     }
 
     public void putEntry(@Nonnull String key, @Nonnull String value) {
-      if (!key.startsWith(authEntryPrefix)) {
+      if (!key.startsWith(authPropertiesPrefix)) {
         return;
       }
 
       if (key.length() < getExpectedEntryLength()) {
-        getLogger().warn("Matched prefix {} in key {} but wrong length", authEntryPrefix, key); // unlikely
+        getLogger().warn("Matched prefix {} in key {} but wrong length", authPropertiesPrefix, key); // unlikely
         return;
       }
 
-      final int codeSep = key.indexOf('.', authEntryPrefix.length() + 1); // prefix + dot
+      final int codeSep = key.indexOf('.', authPropertiesPrefix.length() + 1); // prefix + dot
       if (codeSep < 0) {
         getLogger().warn("Malformed entry {}={}", key, value); // unlikely
         return;
       }
 
-      final String code = key.substring(authEntryPrefix.length() + 1, codeSep);
+      final String code = key.substring(authPropertiesPrefix.length() + 1, codeSep);
       final String fieldName = key.substring(codeSep + 1);
 
       MutableUserEntry e = codeToMutableEntryMap.get(code);
@@ -175,7 +226,7 @@ public final class SimpleAuthenticatorUtil {
     }
 
     private int getExpectedEntryLength() {
-      return authEntryPrefix.length() + 4; // {prefix} + dot + code + dot + propertyname
+      return authPropertiesPrefix.length() + 4; // {prefix} + dot + code + dot + propertyname
     }
 
     private static final class MutableUserEntry {
@@ -183,5 +234,5 @@ public final class SimpleAuthenticatorUtil {
       private String password = "";
       private List<String> roles = SimpleServiceUser.DEFAULT_ROLES;
     }
-  }
+  } // class PropertyEntrySink
 }
