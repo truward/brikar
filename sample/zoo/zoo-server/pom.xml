@@ -5,7 +5,7 @@
   <parent>
     <artifactId>zoo</artifactId>
     <groupId>com.truward.brikar.sample</groupId>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.8-SNAPSHOT</version>
   </parent>
 
   <artifactId>zoo-server</artifactId>

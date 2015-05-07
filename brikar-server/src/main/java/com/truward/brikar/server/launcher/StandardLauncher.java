@@ -13,6 +13,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.Assert;
 import org.springframework.web.context.ContextLoaderListener;
@@ -24,6 +25,7 @@ import javax.servlet.DispatcherType;
 import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -61,7 +63,7 @@ public class StandardLauncher {
   }
 
   public final void start(@Nonnull String[] args) throws Exception {
-    final StandardArgParser argParser = new StandardArgParser(args, defaultDirPrefix + "default.properties");
+    final StandardArgParser argParser = new StandardArgParser(args, getDefaultConfigPath());
     final int result = argParser.parse();
     if (result != 0) {
       System.exit(result);
@@ -86,6 +88,11 @@ public class StandardLauncher {
   //
   // Protected
   //
+
+  @Nonnull
+  protected String getDefaultConfigPath() {
+    return defaultDirPrefix + "default.properties";
+  }
 
   @Nonnull
   protected Logger getLogger() {
@@ -154,30 +161,40 @@ public class StandardLauncher {
 
   @Nonnull
   protected List<SimpleServiceUser> getSimpleServiceUsers() throws IOException {
-    // [1] Try to use system variable
-    String path = System.getProperty("brikar.settings.simpleSecuritySettingsFile");
-    if (path != null) {
-      return SimpleAuthenticatorUtil.loadUsers(new File(path), authPropertiesPrefix);
-    }
-
-    // [2] Try to load from the default location
-    final String authResourceLocation = defaultDirPrefix + "auth.properties";
-    getLogger().info("Simple security: trying to load users from {}", authResourceLocation);
-    final ResourceLoader loader = new DefaultResourceLoader();
-    final org.springframework.core.io.Resource resource = loader.getResource(authResourceLocation);
-    if (resource.exists()) {
-      return SimpleAuthenticatorUtil.loadUsers(resource.getInputStream(),
-          SimpleAuthenticatorUtil.DEFAULT_CHARSET, authPropertiesPrefix);
-    } else {
-      getLogger().warn("Simple security: missing configuration at {}", authResourceLocation);
+    for (final String path : getSimpleServiceResourcePaths()) {
+      getLogger().info("Simple security: trying to load users from {}", path);
+      final ResourceLoader loader = new DefaultResourceLoader();
+      final Resource resource = loader.getResource(path);
+      if (resource.exists()) {
+        return SimpleAuthenticatorUtil.loadUsers(resource.getInputStream(),
+            SimpleAuthenticatorUtil.DEFAULT_CHARSET, authPropertiesPrefix);
+      } else {
+        getLogger().info("Simple security: missing configuration at {}", path);
+      }
     }
 
     // [3] Fallback: there is no settings, use default username and generate password on the fly
     final SecureRandom random = new SecureRandom();
     final String username = "serviceuser";
     final String password = Long.toHexString(random.nextLong());
-    getLogger().warn("Simple security: using username={} and password={}", username, password);
+    getLogger().warn("Simple security: no predefined configuration; using username={} and password={}", username, password);
     return Collections.singletonList(new SimpleServiceUser(username, password));
+  }
+
+  @Nonnull
+  protected List<String> getSimpleServiceResourcePaths() {
+    final List<String> result = new ArrayList<>(2);
+
+    // Property override for simple security
+    final String path = System.getProperty("brikar.settings.simpleSecuritySettingsFile");
+    if (path != null) {
+      result.add(path);
+    }
+
+    // Default configuration path
+    result.add(getDefaultConfigPath());
+
+    return result;
   }
 
   //
