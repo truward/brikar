@@ -1,6 +1,8 @@
 todo
 ====
 
+## Demo Request
+
 TODO Sample.
 
 ```
@@ -18,4 +20,27 @@ Results in:
         }
     ]
 }
+```
+
+## Quick Start
+
+Prepare properties file:
+
+```
+echo "
+todoService.auth.demoUser.username=demo-todo-user
+todoService.auth.demoUser.password=Par12341wqwe
+" > /tmp/todo.properties
+```
+
+In todo-server start application:
+
+```
+mvn exec:java -Dexec.args="--port 9050 --config file:///tmp/todo.propties"
+```
+
+Then invoke test API:
+
+```
+curl -u demo-todo-user:Par12341wqwe -H 'Accept: application/json' http://127.0.0.1:9050/rest/todo/items -s | python -mjson.tool
 ```

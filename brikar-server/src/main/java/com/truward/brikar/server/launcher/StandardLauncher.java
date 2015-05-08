@@ -21,9 +21,10 @@ import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.DispatcherType;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,12 +38,15 @@ public class StandardLauncher {
   private ServletContextHandler contextHandler;
   private String defaultDirPrefix;
   private boolean simpleSecurityEnabled;
+  private String simpleSecurityOverridePath;
   private String authPropertiesPrefix = "auth";
+  private String configPath;
 
   public StandardLauncher(@Nonnull String defaultDirPrefix) {
     // Loggers need to be configured as soon as possible, otherwise jetty will use its own default logger
     configureLoggers();
 
+    setSimpleSecurityOverridePath(null);
     setDefaultDirPrefix(defaultDirPrefix);
   }
 
@@ -53,6 +57,12 @@ public class StandardLauncher {
   @Nonnull
   public StandardLauncher setSimpleSecurityEnabled(boolean enabled) {
     this.simpleSecurityEnabled = enabled;
+    return this;
+  }
+
+  @Nonnull
+  public StandardLauncher setSimpleSecurityOverridePath(@Nullable String simpleSecurityOverridePath) {
+    this.simpleSecurityOverridePath = simpleSecurityOverridePath;
     return this;
   }
 
@@ -84,6 +94,16 @@ public class StandardLauncher {
     this.defaultDirPrefix = defaultDirPrefix;
     return this;
   }
+
+  @Nonnull
+  public String getConfigPath() {
+    final String configPath = this.configPath;
+    if (configPath == null) {
+      return getDefaultConfigPath();
+    }
+    return configPath;
+  }
+
 
   //
   // Protected
@@ -161,19 +181,23 @@ public class StandardLauncher {
 
   @Nonnull
   protected List<SimpleServiceUser> getSimpleServiceUsers() throws IOException {
+    final ResourceLoader loader = new DefaultResourceLoader();
     for (final String path : getSimpleServiceResourcePaths()) {
       getLogger().info("Simple security: trying to load users from {}", path);
-      final ResourceLoader loader = new DefaultResourceLoader();
+
       final Resource resource = loader.getResource(path);
-      if (resource.exists()) {
-        return SimpleAuthenticatorUtil.loadUsers(resource.getInputStream(),
-            SimpleAuthenticatorUtil.DEFAULT_CHARSET, authPropertiesPrefix);
-      } else {
+      if (!resource.exists()) {
         getLogger().info("Simple security: missing configuration at {}", path);
+        continue;
+      }
+
+      try (final InputStream is = resource.getInputStream()) {
+        return SimpleAuthenticatorUtil.loadUsers(is, SimpleAuthenticatorUtil.DEFAULT_CHARSET, authPropertiesPrefix);
       }
     }
 
-    // [3] Fallback: there is no settings, use default username and generate password on the fly
+    // fallback: there is no settings, use default username and generate password on the fly
+    // normally this is not something service owner should rely on
     final SecureRandom random = new SecureRandom();
     final String username = "serviceuser";
     final String password = Long.toHexString(random.nextLong());
@@ -183,7 +207,12 @@ public class StandardLauncher {
 
   @Nonnull
   protected List<String> getSimpleServiceResourcePaths() {
-    final List<String> result = new ArrayList<>(2);
+    final List<String> result = new ArrayList<>(3);
+
+    // Explicit path override
+    if (simpleSecurityOverridePath != null) {
+      result.add(simpleSecurityOverridePath);
+    }
 
     // Property override for simple security
     final String path = System.getProperty("brikar.settings.simpleSecuritySettingsFile");
@@ -192,7 +221,7 @@ public class StandardLauncher {
     }
 
     // Default configuration path
-    result.add(getDefaultConfigPath());
+    result.add(getConfigPath());
 
     return result;
   }
@@ -202,7 +231,8 @@ public class StandardLauncher {
   //
 
   private void startServer(@Nonnull StartArgs startArgs) throws Exception {
-    System.setProperty("brikar.settings.path", startArgs.getConfigPath());
+    this.configPath = startArgs.getConfigPath();
+    System.setProperty("brikar.settings.path", configPath);
 
     final Server server = new Server(startArgs.getPort());
     server.setSendServerVersion(false);
