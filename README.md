@@ -10,7 +10,7 @@ Add jar dependency in your pom.xml:
 
 ```xml
 <!-- in properties: -->
-<brikar.version>1.0.2</brikar.version>
+<brikar.version>1.0.8</brikar.version>
 <!-- ... skipped ... -->
 
 <dependency>
