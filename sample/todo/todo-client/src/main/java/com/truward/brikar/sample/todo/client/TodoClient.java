@@ -3,6 +3,7 @@ package com.truward.brikar.sample.todo.client;
 import com.truward.brikar.client.rest.support.StandardRestBinder;
 import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
 import com.truward.brikar.sample.todo.model.TodoModel;
+import com.truward.brikar.sample.todo.model.TodoQueryService;
 import com.truward.brikar.sample.todo.model.TodoRestService;
 
 import java.io.BufferedReader;
@@ -26,9 +27,14 @@ public final class TodoClient {
           .setUri(URI.create("http://127.0.0.1:8080/rest/todo"))
           .build();
 
+      final TodoQueryService queryService = restBinder.newClient(TodoQueryService.class)
+          .setUsername("todoServiceUser").setPassword("todoPassword")
+          .setUri(URI.create("http://127.0.0.1:8080/rest/todo"))
+          .build();
+
       if (args.length > 0 && "--repl".equals(args[0])) {
         try (final BufferedReader r = new BufferedReader(new InputStreamReader(System.in))) {
-          startRepl(r, service);
+          startRepl(r, service, queryService);
         }
       } else {
         printAllItems(service);
@@ -37,10 +43,12 @@ public final class TodoClient {
   }
 
   private static void printHelp() {
-    System.out.println("Commands: help, printTime, quit, getAllItems");
+    System.out.println("Commands: help, printTime, quit, getAllItems, getItem0, getItem1, queryItems");
   }
 
-  private static void startRepl(BufferedReader r, TodoRestService service) throws IOException {
+  private static void startRepl(BufferedReader r,
+                                TodoRestService service,
+                                TodoQueryService queryService) throws IOException {
     final SimpleDateFormat format = new SimpleDateFormat("YYYY-MM-dd hh:mm:ss");
     for (;;) {
       System.out.print("[" + format.format(new Date()) + "] > ");
@@ -59,6 +67,18 @@ public final class TodoClient {
           printAllItems(service);
           break;
 
+        case "getItem0":
+          printItem(service, 0);
+          break;
+
+        case "getItem1":
+          printItem(service, 1);
+          break;
+
+        case "queryItems":
+          queryItems(queryService);
+          break;
+
         case "quit":case "exit":
           return;
 
@@ -66,6 +86,26 @@ public final class TodoClient {
           System.out.println("Unknown command: " + line);
           printHelp();
       }
+    }
+  }
+
+  private static void queryItems(TodoQueryService queryService) {
+    try {
+      final TodoModel.ItemList items = queryService.queryItems();
+      System.out.println("queryService.queryItems() = " + items);
+    } catch (Exception e) {
+      System.err.println("Service call failed");
+      e.printStackTrace(System.err);
+    }
+  }
+
+  private static void printItem(TodoRestService service, int pos) {
+    try {
+      final TodoModel.Item item = service.getItem(pos);
+      System.out.println("service.getItem(" + pos + ") = " + item);
+    } catch (Exception e) {
+      System.err.println("Service call failed");
+      e.printStackTrace(System.err);
     }
   }
 

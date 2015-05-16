@@ -10,6 +10,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.DisposableBean;
@@ -139,9 +140,9 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
   }
 
   protected void initRetryHandler(@Nonnull HttpClientBuilder builder) {
-    final HttpRequestRetryHandler retryHandler = this.retryHandler;
+    HttpRequestRetryHandler retryHandler = this.retryHandler;
     if (retryHandler == null) {
-      return;
+      retryHandler = new DefaultHttpRequestRetryHandler(3, true);
     }
 
     builder.setRetryHandler(retryHandler);
