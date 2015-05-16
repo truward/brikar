@@ -8,6 +8,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -22,22 +23,66 @@ import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
+ * Default implementation of {@link RestBinder}, adapted for spring framework.
+ *
+ * TODO: use a flag that will tell to use optional gzip compression.
+ * TODO: use default backoff strategy (e.g. retry for NoHttpResponseException)
+ * TODO:      ^-- See also https://github.com/truward/brikar/issues/4
+ *
  * @author Alexander Shabanov
  */
 public class StandardRestBinder implements RestBinder, InitializingBean, DisposableBean, AutoCloseable {
+  /**
+   * Default connection ttl setting. Should be less than server we're going to use.
+   * Since this class is intended to be used mostly for interacting with brikar services, this TTL
+   * setting should be set keeping in mind default 'keep alive' settings in brikar-server module.
+   *
+   * Since we're using jetty and default jetty's TTL is defined to 200000 - see _maxIdleTime in
+   * org.eclipse.jetty.server.AbstractConnector class.
+   *
+   * We're picking slightly smaller value here to use jetty's resources in the most efficient way.
+   */
+  public static final long DEFAULT_CONNECTION_TTL = 60000L;
+
   private final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
   private RestServiceBinder restServiceBinder;
   private final List<HttpMessageConverter<?>> messageConverters;
   private HttpComponentsClientHttpRequestFactory httpRequestFactory;
+  private long connectionTtlMillis;
+  private HttpRequestRetryHandler retryHandler;
 
   public StandardRestBinder(@Nonnull List<HttpMessageConverter<?>> messageConverters) {
     this.messageConverters = messageConverters;
+    setConnectionTtlMillis(DEFAULT_CONNECTION_TTL);
+    setRetryHandler(null);
   }
 
   public StandardRestBinder(@Nonnull HttpMessageConverter<?>... messageConverters) {
     this(Arrays.asList(messageConverters));
+  }
+
+  /**
+   * If set before bean is initialized, instructs to use the provided connection time to live value
+   * that should be given in milliseconds.
+   * If the provided value is negative, then no value will be set and default http client connection TTL settings will
+   * be used which sets TTL to infitity.
+   *
+   * @param connectionTtlMillis Connection time to live, in milliseconds.
+   */
+  public void setConnectionTtlMillis(long connectionTtlMillis) {
+    this.connectionTtlMillis = connectionTtlMillis;
+  }
+
+  /**
+   * Sets retry handler, that should be used for handling connectivity issues.
+   *
+   * @param retryHandler Retry handler
+   */
+  public void setRetryHandler(@Nullable HttpRequestRetryHandler retryHandler) {
+    this.retryHandler = retryHandler;
   }
 
   @Nonnull
@@ -52,7 +97,7 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
   @Override
   public void afterPropertiesSet() {
     final HttpClientBuilder builder = HttpClientBuilder.create();
-    initHttpClientBuilder(builder);
+    initDefaultHttpClientBuilder(builder);
 
     httpRequestFactory = new HttpComponentsClientHttpRequestFactory(builder.build());
     final RestTemplate restTemplate = new RestTemplate(httpRequestFactory);
@@ -78,8 +123,34 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
   // Protected
   //
 
-  protected void initHttpClientBuilder(@Nonnull HttpClientBuilder httpClientBuilder) {
-    httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+  protected void initTimings(@Nonnull HttpClientBuilder builder) {
+    // copy settings
+    final long connTtl = this.connectionTtlMillis;
+    if (connTtl >= 0) {
+      // don't store connection for more than given amount of milliseconds
+      builder.setConnectionTimeToLive(connTtl, TimeUnit.MILLISECONDS);
+    }
+    builder.setMaxConnTotal(100);
+  }
+
+  protected void initCredentialsProvider(@Nonnull HttpClientBuilder builder) {
+    // use builtin credentials provider
+    builder.setDefaultCredentialsProvider(credentialsProvider);
+  }
+
+  protected void initRetryHandler(@Nonnull HttpClientBuilder builder) {
+    final HttpRequestRetryHandler retryHandler = this.retryHandler;
+    if (retryHandler == null) {
+      return;
+    }
+
+    builder.setRetryHandler(retryHandler);
+  }
+
+  protected void initDefaultHttpClientBuilder(@Nonnull HttpClientBuilder builder) {
+    initTimings(builder);
+    initCredentialsProvider(builder);
+    initRetryHandler(builder);
   }
 
   protected void initRestTemplate(@Nonnull RestTemplate restTemplate) {
@@ -139,7 +210,7 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
       }
 
       if (username != null && password != null) {
-        this.credentialsProvider.setCredentials(new AuthScope(
+        credentialsProvider.setCredentials(new AuthScope(
                 new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme())),
             new UsernamePasswordCredentials(username, password));
       }

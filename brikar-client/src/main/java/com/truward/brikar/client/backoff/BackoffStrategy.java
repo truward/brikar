@@ -6,8 +6,12 @@ import javax.annotation.Nonnull;
  * Represents an abstraction for backoff strategy (e.g. for retries).
  * See also <a href="http://en.wikipedia.org/wiki/Exponential_backoff">Exponential Backoff</a>.
  *
+ * TODO: use standard retry mechanism, which is builtin to apache's http client.
+ * TODO: See also HttpRequestRetryHandler.
+ *
  * @author Alexander Shabanov
  */
+@Deprecated
 public interface BackoffStrategy {
 
   /**

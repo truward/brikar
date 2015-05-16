@@ -5,9 +5,11 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Represents backoff mark.
+ * TODO: use default http client's settings.
  *
  * @author Alexander Shabanov
  */
+@Deprecated
 public interface BackoffMark {
 
   /**
