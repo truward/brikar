@@ -48,7 +48,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <scope>test</scope> <!-- Test scope as it is a library, not app -->
+      <scope>test</scope> <!-- Test scope as it is a library, not an application -->
     </dependency>
   </dependencies>
 </project>

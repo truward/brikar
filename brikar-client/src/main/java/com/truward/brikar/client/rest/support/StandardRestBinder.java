@@ -1,7 +1,7 @@
 package com.truward.brikar.client.rest.support;
 
 import com.truward.brikar.client.binder.RestServiceBinder;
-import com.truward.brikar.client.binder.support.StandardRestServiceBinder;
+import com.truward.brikar.client.binder.RestServiceBinderFactory;
 import com.truward.brikar.client.rest.RestBinder;
 import com.truward.brikar.client.rest.RestClientBuilder;
 import org.apache.http.HttpHost;
@@ -29,10 +29,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Default implementation of {@link RestBinder}, adapted for spring framework.
  *
- * TODO: use a flag that will tell to use optional gzip compression.
- * TODO: use default backoff strategy (e.g. retry for NoHttpResponseException)
- * TODO:      ^-- See also https://github.com/truward/brikar/issues/4
- *
  * @author Alexander Shabanov
  */
 public class StandardRestBinder implements RestBinder, InitializingBean, DisposableBean, AutoCloseable {
@@ -50,15 +46,22 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
 
   private final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
   private RestServiceBinder restServiceBinder;
+  private RestServiceBinderFactory restServiceBinderFactory;
   private final List<HttpMessageConverter<?>> messageConverters;
   private HttpComponentsClientHttpRequestFactory httpRequestFactory;
   private long connectionTtlMillis;
   private HttpRequestRetryHandler retryHandler;
 
-  public StandardRestBinder(@Nonnull List<HttpMessageConverter<?>> messageConverters) {
+  public StandardRestBinder(@Nonnull List<HttpMessageConverter<?>> messageConverters,
+                            @Nonnull RestServiceBinderFactory restServiceBinderFactory) {
     this.messageConverters = messageConverters;
+    setRestServiceBinderFactory(restServiceBinderFactory);
     setConnectionTtlMillis(DEFAULT_CONNECTION_TTL);
     setRetryHandler(null);
+  }
+
+  public StandardRestBinder(@Nonnull List<HttpMessageConverter<?>> messageConverters) {
+    this(messageConverters, RestServiceBinderFactory.DEFAULT);
   }
 
   public StandardRestBinder(@Nonnull HttpMessageConverter<?>... messageConverters) {
@@ -70,6 +73,7 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
    * that should be given in milliseconds.
    * If the provided value is negative, then no value will be set and default http client connection TTL settings will
    * be used which sets TTL to infitity.
+   * <p>Should be set prior to {@link #afterPropertiesSet()}.</p>
    *
    * @param connectionTtlMillis Connection time to live, in milliseconds.
    */
@@ -79,11 +83,23 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
 
   /**
    * Sets retry handler, that should be used for handling connectivity issues.
+   * <p>Should be set prior to {@link #afterPropertiesSet()}.</p>
    *
    * @param retryHandler Retry handler
    */
   public void setRetryHandler(@Nullable HttpRequestRetryHandler retryHandler) {
     this.retryHandler = retryHandler;
+  }
+
+  /**
+   * Sets service binder, that will create a service by given class and RestOperations instance.
+   * <p>Should be set prior to {@link #afterPropertiesSet()}.</p>
+   * <p>See also {@link RestServiceBinder}</p>
+   *
+   * @param factory Factory instance
+   */
+  public void setRestServiceBinderFactory(@Nonnull RestServiceBinderFactory factory) {
+    this.restServiceBinderFactory = factory;
   }
 
   @Nonnull
@@ -104,7 +120,7 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
     final RestTemplate restTemplate = new RestTemplate(httpRequestFactory);
     initRestTemplate(restTemplate);
 
-    this.restServiceBinder = new StandardRestServiceBinder(restTemplate);
+    restServiceBinder = restServiceBinderFactory.create(restTemplate);
   }
 
   @Override
@@ -116,7 +132,7 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
   }
 
   @Override
-  public void destroy() throws Exception {
+  public void destroy() {
     close();
   }
 

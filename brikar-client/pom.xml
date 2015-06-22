@@ -53,6 +53,10 @@
       <groupId>com.truward.brikar.protobuf</groupId>
       <artifactId>brikar-protobuf-test</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.truward.it.httpserver</groupId>
+      <artifactId>http-server-it</artifactId>
+    </dependency>
   </dependencies>
 </project>
 
