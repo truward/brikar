@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Utility class for protobuf->jackson bridge and vice versa.
+ * Utility class for protobuf to jackson bridge and vice versa.
  *
  * @author Alexander Shabanov
  */
