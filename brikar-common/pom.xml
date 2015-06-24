@@ -44,7 +44,7 @@
       <artifactId>spring-test</artifactId>
     </dependency>
 
-    <!-- Logging -->
+    <!-- Logging - we need this in LapseLoggerAspectTest -->
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
