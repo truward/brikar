@@ -226,11 +226,7 @@ public class StandardLauncher {
     return result;
   }
 
-  //
-  // Private
-  //
-
-  private void startServer(@Nonnull StartArgs startArgs) throws Exception {
+  protected void startServer(@Nonnull StartArgs startArgs) throws Exception {
     this.configPath = startArgs.getConfigPath();
     System.setProperty("brikar.settings.path", configPath);
 
@@ -251,9 +247,7 @@ public class StandardLauncher {
     server.join();
   }
 
-
-
-  private void initSpringContext() {
+  protected void initSpringContext() {
     contextHandler.setInitParameter("contextConfigLocation", getSpringContextLocations());
     initContextFilters(contextHandler);
 
