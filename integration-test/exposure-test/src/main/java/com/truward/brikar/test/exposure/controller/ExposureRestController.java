@@ -13,13 +13,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/rest/test")
 public final class ExposureRestController extends AbstractRestController implements ExposureRestService {
+  public static final String WRONG_NAME = "Wrong person name";
+  public static final String UNSUPPORTED_NAME = "Unsupported name";
 
   @Override
   public ExposureModel.HelloResponse greet(@RequestBody ExposureModel.HelloRequest request) {
     final String person = request.getPerson();
 
     if (person.equals("R2D2")) {
-      throw new IllegalArgumentException("Wrong person name");
+      throw new IllegalArgumentException(WRONG_NAME);
+    }
+
+    if (person.equals("Darth Vader")) {
+      throw new UnsupportedOperationException(UNSUPPORTED_NAME);
+    }
+
+    if (person.equals("Chewbacca")) {
+      throw new IllegalStateException();
     }
 
     return ExposureModel.HelloResponse.newBuilder()

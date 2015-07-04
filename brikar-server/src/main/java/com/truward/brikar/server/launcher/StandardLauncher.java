@@ -231,7 +231,7 @@ public class StandardLauncher {
     System.setProperty("brikar.settings.path", configPath);
 
     final Server server = new Server(startArgs.getPort());
-    server.setSendServerVersion(false);
+    setServerSettings(server);
 
     //noinspection PointlessBitwiseExpression
     contextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS | ServletContextHandler.NO_SECURITY);
@@ -247,6 +247,10 @@ public class StandardLauncher {
 
     server.start();
     server.join();
+  }
+
+  protected void setServerSettings(@Nonnull Server server) {
+    server.setSendServerVersion(false);
   }
 
   protected void setShutdownStrategy(@Nonnull Server server, @Nonnull StartArgs startArgs) {

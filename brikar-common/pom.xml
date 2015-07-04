@@ -32,6 +32,11 @@
       <artifactId>spring-context</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
+
     <!-- UTC time -->
     <dependency>
       <groupId>com.truward.time</groupId>
