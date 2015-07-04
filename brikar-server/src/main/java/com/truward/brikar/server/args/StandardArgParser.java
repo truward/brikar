@@ -13,6 +13,6 @@ public final class StandardArgParser extends AbstractArgParser<StartArgs> {
 
   @Override
   protected StartArgs constructStartArgs() {
-    return new StartArgs(port, configPath);
+    return new StartArgs(port, configPath, gracefulShutdownMillis);
   }
 }

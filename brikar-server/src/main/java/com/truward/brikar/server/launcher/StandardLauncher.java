@@ -243,8 +243,18 @@ public class StandardLauncher {
     handlerList.setHandlers(handlers.toArray(new Handler[handlers.size()]));
     server.setHandler(handlerList);
 
+    setShutdownStrategy(server, startArgs);
+
     server.start();
     server.join();
+  }
+
+  protected void setShutdownStrategy(@Nonnull Server server, @Nonnull StartArgs startArgs) {
+    // stop receiving connections after given amount of milliseconds
+    server.setGracefulShutdown(startArgs.getGracefulShutdownMillis());
+
+    // stop server if SIGINT received
+    server.setStopAtShutdown(true);
   }
 
   protected void initSpringContext() {

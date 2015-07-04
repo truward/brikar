@@ -1,0 +1,12 @@
+package truward.brikar.test.exposure;
+
+option java_package = "com.truward.brikar.test.exposure.model";
+option java_outer_classname = "ExposureModel";
+
+message HelloRequest {
+  required string person = 1;
+}
+
+message HelloResponse {
+  required string greeting = 1;
+}

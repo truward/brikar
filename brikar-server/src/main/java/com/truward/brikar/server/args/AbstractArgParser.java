@@ -8,7 +8,16 @@ import javax.annotation.Nonnull;
  * @author Alexander Shabanov
  */
 public abstract class AbstractArgParser<A extends StartArgs> {
+
+  /**
+   * Default port the server should listen to.
+   */
   public static final int DEFAULT_PORT = 8080;
+
+  /**
+   * Determines when we should stop receiving incoming connections.
+   */
+  public static final int DEFAULT_GRACEFUL_SHUTDOWN_MILLIS = 5000;
 
   public AbstractArgParser(@Nonnull String[] args, @Nonnull String defaultConfigPath) {
     Assert.notNull(args, "args");
@@ -51,6 +60,7 @@ public abstract class AbstractArgParser<A extends StartArgs> {
   protected boolean readyToStart;
   protected int port = DEFAULT_PORT;
   protected String configPath;
+  protected int gracefulShutdownMillis = DEFAULT_GRACEFUL_SHUTDOWN_MILLIS;
 
 
   private void showHelp() {
@@ -58,6 +68,9 @@ public abstract class AbstractArgParser<A extends StartArgs> {
         "--help,-h        Show help.\n" +
         "--port {NUMBER}  Port number, default value=" + DEFAULT_PORT + "\n" +
         "--config {PATH}  Path to config file, default value=" + defaultConfigPath + "\n" +
+        "--graceful-shutdown-millis {NUMBER} Time in milliseconds,\n" +
+        "                 the server should wait to serve active connections before stopping,\n" +
+        "                 default value=" + DEFAULT_GRACEFUL_SHUTDOWN_MILLIS + "\n" +
         "\n");
   }
 
@@ -101,6 +114,8 @@ public abstract class AbstractArgParser<A extends StartArgs> {
       }
     } else if ("--config".equals(args[pos])) {
       configPath = argValue(pos, "config location");
+    } else if ("--graceful-shutdown-millis".equals(args[pos])) {
+      gracefulShutdownMillis = Integer.parseInt(argValue(pos, "graceful shutdown millis"));
     }
 
     return true;
