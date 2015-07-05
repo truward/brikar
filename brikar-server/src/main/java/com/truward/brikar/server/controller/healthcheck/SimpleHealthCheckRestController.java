@@ -1,4 +1,4 @@
-package com.truward.brikar.server.healthcheck;
+package com.truward.brikar.server.controller.healthcheck;
 
 import com.truward.brikar.server.controller.AbstractRestController;
 import com.truward.brikar.common.healthcheck.HealthCheckRestService;
@@ -6,6 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
+ * Simple implementation of health check that does nothing. It can be extended by overriding
+ * {@link #doCheckHealth()} method.
+ *
  * @author Alexander Shabanov
  */
 @Controller
@@ -14,11 +17,10 @@ public class SimpleHealthCheckRestController extends AbstractRestController impl
 
   @Override
   public final String checkHealth() {
-    doCheckHealth();
-    return HealthCheckRestService.OK;
+    return doCheckHealth();
   }
 
-  protected void doCheckHealth() {
-    // do nothing
+  protected String doCheckHealth() {
+    return HealthCheckRestService.OK;
   }
 }

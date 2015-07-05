@@ -11,7 +11,8 @@
 
   <!-- Controllers -->
   <bean class="com.truward.brikar.test.exposure.controller.ExposureRestController" autowire="constructor"/>
-  <bean class="com.truward.brikar.server.healthcheck.SimpleHealthCheckRestController" autowire="constructor"/>
+  <bean class="com.truward.brikar.server.controller.healthcheck.SimpleHealthCheckRestController" /> <!-- Healthcheck -->
+  <bean class="com.truward.brikar.server.controller.config.ConfigReportController" /> <!-- Configuration Reporter -->
 
   <!-- Annotation driven support for MVC controllers -->
   <mvc:annotation-driven>

@@ -1,12 +1,16 @@
 package com.truward.brikar.test.exposure;
 
 import com.truward.brikar.client.rest.RestBinder;
+import com.truward.brikar.client.rest.support.StandardRestBinder;
 import com.truward.brikar.common.healthcheck.HealthCheckRestService;
 import org.eclipse.jetty.server.Server;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.ResourceAccessException;
 
 import javax.annotation.Nonnull;
@@ -19,25 +23,25 @@ import static org.junit.Assert.fail;
  * @author Alexander Shabanov
  */
 public abstract class ServerIntegrationTestBase {
-  private final Logger log = LoggerFactory.getLogger(getClass());
+  private static final Logger LOG = LoggerFactory.getLogger(ServerIntegrationTestBase.class);
 
-  private Thread thread;
-  private int portNumber = 18080;
-  private Server server;
+  private static Thread THREAD;
+  private static int PORT_NUMBER = 18080;
+  private static Server SERVER;
 
-  @Before
-  public void init() {
-    thread = new Thread(new Runnable() {
+  @BeforeClass
+  public static void initServer() {
+    THREAD = new Thread(new Runnable() {
       @Override
       public void run() {
         try {
           ExposureServerLauncher.main(new String[]{
-              "--port", Integer.toString(portNumber),
+              "--port", Integer.toString(PORT_NUMBER),
               "--graceful-shutdown-millis", "100"
           }, new ExposureServerLauncher.ServerAware() {
             @Override
             public void setServer(@Nonnull Server server) {
-              ServerIntegrationTestBase.this.server = server;
+              SERVER = server;
             }
           });
         } catch (Exception e) {
@@ -46,29 +50,59 @@ public abstract class ServerIntegrationTestBase {
       }
     });
 
-    thread.start();
-    log.info("Server started");
+    THREAD.start();
+    LOG.info("Server started");
+
+    // protocol buffers message converter
+    try (final StandardRestBinder restBinder = new StandardRestBinder(new StringHttpMessageConverter())) {
+      restBinder.afterPropertiesSet();
+      waitUntilServerStarted(newClient(restBinder, HealthCheckRestService.class, "/rest"));
+    }
+    LOG.info("Server initialized");
+  }
+
+  @AfterClass
+  public static void stopServer() {
+    if (SERVER != null) {
+      try {
+        SERVER.stop();
+      } catch (Exception ignored) {
+        // do nothing - failure to stop server might be caused by not being able to start it
+      }
+
+      SERVER = null;
+    }
+
+    try {
+      THREAD.join();
+    } catch (InterruptedException e) {
+      Thread.interrupted();
+    }
+
+    LOG.info("Server stopped");
+  }
+
+  @Before
+  public void init() {
+
   }
 
   @After
   public void dispose() throws InterruptedException {
-    if (server != null) {
-      try {
-        server.stop();
-      } catch (Exception ignored) {
-        // do nothing - failure to stop server might be caused by not being able to start it
-      }
-    }
-    thread.join();
-    log.info("Server stopped");
+
   }
 
   @Nonnull
-  protected <T> T newClient(@Nonnull RestBinder binder, @Nonnull Class<T> clientClass, @Nonnull String relativePath) {
+  protected static <T> T newClient(@Nonnull RestBinder binder, @Nonnull Class<T> clientClass, @Nonnull String relPath) {
     return binder.newClient(clientClass)
         .setUsername("testonly").setPassword("test")
-        .setUri(URI.create("http://127.0.0.1:" + portNumber + relativePath))
+        .setUri(getServerUrl(relPath))
         .build();
+  }
+
+  @Nonnull
+  protected static URI getServerUrl(String relPath) {
+    return URI.create("http://127.0.0.1:" + PORT_NUMBER + relPath);
   }
 
   protected static void waitUntilServerStarted(@Nonnull HealthCheckRestService healthCheckService) {
