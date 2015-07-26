@@ -15,7 +15,7 @@ public interface Lapse {
    * @return Code, associated with a function call. Usually an interface name concatenated with method name
    */
   @Nonnull
-  String getPlace();
+  String getOperation();
 
   /**
    * @return Time in millisecond, which was needed to make a particular service call

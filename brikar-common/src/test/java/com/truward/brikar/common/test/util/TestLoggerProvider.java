@@ -61,7 +61,7 @@ public final class TestLoggerProvider implements DisposableBean {
   }
 
   @Override
-  public void destroy() throws Exception {
+  public void destroy() {
     appender.stop();
     encoder.stop();
   }

@@ -29,13 +29,13 @@ public abstract class LapseLoggerAspectBase {
       // no text in annotation value - fallback to signature name
       place = getPlaceFromJoinPoint(jp);
     }
-    regula.setPlace(place);
+    regula.setOperation(place);
 
     try {
       final Object result = jp.proceed();
 
       regula.setEndTime(getTimeSource());
-      LogUtil.writeRegula(log, regula);
+      LogUtil.writeLapse(log, regula);
 
       return result;
     } catch (Exception e) {
@@ -43,7 +43,7 @@ public abstract class LapseLoggerAspectBase {
       // record end of call time and write lapse
       regula.setEndTime(getTimeSource());
       regula.setFailed(true);
-      LogUtil.writeRegula(log, regula);
+      LogUtil.writeLapse(log, regula);
 
       throw e;
     }

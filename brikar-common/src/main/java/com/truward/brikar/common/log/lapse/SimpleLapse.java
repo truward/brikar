@@ -10,13 +10,13 @@ import javax.annotation.Nonnull;
  * @author Alexander Shabanov
  */
 public final class SimpleLapse implements Lapse {
-  private String place = LogUtil.UNKNOWN_PLACE;
+  private String operation = LogUtil.UNKNOWN_OPERATION_VALUE;
   private long startTime = -1L;
   private long timeDelta = -1L;
   private boolean failed;
 
-  public void setPlace(@Nonnull String value) {
-    this.place = value;
+  public void setOperation(@Nonnull String value) {
+    this.operation = value;
   }
 
   public void setStartTime(long timeMillis) {
@@ -50,8 +50,8 @@ public final class SimpleLapse implements Lapse {
 
   @Nonnull
   @Override
-  public String getPlace() {
-    return place;
+  public String getOperation() {
+    return operation;
   }
 
   @Override

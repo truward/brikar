@@ -8,9 +8,9 @@ package com.truward.brikar.common.executor;
  */
 public interface ThreadParametersBinder {
 
-  Object getLocalObjects();
+  Object getLocalObject();
 
-  void setLocalObjects(Object tag);
+  void setLocalObject(Object tag);
 
-  void unsetLocalObjects(Object tag);
+  void unsetLocalObject(Object tag);
 }

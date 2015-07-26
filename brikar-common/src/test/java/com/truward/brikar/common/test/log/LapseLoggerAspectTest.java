@@ -51,7 +51,7 @@ public class LapseLoggerAspectTest {
     // Then:
     assertEquals(3, result);
     final String logContent = loggerProvider.getRawLogContents();
-    assertTrue(logContent.contains("@lapse place=CalcService.plus, timeDelta=200"));
+    assertTrue(logContent.contains("@metric op=CalcService.plus, tDelta=200"));
   }
 
   @Test
@@ -80,7 +80,7 @@ public class LapseLoggerAspectTest {
 
     // Then:
     final String logContent = loggerProvider.getRawLogContents();
-    assertTrue(logContent.contains("place=CalcService.foo"));
+    assertTrue(logContent.contains("op=CalcService.foo"));
   }
 
 

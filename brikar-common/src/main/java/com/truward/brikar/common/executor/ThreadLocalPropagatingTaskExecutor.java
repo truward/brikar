@@ -11,6 +11,8 @@ import java.util.concurrent.Future;
 
 /**
  * Task execution wrapper, which is capable of propagating certain objects from current thread to the child threads.
+ * The primary purpose of this task executor wrapper is to propagate certain values to the new thread, such as
+ * originating request ID and source request ID.
  *
  * @author Alexander Shabanov
  */
@@ -59,20 +61,20 @@ public final class ThreadLocalPropagatingTaskExecutor implements AsyncTaskExecut
       this.binders = binders;
       this.binderParameters = new Object[binders.size()];
       for (int i = 0; i < binders.size(); ++i) {
-        this.binderParameters[i] = binders.get(i).getLocalObjects();
+        this.binderParameters[i] = binders.get(i).getLocalObject();
       }
     }
 
     protected void bindAttributes() {
       for (int i = 0; i < binders.size(); ++i) {
-        this.binders.get(i).setLocalObjects(this.binderParameters[i]);
+        this.binders.get(i).setLocalObject(this.binderParameters[i]);
       }
     }
 
     protected void unbindAttributes() {
       // TODO: check for current thread?
       for (int i = 0; i < binders.size(); ++i) {
-        this.binders.get(i).unsetLocalObjects(this.binderParameters[i]);
+        this.binders.get(i).unsetLocalObject(this.binderParameters[i]);
       }
     }
   }

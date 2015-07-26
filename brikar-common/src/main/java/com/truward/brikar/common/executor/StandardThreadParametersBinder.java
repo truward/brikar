@@ -4,51 +4,62 @@ import com.truward.brikar.common.log.LogUtil;
 import org.slf4j.MDC;
 
 /**
-  * @author Alexander Shabanov
+ * Standard values for thread parameters binder.
+ *
+ * @author Alexander Shabanov
  */
 public enum StandardThreadParametersBinder implements ThreadParametersBinder {
-  MDC_OPERATION_ID {
+
+  /**
+   * Stores {@link LogUtil#REQUEST_ID} in MDC.
+   */
+  ORIGINATING_REQUEST_ID {
     @Override
-    public Object getLocalObjects() {
-      return MDC.get(LogUtil.OPERATION_ID);
+    public Object getLocalObject() {
+      return MDC.get(LogUtil.ORIGINATING_REQUEST_ID);
     }
 
     @Override
-    public void setLocalObjects(Object tag) {
+    public void setLocalObject(Object tag) {
       if (tag == null) {
         return;
       }
 
-      LogUtil.putOperationIdToMdc(tag.toString());
+      MDC.put(LogUtil.ORIGINATING_REQUEST_ID, tag.toString());
     }
 
     @Override
-    public void unsetLocalObjects(Object tag) {
+    public void unsetLocalObject(Object tag) {
       if (tag == null) {
         return;
       }
 
-      LogUtil.removeOperationIdFromMdc();
+      MDC.remove(LogUtil.ORIGINATING_REQUEST_ID);
     }
   },
 
-//import org.springframework.web.context.request.RequestAttributes;
-//import org.springframework.web.context.request.RequestContextHolder;
-//  REQUEST_SCOPE {
-//    @Override
-//    public Object getLocalObjects() {
-//      return RequestContextHolder.getRequestAttributes();
-//    }
-//
-//    @Override
-//    public void setLocalObjects(Object tag) {
-//      final RequestAttributes requestAttributes = (RequestAttributes) tag;
-//      RequestContextHolder.setRequestAttributes(requestAttributes);
-//    }
-//
-//    @Override
-//    public void unsetLocalObjects(Object tag) {
-//      RequestContextHolder.resetRequestAttributes();
-//    }
-//  }
+  REQUEST_ID {
+    @Override
+    public Object getLocalObject() {
+      return MDC.get(LogUtil.REQUEST_ID);
+    }
+
+    @Override
+    public void setLocalObject(Object tag) {
+      if (tag == null) {
+        return;
+      }
+
+      MDC.put(LogUtil.REQUEST_ID, tag.toString());
+    }
+
+    @Override
+    public void unsetLocalObject(Object tag) {
+      if (tag == null) {
+        return;
+      }
+
+      MDC.remove(LogUtil.REQUEST_ID);
+    }
+  }
 }
