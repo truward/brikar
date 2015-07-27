@@ -8,16 +8,14 @@ import javax.annotation.Nonnull;
 /**
  * Common constants for logging.
  * These constants should be used to provide more information in a form of structured records in the log files.
- * <p>
+ * <br>
  * Certain arguments should come in a form of {@link org.slf4j.MDC} variables, the others may come in a form of
  * metric entries.
- * </p>
- * <p>
+ * <br>
  * The metric entry is a substring in log message with specific format: it should start with a constant
  * {@link #METRIC_ENTRY} and then contain comma+space separated entries where key and value are separated by
  * equals sign.
- * </p>
- * <p>
+ * <br>
  * Each log record may contain none or exactly one metric entry which should be the last one in log message.
  * It is completely up to the developer to define semantics behind metric attributes, but general convention is as
  * follows:
@@ -29,8 +27,7 @@ import javax.annotation.Nonnull;
  *   operation succeeded</li>
  *   <li>Optional integer value that represents a count of something</li>
  * </ul>
- * </p>
- * <p>
+ * <br>
  * Example of metric entries:
  * <ul>
  *   <li><code>@metric op=MeasureUsedToFreeMemRatio, cnt=32</code> - it may mean, that an operation to measure a ratio
@@ -38,7 +35,6 @@ import javax.annotation.Nonnull;
  *   <li><code>@metric op=UserService.getUserById, tDelta=125</code> - it may mean, that operation to get user by
  *   ID has been executed and it took 125 milliseconds to complete</li>
  * </ul>
- * </p>
  *
  * @author Alexander Shabanov
  */
