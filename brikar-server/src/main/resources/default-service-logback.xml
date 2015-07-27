@@ -15,6 +15,7 @@
   <property name="logPattern"
             value="%d{ISO8601, UTC} %level %logger{32} %X [%thread] %msg%n"/>
 
+  <property name="requestLogLevel" value="${app.logback.requestLogLevel:-TRACE}" />
 
   <!--
     Appenders
@@ -51,4 +52,7 @@
   <!--
     Finer-grained configuration
   -->
+  <logger name="com.truward.brikar.server.tracking.RequestIdAwareFilter" level="${requestLogLevel}" additivity="false">
+    <appender-ref ref="${rootLogId}" />
+  </logger>
 </configuration>

@@ -4,6 +4,7 @@ import com.truward.brikar.server.args.StandardArgParser;
 import com.truward.brikar.server.args.StartArgs;
 import com.truward.brikar.server.auth.SimpleAuthenticatorUtil;
 import com.truward.brikar.server.auth.SimpleServiceUser;
+import com.truward.brikar.server.tracking.RequestIdAwareFilter;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
@@ -26,10 +27,7 @@ import javax.servlet.DispatcherType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Alexander Shabanov
@@ -38,6 +36,7 @@ public class StandardLauncher {
   private ServletContextHandler contextHandler;
   private String defaultDirPrefix;
   private boolean simpleSecurityEnabled;
+  private boolean requestIdOperationsEnabled;
   private String simpleSecurityOverridePath;
   private String authPropertiesPrefix = "auth";
   private String configPath;
@@ -46,6 +45,7 @@ public class StandardLauncher {
     // Loggers need to be configured as soon as possible, otherwise jetty will use its own default logger
     configureLoggers();
 
+    setRequestIdOperationsEnabled(true);
     setSimpleSecurityOverridePath(null);
     setDefaultDirPrefix(defaultDirPrefix);
   }
@@ -57,6 +57,12 @@ public class StandardLauncher {
   @Nonnull
   public StandardLauncher setSimpleSecurityEnabled(boolean enabled) {
     this.simpleSecurityEnabled = enabled;
+    return this;
+  }
+
+  @Nonnull
+  public StandardLauncher setRequestIdOperationsEnabled(boolean enabled) {
+    this.requestIdOperationsEnabled = enabled;
     return this;
   }
 
@@ -123,6 +129,7 @@ public class StandardLauncher {
     System.setProperty("logback.configurationFile", "default-service-logback.xml");
   }
 
+  @Nonnull
   protected List<Handler> getHandlers() {
     return Collections.<Handler>singletonList(contextHandler);
   }
@@ -153,12 +160,25 @@ public class StandardLauncher {
 //    encFilterHolder.setInitParameter("encoding", "UTF-8");
 //    encFilterHolder.setInitParameter("forceEncoding", "true"); // <-- this line instructs filter to add encoding
 
-    // Spring security
     if (isSpringSecurityEnabled()) {
-      final FilterHolder delegatingFilterHolder = new FilterHolder(DelegatingFilterProxy.class);
-      delegatingFilterHolder.setName("springSecurityFilterChain");
-      contextHandler.addFilter(delegatingFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
+      initSpringSecurity(contextHandler);
     }
+
+    if (requestIdOperationsEnabled) {
+      initRequestIdOperations(contextHandler);
+    }
+  }
+
+  protected void initSpringSecurity(@Nonnull ServletContextHandler contextHandler) {
+    final FilterHolder holder = new FilterHolder(DelegatingFilterProxy.class);
+    holder.setName("springSecurityFilterChain");
+    contextHandler.addFilter(holder, "/*", EnumSet.allOf(DispatcherType.class));
+  }
+
+  protected void initRequestIdOperations(@Nonnull ServletContextHandler contextHandler) {
+    final FilterHolder holder = new FilterHolder(RequestIdAwareFilter.class);
+    holder.setName("requestIdAwareFilter");
+    contextHandler.addFilter(holder, "/*", EnumSet.allOf(DispatcherType.class));
   }
 
   protected void initServlets(@Nonnull ServletContextHandler contextHandler) {
@@ -233,8 +253,7 @@ public class StandardLauncher {
     final Server server = new Server(startArgs.getPort());
     setServerSettings(server);
 
-    //noinspection PointlessBitwiseExpression
-    contextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS | ServletContextHandler.NO_SECURITY);
+    contextHandler = new ServletContextHandler(getServletContextOptions());
     contextHandler.setContextPath("/");
     initSpringContext();
 
@@ -247,6 +266,11 @@ public class StandardLauncher {
 
     server.start();
     server.join();
+  }
+
+  protected int getServletContextOptions() {
+    //noinspection PointlessBitwiseExpression
+    return ServletContextHandler.NO_SESSIONS | ServletContextHandler.NO_SECURITY;
   }
 
   protected void setServerSettings(@Nonnull Server server) {

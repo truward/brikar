@@ -4,7 +4,12 @@ import com.truward.brikar.client.binder.RestServiceBinder;
 import com.truward.brikar.client.binder.RestServiceBinderFactory;
 import com.truward.brikar.client.rest.RestBinder;
 import com.truward.brikar.client.rest.RestClientBuilder;
+import com.truward.brikar.common.log.LogUtil;
+import com.truward.brikar.common.tracking.TrackingHttpHeaderNames;
+import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -12,6 +17,8 @@ import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.HttpContext;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -21,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -164,7 +172,12 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
     builder.setRetryHandler(retryHandler);
   }
 
+  protected void initRequestIdOperations(@Nonnull HttpClientBuilder builder) {
+    builder.addInterceptorLast(new RequestIdAwareHttpRequestInterceptor());
+  }
+
   protected void initDefaultHttpClientBuilder(@Nonnull HttpClientBuilder builder) {
+    initRequestIdOperations(builder);
     initTimings(builder);
     initCredentialsProvider(builder);
     initRetryHandler(builder);
@@ -177,6 +190,17 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
   //
   // Private
   //
+
+  protected static class RequestIdAwareHttpRequestInterceptor implements HttpRequestInterceptor {
+
+    @Override
+    public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
+      final String originatingRequestId = MDC.get(LogUtil.ORIGINATING_REQUEST_ID);
+      if (originatingRequestId != null) {
+        request.setHeader(TrackingHttpHeaderNames.ORIGINATING_REQUEST_ID, originatingRequestId);
+      }
+    }
+  }
 
   private static final class InternalRestClientBuilder<T> implements RestClientBuilder<T> {
     private String username;

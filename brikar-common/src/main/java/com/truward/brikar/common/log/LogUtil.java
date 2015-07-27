@@ -53,6 +53,7 @@ public final class LogUtil {
    *
    * See also {@link org.slf4j.MDC}.
    * See also {@link #ORIGINATING_REQUEST_ID}.
+   * See also {@link com.truward.brikar.common.tracking.TrackingHttpHeaderNames#REQUEST_ID}.
    */
   public static final String REQUEST_ID = "rid";
 
@@ -66,6 +67,7 @@ public final class LogUtil {
    *
    * See also {@link org.slf4j.MDC}.
    * See also {@link #REQUEST_ID}.
+   * See also {@link com.truward.brikar.common.tracking.TrackingHttpHeaderNames#ORIGINATING_REQUEST_ID}.
    */
   public static final String ORIGINATING_REQUEST_ID = "oid";
 
@@ -113,13 +115,12 @@ public final class LogUtil {
   // Helper methods
   //
 
-  public static void writeLapse(@Nonnull Logger log, @Nonnull Lapse lapse) {
-    if (!log.isInfoEnabled()) {
-      return;
-    }
+  public static void writeLapse(@Nonnull Logger log, @Nonnull String operation, long timeDeltaMillis, boolean failed) {
+    log.info(failed ? SHORT_FAILED_LAPSE_FORMAT : SHORT_LAPSE_FORMAT, operation, timeDeltaMillis);
+  }
 
-    log.info(lapse.isFailed() ? SHORT_FAILED_LAPSE_FORMAT : SHORT_LAPSE_FORMAT,
-        lapse.getOperation(), lapse.getTimeDeltaMillis());
+  public static void writeLapse(@Nonnull Logger log, @Nonnull Lapse lapse) {
+    writeLapse(log, lapse.getOperation(), lapse.getTimeDeltaMillis(), lapse.isFailed());
   }
 
   public static void writeCount(@Nonnull Logger log, @Nonnull String operationName, int count) {
