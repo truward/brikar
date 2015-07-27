@@ -4,7 +4,7 @@
   <parent>
     <artifactId>brikar</artifactId>
     <groupId>com.truward.brikar</groupId>
-    <version>1.0.12</version>
+    <version>1.0.13-SNAPSHOT</version>
   </parent>
 
   <artifactId>brikar-common</artifactId>
