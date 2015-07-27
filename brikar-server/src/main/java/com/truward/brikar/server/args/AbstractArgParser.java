@@ -55,8 +55,11 @@ public abstract class AbstractArgParser<A extends StartArgs> {
   // Private
   //
 
+  // state
   private final String[] args;
   private final String defaultConfigPath;
+
+  // arguments
   protected boolean readyToStart;
   protected int port = DEFAULT_PORT;
   protected String configPath;
@@ -75,13 +78,22 @@ public abstract class AbstractArgParser<A extends StartArgs> {
   }
 
   @Nonnull
-  private String argValue(int pos, String valueName) {
+  protected String stringArgValue(int pos, @Nonnull String valueName) {
     int nextPos = pos + 1;
     if (nextPos < args.length) {
       pos = nextPos;
       return args[pos];
     }
     throw new IllegalStateException("Extra argument expected for " + valueName);
+  }
+
+  protected int intArgValue(int pos, @Nonnull String valueName) {
+    final String arg = stringArgValue(pos, valueName);
+    try {
+      return Integer.parseInt(arg);
+    } catch (NumberFormatException e) {
+      throw new IllegalStateException("Unable to parse " + valueName, e);
+    }
   }
 
   private int doParse() {
@@ -107,15 +119,11 @@ public abstract class AbstractArgParser<A extends StartArgs> {
 
   protected boolean parseCurrentArg(int pos) {
     if ("--port".equals(args[pos])) {
-      try {
-        port = Integer.parseInt(argValue(pos, "port number"));
-      } catch (NumberFormatException e) {
-        throw new IllegalStateException("Unable to parse port number", e);
-      }
+      port = intArgValue(pos, "port number");
     } else if ("--config".equals(args[pos])) {
-      configPath = argValue(pos, "config location");
+      configPath = stringArgValue(pos, "config location");
     } else if ("--graceful-shutdown-millis".equals(args[pos])) {
-      gracefulShutdownMillis = Integer.parseInt(argValue(pos, "graceful shutdown millis"));
+      gracefulShutdownMillis = intArgValue(pos, "graceful shutdown millis");
     }
 
     return true;

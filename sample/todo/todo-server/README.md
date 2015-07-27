@@ -1,6 +1,22 @@
 todo
 ====
 
+## Ad Hoc Start
+
+### Logging configuration
+
+VM Args:
+
+```
+-Dapp.logback.rootLogId=ROLLING_FILE -Dapp.logback.logBaseName=/tmp/todoServer
+```
+
+CLI Args:
+
+```
+--graceful-shutdown-millis 100
+```
+
 ## Demo Request
 
 TODO Sample.
