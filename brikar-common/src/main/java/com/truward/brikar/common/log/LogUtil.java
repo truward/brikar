@@ -102,9 +102,9 @@ public final class LogUtil {
   public static final String FAILED = "failed";
 
   /**
-   * Value for operation entry that should be used if operation value is omitted.
+   * Value for entry that should be used if corresponding value is omitted.
    */
-  public static final String UNKNOWN_OPERATION_VALUE = "unknown";
+  public static final String UNKNOWN_VALUE = "?";
 
 
   //
@@ -123,17 +123,68 @@ public final class LogUtil {
     log.info(COUNT_METRIC_HEADING, operationName, count);
   }
 
+  /**
+   * encodes a value, so that it won't contain spaces, commas and equal signs.
+   *
+   * @param value Value to be encoded
+   * @return Encoded value or same value if passed argument does not contain whitespace, comma or equals sign
+   */
+  @Nonnull
+  public static String encodeString(@Nonnull String value) {
+    int estimatedSize = 0;
+    boolean encodingRequired = false;
+    final int len = value.length();
+
+    for (int i = 0; i < len; ++i) {
+      final char ch = value.charAt(i);
+      if (ch <= ' ' || ch == '=' || ch == ',') {
+        estimatedSize += 3;
+        encodingRequired = true;
+        continue;
+      }
+
+      ++estimatedSize;
+    }
+
+    if (!encodingRequired) {
+      return value; // return value as is - it does not contain any special characters
+    }
+
+    final StringBuilder builder = new StringBuilder(estimatedSize);
+    for (int i = 0; i < len; ++i) {
+      final char ch = value.charAt(i);
+      if (ch <= ' ') {
+        builder.append("%20");
+        continue;
+      }
+
+      if (ch == '=') {
+        builder.append("%3d");
+        continue;
+      }
+
+      if (ch == ',') {
+        builder.append("%2c");
+        continue;
+      }
+
+      builder.append(ch);
+    }
+
+    return builder.toString();
+  }
+
   //
   // Private
   //
 
-  private static final String METRIC_HEADING = METRIC_ENTRY + " " + OPERATION + "={}";
+  public static final String METRIC_HEADING = METRIC_ENTRY + " " + OPERATION + "={}";
 
-  private static final String COUNT_METRIC_HEADING = METRIC_HEADING + ", " + COUNT + "={}";
+  public static final String COUNT_METRIC_HEADING = METRIC_HEADING + ", " + COUNT + "={}";
 
-  private static final String LAPSE_HEADING = METRIC_ENTRY + " " + OPERATION + "={}, " + TIME_DELTA + "={}";
+  public static final String LAPSE_HEADING = METRIC_ENTRY + " " + OPERATION + "={}, " + TIME_DELTA + "={}";
 
-  private static final String SHORT_LAPSE_FORMAT = LAPSE_HEADING;
+  public static final String SHORT_LAPSE_FORMAT = LAPSE_HEADING;
 
-  private static final String SHORT_FAILED_LAPSE_FORMAT = LAPSE_HEADING + ", " + FAILED + "=true";
+  public static final String SHORT_FAILED_LAPSE_FORMAT = LAPSE_HEADING + ", " + FAILED + "=true";
 }

@@ -3,12 +3,14 @@ package com.truward.brikar.test.exposure;
 import com.truward.brikar.client.binder.RestServiceBinder;
 import com.truward.brikar.client.binder.RestServiceBinderFactory;
 import com.truward.brikar.client.rest.support.StandardRestBinder;
+import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
 import com.truward.brikar.protobuf.http.json.ProtobufJsonHttpMessageConverter;
 import com.truward.brikar.test.exposure.controller.ExposureRestController;
 import com.truward.brikar.test.exposure.model.ExposureModel;
 import com.truward.brikar.test.exposure.service.ExposureRestService;
 import org.junit.Test;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.HttpClientErrorException;
@@ -40,6 +42,8 @@ public final class ExposureServerIntegrationTest extends ServerIntegrationTestBa
 
   @Test
   public void shouldUseServicesUsingJsonProtocol() {
+    // Set originating request ID for manual verification in logs
+    MDC.put(LogUtil.ORIGINATING_REQUEST_ID, "JsonProtocol");
     try (final StandardRestBinder restBinder = new StandardRestBinder(new ProtobufJsonHttpMessageConverter())) {
       restBinder.afterPropertiesSet();
 

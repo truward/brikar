@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
  * @author Alexander Shabanov
  */
 public final class SimpleLapse implements Lapse {
-  private String operation = LogUtil.UNKNOWN_OPERATION_VALUE;
+  private String operation = LogUtil.UNKNOWN_VALUE;
   private long startTime = -1L;
   private long timeDelta = -1L;
   private boolean failed;

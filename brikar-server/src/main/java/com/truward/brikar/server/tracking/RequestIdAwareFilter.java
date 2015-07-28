@@ -44,27 +44,23 @@ public class RequestIdAwareFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
     // get originating request id and current request id
     final String requestId = getRandomRequestId();
-    String originatingRequestId = request.getHeader(TrackingHttpHeaderNames.ORIGINATING_REQUEST_ID);
-    if (originatingRequestId == null) {
-      originatingRequestId = requestId;
+    final String originatingRequestId = request.getHeader(TrackingHttpHeaderNames.ORIGINATING_REQUEST_ID);
+    if (originatingRequestId != null) {
+      // propagating originating request ID if it was passed in headers
+      MDC.put(LogUtil.ORIGINATING_REQUEST_ID, originatingRequestId);
     }
 
-    // propagate both request ID and originating request ID to the MDC
-    MDC.put(LogUtil.ORIGINATING_REQUEST_ID, originatingRequestId);
+    // propagate both request ID
     MDC.put(LogUtil.REQUEST_ID, requestId);
 
-    // set headers containing request ID
-    response.setHeader(TrackingHttpHeaderNames.ORIGINATING_REQUEST_ID, originatingRequestId);
+    // set headers containing request ID, originating request ID is not needed
     response.setHeader(TrackingHttpHeaderNames.REQUEST_ID, requestId);
 
     // process request
     if (log == null) {
       filterChain.doFilter(request, response);
     } else {
-      String pathInfo = request.getPathInfo();
-      if (pathInfo.contains("=")) {
-        pathInfo = pathInfo.replace("=", "%3d"); // equals sign can not appear in the logs
-      }
+      final String pathInfo = LogUtil.encodeString(request.getPathInfo());
       boolean failed = true;
       long time = System.currentTimeMillis();
       try {
@@ -77,7 +73,9 @@ public class RequestIdAwareFilter extends OncePerRequestFilter {
     }
 
     // remove MDC variables
-    MDC.remove(LogUtil.ORIGINATING_REQUEST_ID);
+    if (originatingRequestId != null) {
+      MDC.remove(LogUtil.ORIGINATING_REQUEST_ID);
+    }
     MDC.remove(LogUtil.REQUEST_ID);
   }
 

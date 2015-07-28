@@ -6,10 +6,7 @@ import com.truward.brikar.client.rest.RestBinder;
 import com.truward.brikar.client.rest.RestClientBuilder;
 import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.common.tracking.TrackingHttpHeaderNames;
-import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -18,6 +15,8 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.protocol.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.DisposableBean;
@@ -52,6 +51,7 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
    */
   public static final long DEFAULT_CONNECTION_TTL = 60000L;
 
+  private final Logger log = LoggerFactory.getLogger(getClass());
   private final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
   private RestServiceBinder restServiceBinder;
   private RestServiceBinderFactory restServiceBinderFactory;
@@ -173,7 +173,9 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
   }
 
   protected void initRequestIdOperations(@Nonnull HttpClientBuilder builder) {
-    builder.addInterceptorLast(new RequestIdAwareHttpRequestInterceptor());
+    final RequestIdStatsHolder statsHolder = new RequestIdStatsHolder();
+    builder.addInterceptorLast(new RequestIdAwareHttpRequestInterceptor(statsHolder));
+    builder.addInterceptorLast(new RequestIdAwareHttpResponseInterceptor(statsHolder));
   }
 
   protected void initDefaultHttpClientBuilder(@Nonnull HttpClientBuilder builder) {
@@ -191,13 +193,61 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
   // Private
   //
 
-  protected static class RequestIdAwareHttpRequestInterceptor implements HttpRequestInterceptor {
+  protected static final class RequestIdStatsHolder {
+    long startTime;
+    String uri;
+    String method;
+
+    void setRequestLine(RequestLine requestLine) {
+      this.method = requestLine.getMethod();
+      this.uri = requestLine.getUri();
+      this.startTime = System.currentTimeMillis();
+    }
+  }
+
+  protected static final class RequestIdAwareHttpRequestInterceptor implements HttpRequestInterceptor {
+    private final RequestIdStatsHolder statsHolder;
+
+    public RequestIdAwareHttpRequestInterceptor(RequestIdStatsHolder statsHolder) {
+      this.statsHolder = statsHolder;
+    }
 
     @Override
     public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
       final String originatingRequestId = MDC.get(LogUtil.ORIGINATING_REQUEST_ID);
       if (originatingRequestId != null) {
         request.setHeader(TrackingHttpHeaderNames.ORIGINATING_REQUEST_ID, originatingRequestId);
+      }
+      statsHolder.setRequestLine(request.getRequestLine());
+    }
+  }
+
+  protected final class RequestIdAwareHttpResponseInterceptor implements HttpResponseInterceptor {
+    /**
+     * Layout: operation={}, timeDelta={}, method={}, responseCode={}, responseRid={}
+     */
+    private static final String LOG_FMT = LogUtil.LAPSE_HEADING + ", method={}, responseCode={}, responseRid={}";
+
+    private final RequestIdStatsHolder statsHolder;
+
+    public RequestIdAwareHttpResponseInterceptor(RequestIdStatsHolder statsHolder) {
+      this.statsHolder = statsHolder;
+    }
+
+    @Override
+    public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
+      final long timeDelta = System.currentTimeMillis() - statsHolder.startTime;
+
+      // get request ID
+      final Header header = response.getLastHeader(TrackingHttpHeaderNames.REQUEST_ID);
+      final String responseRequestId = (header != null ? header.getValue() : LogUtil.UNKNOWN_VALUE);
+      final int code = response.getStatusLine().getStatusCode();
+      final String uri = LogUtil.encodeString(statsHolder.uri);
+
+      if (code >= 200 && code < 300) {
+        log.info(LOG_FMT, uri, timeDelta, statsHolder.method, code, responseRequestId);
+      } else {
+        log.warn(LOG_FMT, uri, timeDelta, statsHolder.method, code, responseRequestId);
       }
     }
   }
