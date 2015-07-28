@@ -52,7 +52,14 @@
   <!--
     Finer-grained configuration
   -->
+
+  <!-- Special configuration for RequestID filter to capture incoming requests -->
   <logger name="com.truward.brikar.server.tracking.RequestIdAwareFilter" level="${requestLogLevel}" additivity="false">
     <appender-ref ref="${rootLogId}" />
+  </logger>
+
+  <!-- Special configuration for RestTemplate to avoid duplicate warning messages -->
+  <logger name="org.springframework.web.client.RestTemplate" level="ERROR" additivity="false">
+    <appender-ref ref="STDOUT" />
   </logger>
 </configuration>

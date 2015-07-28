@@ -14,12 +14,12 @@
   </modules>
 
   <properties>
-    <brikar.version>1.0.13-SNAPSHOT</brikar.version>
+    <brikar.version>1.0.14-SNAPSHOT</brikar.version>
     <!--
         - latest release:
         <brikar.version>LATEST</brikar.version>
         - or use Specific version:
-        <brikar.version>1.0.13-SNAPSHOT</brikar.version>
+        <brikar.version>1.0.14-SNAPSHOT</brikar.version>
     -->
 
     <!-- logging -->
