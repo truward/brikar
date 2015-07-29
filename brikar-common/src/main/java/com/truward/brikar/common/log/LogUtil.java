@@ -112,7 +112,7 @@ public final class LogUtil {
   //
 
   public static void writeLapse(@Nonnull Logger log, @Nonnull String operation, long timeDeltaMillis, boolean failed) {
-    log.info(failed ? SHORT_FAILED_LAPSE_FORMAT : SHORT_LAPSE_FORMAT, operation, timeDeltaMillis);
+    log.info(failed ? SHORT_FAILED_LAPSE_FORMAT : SHORT_LAPSE_FORMAT, encodeString(operation), timeDeltaMillis);
   }
 
   public static void writeLapse(@Nonnull Logger log, @Nonnull Lapse lapse) {
@@ -120,7 +120,7 @@ public final class LogUtil {
   }
 
   public static void writeCount(@Nonnull Logger log, @Nonnull String operationName, int count) {
-    log.info(COUNT_METRIC_HEADING, operationName, count);
+    log.info(COUNT_METRIC_HEADING, encodeString(operationName), count);
   }
 
   /**
@@ -132,21 +132,20 @@ public final class LogUtil {
   @Nonnull
   public static String encodeString(@Nonnull String value) {
     int estimatedSize = 0;
-    boolean encodingRequired = false;
     final int len = value.length();
 
+    // estimate output string size to find out whether encoding is required and avoid reallocations in string builder
     for (int i = 0; i < len; ++i) {
       final char ch = value.charAt(i);
-      if (ch <= ' ' || ch == '=' || ch == ',') {
+      if (ch <= ' ' || ch == ',') {
         estimatedSize += 3;
-        encodingRequired = true;
         continue;
       }
 
       ++estimatedSize;
     }
 
-    if (!encodingRequired) {
+    if (value.length() == estimatedSize) {
       return value; // return value as is - it does not contain any special characters
     }
 
@@ -155,11 +154,6 @@ public final class LogUtil {
       final char ch = value.charAt(i);
       if (ch <= ' ') {
         builder.append("%20");
-        continue;
-      }
-
-      if (ch == '=') {
-        builder.append("%3d");
         continue;
       }
 

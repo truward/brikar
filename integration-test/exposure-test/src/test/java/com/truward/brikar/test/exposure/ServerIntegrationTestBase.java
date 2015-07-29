@@ -23,7 +23,15 @@ import static org.junit.Assert.fail;
  * @author Alexander Shabanov
  */
 public abstract class ServerIntegrationTestBase {
-  private static final Logger LOG = LoggerFactory.getLogger(ServerIntegrationTestBase.class);
+  private static final Logger LOG;
+
+  static {
+    // configure loggers - use default logger file
+    System.setProperty("app.logback.rootLogId", "STDOUT");
+    System.setProperty("app.logback.requestLogLevel", "TRACE");
+    System.setProperty("logback.configurationFile", "default-service-logback.xml");
+    LOG = LoggerFactory.getLogger(ServerIntegrationTestBase.class);
+  }
 
   private static Thread THREAD;
   private static int PORT_NUMBER = 18080;

@@ -18,11 +18,6 @@ public class ExposureServerLauncher {
   public static void main(@Nonnull String[] args, @Nullable final ServerAware serverAware) throws Exception {
     final StandardLauncher launcher = new StandardLauncher("exposureTest") {
       @Override
-      protected void configureLoggers() {
-        // do nothing - special logging configuration is not required here
-      }
-
-      @Override
       protected void setServerSettings(@Nonnull Server server) {
         super.setServerSettings(server);
         if (serverAware != null) {
@@ -37,8 +32,4 @@ public class ExposureServerLauncher {
         .setAuthPropertiesPrefix("exposureService.auth")
         .start(args);
   }
-
-//  public static void main(String[] args) throws Exception {
-//    main(args, null);
-//  }
 }

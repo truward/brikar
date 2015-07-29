@@ -34,6 +34,6 @@ public final class LogUtilTest {
     final String enc = LogUtil.encodeString(value);
 
     // Then:
-    assertEquals("a%20%3d%2cc", enc);
+    assertEquals("a%20=%2cc", enc);
   }
 }
