@@ -226,7 +226,8 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
     /**
      * Layout: operation={}, timeDelta={}, method={}, responseCode={}, responseRid={}
      */
-    private static final String LOG_FMT = LogUtil.LAPSE_HEADING + ", method={}, responseCode={}, responseRid={}";
+    private static final String LOG_FMT = LogUtil.LAPSE_HEADING + ", " +
+        LogUtil.VERB + "={}, " + LogUtil.RESPONSE_CODE + "={}, " + LogUtil.RESPONSE_REQUEST_ID + "={}";
 
     private final RequestIdStatsHolder statsHolder;
 

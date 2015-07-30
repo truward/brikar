@@ -84,6 +84,21 @@ public final class LogUtil {
   public static final String OPERATION = "op";
 
   /**
+   * HTTP method (invocation type)
+   */
+  public static final String VERB = "verb";
+
+  /**
+   * Http Response Code (integer), e.g. 200 - 'OK', 404 - 'Not Found', etc.
+   */
+  public static final String RESPONSE_CODE = "responseCode";
+
+  /**
+   * Request ID, that contains in the service call response.
+   */
+  public static final String RESPONSE_REQUEST_ID = "responseRid";
+
+  /**
    * A name, under which an integer count of something, related to the operation should be known.
    * For example, if operation is to measure used/free memory ratio, this field should contain percentage.
    */
@@ -176,7 +191,7 @@ public final class LogUtil {
 
   public static final String COUNT_METRIC_HEADING = METRIC_HEADING + ", " + COUNT + "={}";
 
-  public static final String LAPSE_HEADING = METRIC_ENTRY + " " + OPERATION + "={}, " + TIME_DELTA + "={}";
+  public static final String LAPSE_HEADING = METRIC_HEADING + ", " + TIME_DELTA + "={}";
 
   public static final String SHORT_LAPSE_FORMAT = LAPSE_HEADING;
 

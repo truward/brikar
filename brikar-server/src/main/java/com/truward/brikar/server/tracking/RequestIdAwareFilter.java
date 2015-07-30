@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.web.filter.OncePerRequestFilter;
+import sun.rmi.runtime.Log;
 
 import javax.annotation.Nonnull;
 import javax.servlet.FilterChain;
@@ -32,6 +33,12 @@ public class RequestIdAwareFilter extends OncePerRequestFilter {
       'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
       '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
   };
+
+  /**
+   * Log Format: operation, method, timeDelta, failed
+   */
+  private static final String LOG_FORMAT = LogUtil.METRIC_HEADING + ", " + LogUtil.VERB + "={}, " +
+      LogUtil.TIME_DELTA + "={}, " + LogUtil.FAILED + "={}";
 
   private final Logger log;
 
@@ -68,7 +75,7 @@ public class RequestIdAwareFilter extends OncePerRequestFilter {
         failed = false;
       } finally {
         time = System.currentTimeMillis() - time;
-        LogUtil.writeLapse(log, pathInfo, time, failed);
+        log.info(LOG_FORMAT, pathInfo, request.getMethod(), time, failed);
       }
     }
 
