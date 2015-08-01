@@ -35,10 +35,10 @@ public class RequestIdAwareFilter extends OncePerRequestFilter {
   };
 
   /**
-   * Log Format: operation, method, timeDelta, failed
+   * Log Format: operation, method, timeDelta
    */
-  private static final String LOG_FORMAT = LogUtil.METRIC_HEADING + ", " + LogUtil.VERB + "={}, " +
-      LogUtil.TIME_DELTA + "={}, " + LogUtil.FAILED + "={}";
+  private static final String OK_LOG_FORMAT = LogUtil.METRIC_HEADING + ", " + LogUtil.VERB + "={}, " +
+      LogUtil.TIME_DELTA + "={}, " + LogUtil.RESPONSE_CODE + "={}";
 
   private final Logger log;
 
@@ -68,14 +68,12 @@ public class RequestIdAwareFilter extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
     } else {
       final String pathInfo = LogUtil.encodeString(request.getPathInfo());
-      boolean failed = true;
       long time = System.currentTimeMillis();
       try {
         filterChain.doFilter(request, response);
-        failed = false;
       } finally {
         time = System.currentTimeMillis() - time;
-        log.info(LOG_FORMAT, pathInfo, request.getMethod(), time, failed);
+        log.info(OK_LOG_FORMAT, pathInfo, request.getMethod(), time, response.getStatus());
       }
     }
 

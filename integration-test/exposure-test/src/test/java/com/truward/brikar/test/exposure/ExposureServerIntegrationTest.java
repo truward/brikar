@@ -43,7 +43,7 @@ public final class ExposureServerIntegrationTest extends ServerIntegrationTestBa
   @Test
   public void shouldUseServicesUsingJsonProtocol() {
     // Set originating request ID for manual verification in logs
-    MDC.put(LogUtil.ORIGINATING_REQUEST_ID, "JsonProtocol");
+    MDC.put(LogUtil.ORIGINATING_REQUEST_ID, "IntegTest-shouldUseServicesUsingJsonProtocol");
     try (final StandardRestBinder restBinder = new StandardRestBinder(new ProtobufJsonHttpMessageConverter())) {
       restBinder.afterPropertiesSet();
 
