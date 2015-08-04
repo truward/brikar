@@ -1,7 +1,5 @@
 package com.truward.brikar.server.launcher;
 
-import com.truward.brikar.server.args.StandardArgParser;
-import com.truward.brikar.server.args.StartArgs;
 import com.truward.brikar.server.auth.SimpleAuthenticatorUtil;
 import com.truward.brikar.server.auth.SimpleServiceUser;
 import com.truward.brikar.server.tracking.RequestIdAwareFilter;
@@ -33,6 +31,7 @@ import java.util.*;
  * @author Alexander Shabanov
  */
 public class StandardLauncher {
+  private final LauncherProperties properties;
   private ServletContextHandler contextHandler;
   private String defaultDirPrefix;
   private boolean simpleSecurityEnabled;
@@ -41,13 +40,18 @@ public class StandardLauncher {
   private String authPropertiesPrefix = "auth";
   private String configPath;
 
-  public StandardLauncher(@Nonnull String defaultDirPrefix) {
+  public StandardLauncher(@Nonnull LauncherProperties properties, @Nonnull String defaultDirPrefix) {
+    this.properties = properties;
     // Loggers need to be configured as soon as possible, otherwise jetty will use its own default logger
     configureLoggers();
 
     setRequestIdOperationsEnabled(true);
     setSimpleSecurityOverridePath(null);
     setDefaultDirPrefix(defaultDirPrefix);
+  }
+
+  public StandardLauncher(@Nonnull String defaultDirPrefix) {
+    this(DefaultLauncherProperties.createWithSystemProperties(), defaultDirPrefix);
   }
 
   public StandardLauncher() {
@@ -78,20 +82,8 @@ public class StandardLauncher {
     return this;
   }
 
-  public final void start(@Nonnull String[] args) throws Exception {
-    final StandardArgParser argParser = new StandardArgParser(args, getDefaultConfigPath());
-    final int result = argParser.parse();
-    if (result != 0) {
-      System.exit(result);
-      return;
-    }
-
-
-    if (!argParser.isReadyToStart()) {
-      return;
-    }
-
-    startServer(argParser.getStartArgs());
+  public final void start() throws Exception {
+    startServer();
   }
 
   @Nonnull
@@ -126,7 +118,10 @@ public class StandardLauncher {
   }
 
   protected void configureLoggers() {
-    System.setProperty("logback.configurationFile", "default-service-logback.xml");
+    // initialize logback if logback.configurationFile property has not been set
+    if (System.getProperty("logback.configurationFile") == null) {
+      System.setProperty("logback.configurationFile", "default-service-logback.xml");
+    }
   }
 
   @Nonnull
@@ -218,7 +213,7 @@ public class StandardLauncher {
 
     // fallback: there is no settings, use default username and generate password on the fly
     // normally this is not something service owner should rely on
-    final SecureRandom random = new SecureRandom();
+    final Random random = new SecureRandom();
     final String username = "serviceuser";
     final String password = Long.toHexString(random.nextLong());
     getLogger().warn("Simple security: no predefined configuration; using username={} and password={}", username, password);
@@ -235,7 +230,7 @@ public class StandardLauncher {
     }
 
     // Property override for simple security
-    final String path = System.getProperty("brikar.settings.simpleSecuritySettingsFile");
+    final String path = properties.getSimpleSecuritySettingsFilePath();
     if (path != null) {
       result.add(path);
     }
@@ -246,11 +241,12 @@ public class StandardLauncher {
     return result;
   }
 
-  protected void startServer(@Nonnull StartArgs startArgs) throws Exception {
-    this.configPath = startArgs.getConfigPath();
-    System.setProperty("brikar.settings.path", configPath);
+  protected void startServer() throws Exception {
+    this.configPath = properties.getConfigPath() != null ? properties.getConfigPath() : getDefaultConfigPath();
+    // set this property, so that spring security will be able to read it
+    System.setProperty(DefaultLauncherProperties.SYS_PROP_NAME_CONFIG_PATH, configPath);
 
-    final Server server = new Server(startArgs.getPort());
+    final Server server = new Server(properties.getPort());
     setServerSettings(server);
 
     contextHandler = new ServletContextHandler(getServletContextOptions());
@@ -262,7 +258,7 @@ public class StandardLauncher {
     handlerList.setHandlers(handlers.toArray(new Handler[handlers.size()]));
     server.setHandler(handlerList);
 
-    setShutdownStrategy(server, startArgs);
+    setShutdownStrategy(server);
 
     server.start();
     server.join();
@@ -277,9 +273,9 @@ public class StandardLauncher {
     server.setSendServerVersion(false);
   }
 
-  protected void setShutdownStrategy(@Nonnull Server server, @Nonnull StartArgs startArgs) {
+  protected void setShutdownStrategy(@Nonnull Server server) {
     // stop receiving connections after given amount of milliseconds
-    server.setGracefulShutdown(startArgs.getGracefulShutdownMillis());
+    server.setGracefulShutdown(properties.getGracefulShutdownMillis());
 
     // stop server if SIGINT received
     server.setStopAtShutdown(true);

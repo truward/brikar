@@ -1,5 +1,6 @@
 package com.truward.brikar.test.exposure;
 
+import com.truward.brikar.server.launcher.LauncherProperties;
 import com.truward.brikar.server.launcher.StandardLauncher;
 import org.eclipse.jetty.server.Server;
 
@@ -15,8 +16,9 @@ public class ExposureServerLauncher {
     void setServer(@Nonnull Server server);
   }
 
-  public static void main(@Nonnull String[] args, @Nullable final ServerAware serverAware) throws Exception {
-    final StandardLauncher launcher = new StandardLauncher("exposureTest") {
+  public static void main(@Nonnull LauncherProperties properties,
+                          @Nullable final ServerAware serverAware) throws Exception {
+    final StandardLauncher launcher = new StandardLauncher(properties, "exposureTest") {
       @Override
       protected void setServerSettings(@Nonnull Server server) {
         super.setServerSettings(server);
@@ -30,6 +32,6 @@ public class ExposureServerLauncher {
         .setDefaultDirPrefix("classpath:/exposureService/")
         .setSimpleSecurityEnabled(true)
         .setAuthPropertiesPrefix("exposureService.auth")
-        .start(args);
+        .start();
   }
 }

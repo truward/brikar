@@ -7,7 +7,7 @@ import com.truward.brikar.server.launcher.StandardLauncher;
  */
 public final class ZooLauncher extends StandardLauncher {
   public static void main(String[] args) throws Exception {
-    new ZooLauncher().setDefaultDirPrefix("classpath:/zooService/").start(args);
+    new ZooLauncher().setDefaultDirPrefix("classpath:/zooService/").start();
   }
 
   @Override

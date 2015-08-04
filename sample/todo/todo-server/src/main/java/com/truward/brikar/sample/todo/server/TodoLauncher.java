@@ -11,6 +11,6 @@ public final class TodoLauncher {
         .setSimpleSecurityEnabled(true)
         .setAuthPropertiesPrefix("todoService.auth")
         .setDefaultDirPrefix("classpath:/todoService/")
-        .start(args);
+        .start();
   }
 }
