@@ -2,7 +2,7 @@ package com.truward.brikar.common.test.log;
 
 import com.truward.brikar.common.log.LogLapse;
 import com.truward.brikar.common.test.util.TestLoggerProvider;
-import com.truward.time.TimeSource;
+import com.truward.brikar.common.time.TimeSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +23,8 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/spring/LapseLoggerAspectTest-context.xml")
 public class LapseLoggerAspectTest {
-  @Resource TimeSource timeSource;
+  @Resource
+  TimeSource timeSource;
   @Resource(name = "test.mock.calcService") CalcService mockCalcService;
   @Resource(name = "test.real.calcService") CalcService realCalcService;
   @Resource(name = "test.real.calcService2") CalcService realCalcService2;

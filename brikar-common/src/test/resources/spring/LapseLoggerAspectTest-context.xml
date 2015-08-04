@@ -13,7 +13,7 @@
   <bean id="test.loggerProvider" class="com.truward.brikar.common.test.util.TestLoggerProvider"/>
 
   <bean id="test.timeSource" class="org.mockito.Mockito" factory-method="mock">
-    <constructor-arg value="com.truward.time.TimeSource"/>
+    <constructor-arg value="com.truward.brikar.common.time.TimeSource"/>
   </bean>
 
   <bean class="com.truward.brikar.common.log.aspect.StandardLapseLoggerAspect">

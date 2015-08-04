@@ -1,7 +1,7 @@
 package com.truward.brikar.common.log.lapse;
 
 import com.truward.brikar.common.log.LogUtil;
-import com.truward.time.TimeSource;
+import com.truward.brikar.common.time.TimeSource;
 import org.springframework.util.Assert;
 
 import javax.annotation.Nonnull;

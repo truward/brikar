@@ -37,12 +37,6 @@
       <artifactId>spring-web</artifactId>
     </dependency>
 
-    <!-- UTC time -->
-    <dependency>
-      <groupId>com.truward.time</groupId>
-      <artifactId>utc-time</artifactId>
-    </dependency>
-
     <!-- test scope -->
     <dependency>
       <groupId>org.springframework</groupId>

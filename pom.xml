@@ -75,8 +75,6 @@
 
     <jackson.version>2.4.2</jackson.version>
 
-    <utc-time.version>1.0.6</utc-time.version>
-
     <!--  compiler settings -->
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
@@ -175,18 +173,6 @@
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>
         <version>${jackson.version}</version>
-      </dependency>
-
-      <!-- UTC time -->
-      <dependency>
-        <groupId>com.truward.time</groupId>
-        <artifactId>utc-time</artifactId>
-        <version>${utc-time.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.truward.time</groupId>
-        <artifactId>utc-time-sql</artifactId>
-        <version>${utc-time.version}</version>
       </dependency>
 
       <!-- FindBugs - JSR-305 for @Nonnull etc. -->

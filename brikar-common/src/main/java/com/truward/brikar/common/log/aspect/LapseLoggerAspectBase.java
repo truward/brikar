@@ -3,7 +3,7 @@ package com.truward.brikar.common.log.aspect;
 import com.truward.brikar.common.log.LogLapse;
 import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.common.log.lapse.SimpleLapse;
-import com.truward.time.TimeSource;
+import com.truward.brikar.common.time.TimeSource;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.MethodSignature;
