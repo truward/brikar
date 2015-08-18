@@ -2,6 +2,7 @@ package com.truward.brikar.server.launcher;
 
 import com.truward.brikar.server.auth.SimpleAuthenticatorUtil;
 import com.truward.brikar.server.auth.SimpleServiceUser;
+import com.truward.brikar.server.context.StandardWebApplicationContextInitializer;
 import com.truward.brikar.server.tracking.RequestIdAwareFilter;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -11,51 +12,142 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.*;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.DispatcherType;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.SecureRandom;
 import java.util.*;
 
 /**
+ * Standard web application launcher.
+ *
  * @author Alexander Shabanov
  */
-public class StandardLauncher {
-  private final LauncherProperties properties;
+public class StandardLauncher implements AutoCloseable {
+
+  /**
+   * A name of a property that should hold a port number value, default value is defined in {@link #DEFAULT_PORT}.
+   */
+  public static final String CONFIG_KEY_PORT = "brikar.settings.port";
+
+  /**
+   * Default value, which will be used if property {@link #CONFIG_KEY_PORT} does not exist.
+   */
+  public static final int DEFAULT_PORT = 8080;
+
+  /**
+   * A name of a property that should hold a numerical value that represents a time in milliseconds that server
+   * should wait to handle incoming connections before shutting down.
+   */
+  public static final String CONFIG_KEY_SHUTDOWN_DELAY = "brikar.settings.gracefulShutdownMillis";
+
+  /**
+   * Default value, which should be used if property {@link #CONFIG_KEY_SHUTDOWN_DELAY} does not exist.
+   */
+  public static final int DEFAULT_SHUTDOWN_DELAY = 5000;
+
+  /**
+   * An optional system property that should contain a path to the comma separated property files that should override
+   * default properties.
+   * <p>
+   * Sample values: <code>classpath:/prod.properties</code>,
+   * <code>file:/opt/prod1.properties,file:/opt/prod2.properties</code>
+   * </p>
+   */
+  public static final String SYS_PROP_SETTINGS_OVERRIDE = "brikar.settings.path";
+
+  /**
+   * Name of the file that should contain default property files.
+   */
+  public static final String DEFAULT_PROPERTIES_FILE_NAME = "core.properties";
+
+  @Nonnull
+  public static List<String> getConfigurationPaths(@Nonnull String defaultDirPrefix) {
+    final List<String> paths = new ArrayList<>();
+
+    paths.add(defaultDirPrefix + DEFAULT_PROPERTIES_FILE_NAME);
+
+    final String overridePaths = System.getProperty(SYS_PROP_SETTINGS_OVERRIDE);
+    if (overridePaths != null) {
+      paths.addAll(Arrays.asList(overridePaths.split(",")));
+    }
+
+    return paths;
+  }
+
+  @Nonnull
+  public static PropertySource<?> createPropertySource(@Nonnull List<String> configurationPaths) {
+    final DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
+
+    final Properties properties = new Properties();
+    try {
+      for (final String configurationPath : configurationPaths) {
+        final Resource resource = resourceLoader.getResource(configurationPath);
+        if (!resource.exists()) {
+          throw new IllegalStateException("Override properties file does not exist at " + configurationPath);
+        }
+
+        PropertiesLoaderUtils.fillProperties(properties, resource);
+      }
+
+      // initialize property source based on these properties
+      return new PropertiesPropertySource("profile", properties);
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  //
+  // State
+  //
+
+  private final PropertyResolver propertyResolver;
+  private final PropertySource<?> propertySource;
+  private String propertySourceKey;
   private ServletContextHandler contextHandler;
   private String defaultDirPrefix;
   private boolean simpleSecurityEnabled;
   private boolean requestIdOperationsEnabled;
-  private String simpleSecurityOverridePath;
   private String authPropertiesPrefix = "auth";
-  private String configPath;
 
-  public StandardLauncher(@Nonnull LauncherProperties properties, @Nonnull String defaultDirPrefix) {
-    this.properties = properties;
+  //
+  // Public Methods
+  //
+
+  public StandardLauncher(@Nonnull PropertySource<?> propertySource, @Nonnull String defaultDirPrefix) {
+    this.propertySource = propertySource;
+
+    final MutablePropertySources mutablePropertySources = new MutablePropertySources();
+    mutablePropertySources.addFirst(propertySource);
+    this.propertyResolver = new PropertySourcesPropertyResolver(mutablePropertySources);
+
     // Loggers need to be configured as soon as possible, otherwise jetty will use its own default logger
     configureLoggers();
 
     setRequestIdOperationsEnabled(true);
-    setSimpleSecurityOverridePath(null);
     setDefaultDirPrefix(defaultDirPrefix);
   }
 
   public StandardLauncher(@Nonnull String defaultDirPrefix) {
-    this(DefaultLauncherProperties.createWithSystemProperties(), defaultDirPrefix);
+    this(createPropertySource(getConfigurationPaths(defaultDirPrefix)), defaultDirPrefix);
   }
 
   public StandardLauncher() {
     this("classpath:/");
+  }
+
+  @Override
+  public void close() {
+    StandardWebApplicationContextInitializer.removePropertySourceByKey(propertySourceKey);
   }
 
   @Nonnull
@@ -71,19 +163,36 @@ public class StandardLauncher {
   }
 
   @Nonnull
-  public StandardLauncher setSimpleSecurityOverridePath(@Nullable String simpleSecurityOverridePath) {
-    this.simpleSecurityOverridePath = simpleSecurityOverridePath;
-    return this;
-  }
-
-  @Nonnull
   public StandardLauncher setAuthPropertiesPrefix(@Nonnull String authPropertiesPrefix) {
     this.authPropertiesPrefix = authPropertiesPrefix;
     return this;
   }
 
+  @Nonnull
+  public PropertyResolver getPropertyResolver() {
+    return propertyResolver;
+  }
+
   public final void start() throws Exception {
-    startServer();
+    final int port = propertyResolver.getProperty(CONFIG_KEY_PORT, Integer.class, DEFAULT_PORT);
+    getLogger().info("About to start server. Use port={}", port);
+
+    final Server server = new Server(port);
+    setServerSettings(server);
+
+    contextHandler = new ServletContextHandler(getServletContextOptions());
+    contextHandler.setContextPath("/");
+    initSpringContext();
+
+    final HandlerCollection handlerList = new HandlerCollection();
+    final List<Handler> handlers = getHandlers();
+    handlerList.setHandlers(handlers.toArray(new Handler[handlers.size()]));
+    server.setHandler(handlerList);
+
+    setShutdownStrategy(server);
+
+    server.start();
+    server.join();
   }
 
   @Nonnull
@@ -93,24 +202,10 @@ public class StandardLauncher {
     return this;
   }
 
-  @Nonnull
-  public String getConfigPath() {
-    final String configPath = this.configPath;
-    if (configPath == null) {
-      return getDefaultConfigPath();
-    }
-    return configPath;
-  }
-
 
   //
   // Protected
   //
-
-  @Nonnull
-  protected String getDefaultConfigPath() {
-    return defaultDirPrefix + "default.properties";
-  }
 
   @Nonnull
   protected Logger getLogger() {
@@ -143,18 +238,25 @@ public class StandardLauncher {
     return false;
   }
 
+  /**
+   * This method initializes servlet filters.
+   * <p>
+   * Default implementation adds RequestId filter by default.
+   * </p>
+   * <p>
+   * Overrides of this method can also do things like enforcing UTF-8 encoding.
+   * Here is an example of how it can be done:
+   * <code>
+   *   final FilterHolder encFilterHolder = contextHandler.addFilter(CharacterEncodingFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
+   *   encFilterHolder.setInitParameter("encoding", "UTF-8");
+   *   encFilterHolder.setInitParameter("forceEncoding", "true"); // <-- this line instructs filter to add encoding
+   * </code>
+   * However this is usually not something
+   * </p>
+   *
+   * @param contextHandler Servlet context handler
+   */
   protected void initContextFilters(@Nonnull ServletContextHandler contextHandler) {
-    // Enforce UTF-8 encoding -
-    // this should be done on the LB side for browsers and this doesn't needed to be done for protobuf API
-    //
-    // enable this if and only if UTF-8 needs to be unconditionally appended to the Content-Type
-    // this is usually not needed
-
-//    final FilterHolder encFilterHolder = contextHandler.addFilter(CharacterEncodingFilter.class,
-//        "/*", EnumSet.allOf(DispatcherType.class));
-//    encFilterHolder.setInitParameter("encoding", "UTF-8");
-//    encFilterHolder.setInitParameter("forceEncoding", "true"); // <-- this line instructs filter to add encoding
-
     if (isSpringSecurityEnabled()) {
       initSpringSecurity(contextHandler);
     }
@@ -196,19 +298,9 @@ public class StandardLauncher {
 
   @Nonnull
   protected List<SimpleServiceUser> getSimpleServiceUsers() throws IOException {
-    final ResourceLoader loader = new DefaultResourceLoader();
-    for (final String path : getSimpleServiceResourcePaths()) {
-      getLogger().info("Simple security: trying to load users from {}", path);
-
-      final Resource resource = loader.getResource(path);
-      if (!resource.exists()) {
-        getLogger().info("Simple security: missing configuration at {}", path);
-        continue;
-      }
-
-      try (final InputStream is = resource.getInputStream()) {
-        return SimpleAuthenticatorUtil.loadUsers(is, SimpleAuthenticatorUtil.DEFAULT_CHARSET, authPropertiesPrefix);
-      }
+    final List<SimpleServiceUser> users = SimpleAuthenticatorUtil.loadUsers(propertySource, authPropertiesPrefix);
+    if (!users.isEmpty()) {
+      return users;
     }
 
     // fallback: there is no settings, use default username and generate password on the fly
@@ -216,52 +308,10 @@ public class StandardLauncher {
     final Random random = new SecureRandom();
     final String username = "serviceuser";
     final String password = Long.toHexString(random.nextLong());
-    getLogger().warn("Simple security: no predefined configuration; using username={} and password={}", username, password);
+    getLogger().warn("Simple security: no predefined configuration; using username={} and password={}",
+        username, password);
+
     return Collections.singletonList(new SimpleServiceUser(username, password));
-  }
-
-  @Nonnull
-  protected List<String> getSimpleServiceResourcePaths() {
-    final List<String> result = new ArrayList<>(3);
-
-    // Explicit path override
-    if (simpleSecurityOverridePath != null) {
-      result.add(simpleSecurityOverridePath);
-    }
-
-    // Property override for simple security
-    final String path = properties.getSimpleSecuritySettingsFilePath();
-    if (path != null) {
-      result.add(path);
-    }
-
-    // Default configuration path
-    result.add(getConfigPath());
-
-    return result;
-  }
-
-  protected void startServer() throws Exception {
-    this.configPath = properties.getConfigPath() != null ? properties.getConfigPath() : getDefaultConfigPath();
-    // set this property, so that spring security will be able to read it
-    System.setProperty(DefaultLauncherProperties.SYS_PROP_NAME_CONFIG_PATH, configPath);
-
-    final Server server = new Server(properties.getPort());
-    setServerSettings(server);
-
-    contextHandler = new ServletContextHandler(getServletContextOptions());
-    contextHandler.setContextPath("/");
-    initSpringContext();
-
-    final HandlerCollection handlerList = new HandlerCollection();
-    final List<Handler> handlers = getHandlers();
-    handlerList.setHandlers(handlers.toArray(new Handler[handlers.size()]));
-    server.setHandler(handlerList);
-
-    setShutdownStrategy(server);
-
-    server.start();
-    server.join();
   }
 
   protected int getServletContextOptions() {
@@ -275,7 +325,11 @@ public class StandardLauncher {
 
   protected void setShutdownStrategy(@Nonnull Server server) {
     // stop receiving connections after given amount of milliseconds
-    server.setGracefulShutdown(properties.getGracefulShutdownMillis());
+    final int shutdownDelay = propertyResolver
+        .getProperty(CONFIG_KEY_SHUTDOWN_DELAY, Integer.class, DEFAULT_SHUTDOWN_DELAY);
+    getLogger().info("Using shutdownDelay={}", shutdownDelay);
+
+    server.setGracefulShutdown(shutdownDelay);
 
     // stop server if SIGINT received
     server.setStopAtShutdown(true);
@@ -283,6 +337,18 @@ public class StandardLauncher {
 
   protected void initSpringContext() {
     contextHandler.setInitParameter("contextConfigLocation", getSpringContextLocations());
+
+    propertySourceKey = StandardWebApplicationContextInitializer
+        .registerPropertySource(new StandardWebApplicationContextInitializer.ServletInitParameterSetter() {
+          @Override
+          public void setInitParameter(@Nonnull String key, @Nonnull String value) {
+            contextHandler.setInitParameter(key, value);
+          }
+        }, propertySource);
+
+    contextHandler.setInitParameter("contextInitializerClasses",
+        StandardWebApplicationContextInitializer.class.getName());
+
     initContextFilters(contextHandler);
 
     // add spring context load listener

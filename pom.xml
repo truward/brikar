@@ -68,8 +68,7 @@
 
     <jetty.version>8.1.10.v20130312</jetty.version>
 
-    <aspectj.version>1.6.10</aspectj.version>
-    <spring.version>3.2.3.RELEASE</spring.version>
+    <spring.version>3.2.14.RELEASE</spring.version>
 
     <apache.httpcomponents.version>4.4</apache.httpcomponents.version>
 
@@ -197,13 +196,6 @@
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-webapp</artifactId>
         <version>${jetty.version}</version>
-      </dependency>
-
-      <!-- AOP support -->
-      <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjrt</artifactId>
-        <version>${aspectj.version}</version>
       </dependency>
 
       <!-- Apache HTTP components -->

@@ -19,13 +19,6 @@
       <artifactId>logback-classic</artifactId>
     </dependency>
 
-    <!-- Service Model -->
-    <dependency>
-      <groupId>com.truward.brikar.sample</groupId>
-      <artifactId>zoo-model</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
     <!-- Protobuf Message Converters -->
     <dependency>
       <groupId>com.truward.brikar.protobuf</groupId>

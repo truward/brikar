@@ -3,7 +3,7 @@ package com.truward.brikar.test.exposure;
 import com.truward.brikar.client.rest.RestBinder;
 import com.truward.brikar.client.rest.support.StandardRestBinder;
 import com.truward.brikar.common.healthcheck.HealthCheckRestService;
-import com.truward.brikar.server.launcher.DefaultLauncherProperties;
+import com.truward.brikar.server.launcher.StandardLauncher;
 import org.eclipse.jetty.server.Server;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -15,7 +15,13 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.ResourceAccessException;
 
 import javax.annotation.Nonnull;
+import java.io.File;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertEquals;
@@ -45,10 +51,18 @@ public abstract class ServerIntegrationTestBase {
       @Override
       public void run() {
         try {
-          final DefaultLauncherProperties properties = new DefaultLauncherProperties();
-          properties.setPort(PORT_NUMBER);
-          properties.setGracefulShutdownMillis(100);
-          ExposureServerLauncher.main(properties, new ExposureServerLauncher.ServerAware() {
+          final String props = StandardLauncher.CONFIG_KEY_PORT + "=" + PORT_NUMBER + "\n" +
+              StandardLauncher.CONFIG_KEY_SHUTDOWN_DELAY + "=100\n" +
+              "\n";
+
+          final File tmpFile = File.createTempFile("brikarIntegrationTest", "properties");
+          Files.write(Paths.get(tmpFile.toURI()), props.getBytes(StandardCharsets.UTF_8));
+
+          final List<String> configPaths = new ArrayList<>(StandardLauncher
+              .getConfigurationPaths(ExposureServerLauncher.DEFAULT_DIR_PREFIX));
+          configPaths.add("file:" + tmpFile.getPath());
+
+          ExposureServerLauncher.main(configPaths, new ExposureServerLauncher.ServerAware() {
             @Override
             public void setServer(@Nonnull Server server) {
               SERVER = server;

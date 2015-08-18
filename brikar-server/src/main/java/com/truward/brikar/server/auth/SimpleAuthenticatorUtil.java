@@ -9,6 +9,8 @@ import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Credential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.PropertySource;
 
 import javax.annotation.Nonnull;
 import java.io.*;
@@ -33,7 +35,7 @@ public final class SimpleAuthenticatorUtil {
   /**
    * Creates a handler for jetty server with the given list of users.
    * The list of users can be conveniently loaded by using the other method in
-   * this utility class: {@link #loadUsers(Reader, String)}.
+   * this utility class: {@link #loadUsers(PropertySource, String)}.
    *
    * @param users List of user entries
    * @return Jetty security handler
@@ -88,7 +90,7 @@ public final class SimpleAuthenticatorUtil {
    *
    * Sample call that would read {@code alice} and {@code bob} user entries from a sample property file given above:
    * <code>
-   *   users = loadUsers(reader, "myService.auth");
+   *   users = loadUsers(propertySource, "myService.auth");
    * </code>
    * </p>
    *
@@ -98,53 +100,32 @@ public final class SimpleAuthenticatorUtil {
    * See also {@link SimpleServiceUser}.
    * </p>
    *
-   * @param reader Reader instance, that produces text content in a java properties format
+   * @param propertySource Property source, to read auth properties from
    * @param authPropertiesPrefix Prefix for properties in a given reader, that should be treated as user record entries
    * @return List of the parsed user entries
-   * @throws IOException On I/O or parsing error
-   */
-  @Nonnull
-  public static List<SimpleServiceUser> loadUsers(@Nonnull Reader reader,
-                                                  @Nonnull String authPropertiesPrefix) throws IOException {
-    final Properties properties = new Properties();
-    properties.load(reader);
+   */@Nonnull
+  public static List<SimpleServiceUser> loadUsers(@Nonnull PropertySource<?> propertySource,
+                                                  @Nonnull String authPropertiesPrefix) {
+    if (propertySource instanceof EnumerablePropertySource) {
+      final EnumerablePropertySource<?> enumPropSource = (EnumerablePropertySource) propertySource;
+      final String[] propertyNames = enumPropSource.getPropertyNames();
 
-    final PropertyEntrySink sink = new PropertyEntrySink(authPropertiesPrefix);
+      final PropertyEntrySink sink = new PropertyEntrySink(authPropertiesPrefix);
 
-    for (final Map.Entry<?, ?> entry : properties.entrySet()) {
-      final Object key = entry.getKey();
-      final Object value = entry.getValue();
-
-      if (key instanceof String && value instanceof String) {
-        sink.putEntry(key.toString(), value.toString());
+      for (final String propertyName : propertyNames) {
+        final Object value = propertySource.getProperty(propertyName);
+        if (value instanceof String) {
+          sink.putEntry(propertyName, value.toString());
+        }
       }
+
+      return sink.getUserList();
     }
 
-    return sink.getUserList();
-  }
+    LoggerFactory.getLogger(SimpleAuthenticatorUtil.class)
+        .warn("propertySource={} is not of type EnumerablePropertySource", propertySource);
 
-  @Nonnull
-  public static List<SimpleServiceUser> loadUsers(@Nonnull InputStream inputStream,
-                                                  @Nonnull Charset charset,
-                                                  @Nonnull String authPropertiesPrefix) throws IOException {
-    try (final InputStreamReader reader = new InputStreamReader(inputStream, charset)) {
-      return loadUsers(reader, authPropertiesPrefix);
-    }
-  }
-
-  @Nonnull
-  public static List<SimpleServiceUser> loadUsers(@Nonnull File file,
-                                                  @Nonnull Charset charset,
-                                                  @Nonnull String authPropertiesPrefix) throws IOException {
-    try (final FileInputStream fs = new FileInputStream(file)) {
-      return loadUsers(fs, charset, authPropertiesPrefix);
-    }
-  }
-
-  @Nonnull
-  public static List<SimpleServiceUser> loadUsers(@Nonnull File file,
-                                                  @Nonnull String authPropertiesPrefix) throws IOException {
-    return loadUsers(file, DEFAULT_CHARSET, authPropertiesPrefix);
+    return Collections.emptyList();
   }
 
   //

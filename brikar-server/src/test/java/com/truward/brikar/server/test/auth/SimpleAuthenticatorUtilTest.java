@@ -3,15 +3,16 @@ package com.truward.brikar.server.test.auth;
 import com.truward.brikar.server.auth.SimpleAuthenticatorUtil;
 import com.truward.brikar.server.auth.SimpleServiceUser;
 import org.junit.Test;
+import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.core.env.PropertySource;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -19,6 +20,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
+ * Tests for {@link SimpleAuthenticatorUtil}.
+ *
  * @author Alexander Shabanov
  */
 public final class SimpleAuthenticatorUtilTest {
@@ -36,7 +39,7 @@ public final class SimpleAuthenticatorUtilTest {
 
     // When:
     final List<SimpleServiceUser> users = SimpleAuthenticatorUtil.loadUsers(
-        new StringReader(content), "myService.auth.users");
+        createPropertySource(content), "myService.auth.users");
 
     // Then:
     assertEquals(ONE_USER, users);
@@ -46,7 +49,7 @@ public final class SimpleAuthenticatorUtilTest {
   public void shouldLoadEmptyUserList() throws IOException {
     // When:
     final List<SimpleServiceUser> users = SimpleAuthenticatorUtil.loadUsers(
-        new StringReader(""), "myService");
+        createPropertySource(""), "myService");
 
     // Then:
     assertTrue(users.isEmpty());
@@ -68,7 +71,7 @@ public final class SimpleAuthenticatorUtilTest {
 
     // When:
     final List<SimpleServiceUser> users = SimpleAuthenticatorUtil.loadUsers(
-        new StringReader(content), "myService.auth.users");
+        createPropertySource(content), "myService.auth.users");
 
     // Then:
     assertEquals(new HashSet<>(asList(new SimpleServiceUser("alice", "test", asList("ROLE_ADMIN", "ROLE_USER")),
@@ -77,20 +80,14 @@ public final class SimpleAuthenticatorUtilTest {
         new HashSet<>(users));
   }
 
-  @Test
-  public void shouldReadPropertiesFromFile() throws IOException {
-    // Given:
-    final File temp = File.createTempFile("shouldReadPropertiesFromFile", ".properties");
-    temp.deleteOnExit();
+  //
+  // Private
+  //
 
-    try (final FileOutputStream fs = new FileOutputStream(temp)) {
-      fs.write(ONE_USER_PROPS.getBytes(StandardCharsets.UTF_8));
-    }
-
-    // When:
-    final List<SimpleServiceUser> users = SimpleAuthenticatorUtil.loadUsers(temp, "myService.auth.users");
-
-    // Then:
-    assertEquals(ONE_USER, users);
+  @Nonnull
+  public static PropertySource<?> createPropertySource(@Nonnull String content) throws IOException {
+    final Properties properties = new Properties();
+    properties.load(new StringReader(content));
+    return new PropertiesPropertySource("testProperties", properties);
   }
 }
