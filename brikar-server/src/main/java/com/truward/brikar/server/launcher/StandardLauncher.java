@@ -252,7 +252,7 @@ public class StandardLauncher implements AutoCloseable {
    * <code>
    *   final FilterHolder encFilterHolder = contextHandler.addFilter(CharacterEncodingFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
    *   encFilterHolder.setInitParameter("encoding", "UTF-8");
-   *   encFilterHolder.setInitParameter("forceEncoding", "true"); // <-- this line instructs filter to add encoding
+   *   encFilterHolder.setInitParameter("forceEncoding", "true"); // this line instructs filter to add encoding
    * </code>
    * However this is usually not something
    * </p>
