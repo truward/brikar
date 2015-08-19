@@ -51,5 +51,6 @@ public final class ExposureServerLauncher {
     }
 
     launcher.start();
+    launcher.close();
   }
 }

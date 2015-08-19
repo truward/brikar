@@ -7,10 +7,10 @@ import com.truward.brikar.server.launcher.StandardLauncher;
  */
 public final class TodoLauncher {
   public static void main(String[] args) throws Exception {
-    new StandardLauncher()
+    new StandardLauncher("classpath:/todoService/")
         .setSimpleSecurityEnabled(true)
         .setAuthPropertiesPrefix("todoService.auth")
-        .setDefaultDirPrefix("classpath:/todoService/")
-        .start();
+        .start()
+        .close();
   }
 }

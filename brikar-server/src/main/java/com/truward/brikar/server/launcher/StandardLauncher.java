@@ -16,7 +16,6 @@ import org.springframework.core.env.*;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
-import org.springframework.util.Assert;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -112,9 +111,9 @@ public class StandardLauncher implements AutoCloseable {
 
   private final PropertyResolver propertyResolver;
   private final PropertySource<?> propertySource;
+  private final String defaultDirPrefix;
   private AutoCloseable propertySourceCloseableRegistration;
   private ServletContextHandler contextHandler;
-  private String defaultDirPrefix;
   private boolean simpleSecurityEnabled;
   private boolean requestIdOperationsEnabled;
   private String authPropertiesPrefix = "auth";
@@ -123,8 +122,20 @@ public class StandardLauncher implements AutoCloseable {
   // Public Methods
   //
 
+  /**
+   * Constructor, that initializes both property source and default configuration directory prefix.
+   *
+   * @param propertySource Property source, to be used while initializing server and propagated to the spring
+   *                       context environment and used as property placeholder provider
+   * @param defaultDirPrefix Path where project configuration is located, for example <code>"classpath:/myService/"</code>
+   */
   public StandardLauncher(@Nonnull PropertySource<?> propertySource, @Nonnull String defaultDirPrefix) {
+    if (!defaultDirPrefix.endsWith("/")) {
+      throw new IllegalArgumentException("defaultDirPrefix should end with slash");
+    }
+
     this.propertySource = propertySource;
+    this.defaultDirPrefix = defaultDirPrefix;
 
     final MutablePropertySources mutablePropertySources = new MutablePropertySources();
     mutablePropertySources.addFirst(propertySource);
@@ -134,15 +145,10 @@ public class StandardLauncher implements AutoCloseable {
     configureLoggers();
 
     setRequestIdOperationsEnabled(true);
-    setDefaultDirPrefix(defaultDirPrefix);
   }
 
   public StandardLauncher(@Nonnull String defaultDirPrefix) {
     this(createPropertySource(getConfigurationPaths(defaultDirPrefix)), defaultDirPrefix);
-  }
-
-  public StandardLauncher() {
-    this("classpath:/");
   }
 
   @Override
@@ -176,7 +182,7 @@ public class StandardLauncher implements AutoCloseable {
     return propertyResolver;
   }
 
-  public final void start() throws Exception {
+  public final StandardLauncher start() throws Exception {
     final int port = propertyResolver.getProperty(CONFIG_KEY_PORT, Integer.class, DEFAULT_PORT);
     getLogger().info("About to start server. Use port={}", port);
 
@@ -196,12 +202,6 @@ public class StandardLauncher implements AutoCloseable {
 
     server.start();
     server.join();
-  }
-
-  @Nonnull
-  public StandardLauncher setDefaultDirPrefix(@Nonnull String defaultDirPrefix) {
-    Assert.notNull(defaultDirPrefix, "defaultDirPrefix can't be null");
-    this.defaultDirPrefix = defaultDirPrefix;
     return this;
   }
 

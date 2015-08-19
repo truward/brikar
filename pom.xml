@@ -68,7 +68,8 @@
 
     <jetty.version>8.1.10.v20130312</jetty.version>
 
-    <spring.version>3.2.14.RELEASE</spring.version>
+    <spring.version>3.2.8.RELEASE</spring.version>
+    <spring-security.version>3.2.8.RELEASE</spring-security.version>
 
     <apache.httpcomponents.version>4.4</apache.httpcomponents.version>
 
@@ -243,17 +244,17 @@
       <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-web</artifactId>
-        <version>${spring.version}</version>
+        <version>${spring-security.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-config</artifactId>
-        <version>${spring.version}</version>
+        <version>${spring-security.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-core</artifactId>
-        <version>${spring.version}</version>
+        <version>${spring-security.version}</version>
       </dependency>
 
       <!-- Servlet API -->
