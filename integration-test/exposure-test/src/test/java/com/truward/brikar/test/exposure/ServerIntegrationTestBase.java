@@ -3,12 +3,10 @@ package com.truward.brikar.test.exposure;
 import com.truward.brikar.client.rest.RestBinder;
 import com.truward.brikar.client.rest.support.StandardRestBinder;
 import com.truward.brikar.common.healthcheck.HealthCheckRestService;
+import com.truward.brikar.server.auth.SimpleServiceUser;
 import com.truward.brikar.server.launcher.StandardLauncher;
 import org.eclipse.jetty.server.Server;
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -20,8 +18,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertEquals;
@@ -45,46 +42,6 @@ public abstract class ServerIntegrationTestBase {
   private static int PORT_NUMBER = 18000 + ThreadLocalRandom.current().nextInt(1000);
   private static Server SERVER;
 
-  @BeforeClass
-  public static void initServer() {
-    THREAD = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          final String props = StandardLauncher.CONFIG_KEY_PORT + "=" + PORT_NUMBER + "\n" +
-              StandardLauncher.CONFIG_KEY_SHUTDOWN_DELAY + "=100\n" +
-              "\n";
-
-          final File tmpFile = File.createTempFile("brikarIntegrationTest", "properties");
-          Files.write(Paths.get(tmpFile.toURI()), props.getBytes(StandardCharsets.UTF_8));
-
-          final List<String> configPaths = new ArrayList<>(StandardLauncher
-              .getConfigurationPaths(ExposureServerLauncher.DEFAULT_DIR_PREFIX));
-          configPaths.add("file:" + tmpFile.getPath());
-
-          ExposureServerLauncher.main(configPaths, new ExposureServerLauncher.ServerAware() {
-            @Override
-            public void setServer(@Nonnull Server server) {
-              SERVER = server;
-            }
-          });
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-      }
-    });
-
-    THREAD.start();
-    LOG.info("Server started");
-
-    // protocol buffers message converter
-    try (final StandardRestBinder restBinder = new StandardRestBinder(new StringHttpMessageConverter())) {
-      restBinder.afterPropertiesSet();
-      waitUntilServerStarted(newClient(restBinder, HealthCheckRestService.class, "/rest"));
-    }
-    LOG.info("Server initialized");
-  }
-
   @AfterClass
   public static void stopServer() {
     if (SERVER != null) {
@@ -106,20 +63,50 @@ public abstract class ServerIntegrationTestBase {
     LOG.info("Server stopped");
   }
 
-  @Before
-  public void init() {
+  protected static void initServer(@Nonnull SimpleServiceUser user, final boolean springSecurityEnabled) {
+    THREAD = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          final String props = StandardLauncher.CONFIG_KEY_PORT + "=" + PORT_NUMBER + "\n" +
+              StandardLauncher.CONFIG_KEY_SHUTDOWN_DELAY + "=100\n" +
+              "\n";
 
-  }
+          final File tmpFile = File.createTempFile("brikarIntegrationTest", "properties");
+          Files.write(Paths.get(tmpFile.toURI()), props.getBytes(StandardCharsets.UTF_8));
 
-  @After
-  public void dispose() throws InterruptedException {
+          ExposureServerLauncher.main(
+              Collections.singletonList("file:" + tmpFile.getPath()),
+              new ExposureServerLauncher.ServerAware() {
+                @Override
+                public void setServer(@Nonnull Server server) {
+                  SERVER = server;
+                }
+              },
+              springSecurityEnabled);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+    });
 
+    THREAD.start();
+    LOG.info("Server started");
+
+    // protocol buffers message converter
+    try (final StandardRestBinder restBinder = new StandardRestBinder(new StringHttpMessageConverter())) {
+      restBinder.afterPropertiesSet();
+      waitUntilServerStarted(newClient(restBinder, HealthCheckRestService.class, "/rest", user));
+    }
+    LOG.info("Server initialized");
   }
 
   @Nonnull
-  protected static <T> T newClient(@Nonnull RestBinder binder, @Nonnull Class<T> clientClass, @Nonnull String relPath) {
+  protected static <T> T newClient(@Nonnull RestBinder binder, @Nonnull Class<T> clientClass, @Nonnull String relPath,
+                                   @Nonnull SimpleServiceUser user) {
     return binder.newClient(clientClass)
-        .setUsername("testonly").setPassword("test")
+        .setUsername(user.getUsername())
+        .setPassword(user.getPassword())
         .setUri(getServerUrl(relPath))
         .build();
   }

@@ -6,6 +6,7 @@ import org.springframework.core.env.PropertySource;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -13,16 +14,23 @@ import java.util.List;
  * @author Alexander Shabanov
  */
 public final class ExposureServerLauncher {
-  public static final String DEFAULT_DIR_PREFIX = "classpath:/exposureService/";
 
   public interface ServerAware {
     void setServer(@Nonnull Server server);
   }
 
-  public static void main(@Nonnull List<String> configPaths,
-                          @Nullable final ServerAware serverAware) throws Exception {
+  public static void main(@Nonnull List<String> extraConfigPaths,
+                          @Nullable final ServerAware serverAware,
+                          final boolean springSecurityEnabled) throws Exception {
+    final String dirPrefix = springSecurityEnabled ? "classpath:/exposureServiceSpringSec/" :
+        "classpath:/exposureService/";
+
+    final List<String> configPaths = new ArrayList<>(StandardLauncher.getConfigurationPaths(dirPrefix));
+    configPaths.addAll(extraConfigPaths);
+
     final PropertySource<?> propertySource = StandardLauncher.createPropertySource(configPaths);
-    final StandardLauncher launcher = new StandardLauncher(propertySource, DEFAULT_DIR_PREFIX) {
+
+    final StandardLauncher launcher = new StandardLauncher(propertySource, dirPrefix) {
       @Override
       protected void setServerSettings(@Nonnull Server server) {
         super.setServerSettings(server);
@@ -30,11 +38,18 @@ public final class ExposureServerLauncher {
           serverAware.setServer(server);
         }
       }
+
+      @Override
+      protected boolean isSpringSecurityEnabled() {
+        return springSecurityEnabled; // should get authentication from the context
+      }
     };
 
-    launcher
-        .setSimpleSecurityEnabled(true)
-        .setAuthPropertiesPrefix("exposureService.auth")
-        .start();
+    if (!springSecurityEnabled) {
+      launcher.setSimpleSecurityEnabled(true);
+      launcher.setAuthPropertiesPrefix("exposureService.auth");
+    }
+
+    launcher.start();
   }
 }

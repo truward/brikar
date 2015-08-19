@@ -112,7 +112,7 @@ public class StandardLauncher implements AutoCloseable {
 
   private final PropertyResolver propertyResolver;
   private final PropertySource<?> propertySource;
-  private String propertySourceKey;
+  private AutoCloseable propertySourceCloseableRegistration;
   private ServletContextHandler contextHandler;
   private String defaultDirPrefix;
   private boolean simpleSecurityEnabled;
@@ -146,8 +146,11 @@ public class StandardLauncher implements AutoCloseable {
   }
 
   @Override
-  public void close() {
-    StandardWebApplicationContextInitializer.removePropertySourceByKey(propertySourceKey);
+  public void close() throws Exception {
+    if (propertySourceCloseableRegistration != null) {
+      propertySourceCloseableRegistration.close();
+      propertySourceCloseableRegistration = null;
+    }
   }
 
   @Nonnull
@@ -338,8 +341,8 @@ public class StandardLauncher implements AutoCloseable {
   protected void initSpringContext() {
     contextHandler.setInitParameter("contextConfigLocation", getSpringContextLocations());
 
-    propertySourceKey = StandardWebApplicationContextInitializer
-        .registerPropertySource(new StandardWebApplicationContextInitializer.ServletInitParameterSetter() {
+    propertySourceCloseableRegistration = StandardWebApplicationContextInitializer
+        .register(new StandardWebApplicationContextInitializer.ServletInitializer() {
           @Override
           public void setInitParameter(@Nonnull String key, @Nonnull String value) {
             contextHandler.setInitParameter(key, value);
