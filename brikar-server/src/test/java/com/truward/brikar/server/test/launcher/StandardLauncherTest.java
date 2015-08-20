@@ -3,8 +3,9 @@ package com.truward.brikar.server.test.launcher;
 import com.truward.brikar.server.launcher.StandardLauncher;
 import com.truward.brikar.server.test.auth.SimpleAuthenticatorUtilTest;
 import org.junit.Test;
+import org.springframework.core.env.PropertySource;
 
-import java.io.IOException;
+import java.util.concurrent.Callable;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,9 +17,14 @@ import static org.junit.Assert.assertEquals;
 public final class StandardLauncherTest {
 
   @Test
-  public void shouldInitializeDefaults() throws IOException {
+  public void shouldInitializeDefaults() throws Exception {
     final StandardLauncher launcher = new StandardLauncher(
-        SimpleAuthenticatorUtilTest.createPropertySource("app=test"),
+        new Callable<PropertySource<?>>() {
+          @Override
+          public PropertySource<?> call() throws Exception {
+            return SimpleAuthenticatorUtilTest.createPropertySource("app=test");
+          }
+        },
         "classpath:/");
     assertEquals("test", launcher.getPropertyResolver().getProperty("app"));
   }

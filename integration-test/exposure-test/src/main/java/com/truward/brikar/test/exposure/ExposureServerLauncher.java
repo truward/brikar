@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 
 /**
@@ -22,6 +23,8 @@ public final class ExposureServerLauncher {
   public static void main(@Nonnull List<String> extraConfigPaths,
                           @Nullable final ServerAware serverAware,
                           final boolean springSecurityEnabled) throws Exception {
+    StandardLauncher.ensureLoggersConfigured();
+
     final String dirPrefix = springSecurityEnabled ? "classpath:/exposureServiceSpringSec/" :
         "classpath:/exposureService/";
 
@@ -30,7 +33,12 @@ public final class ExposureServerLauncher {
 
     final PropertySource<?> propertySource = StandardLauncher.createPropertySource(configPaths);
 
-    final StandardLauncher launcher = new StandardLauncher(propertySource, dirPrefix) {
+    final StandardLauncher launcher = new StandardLauncher(new Callable<PropertySource<?>>() {
+      @Override
+      public PropertySource<?> call() throws Exception {
+        return propertySource;
+      }
+    }, dirPrefix) {
       @Override
       protected void setServerSettings(@Nonnull Server server) {
         super.setServerSettings(server);

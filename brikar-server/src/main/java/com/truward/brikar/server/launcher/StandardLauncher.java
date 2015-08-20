@@ -25,9 +25,22 @@ import javax.servlet.DispatcherType;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.Callable;
 
 /**
  * Standard web application launcher.
+ *
+ * <p>Uses jetty as a servlet container and makes a lot of assumptions about
+ * an application which should be started, namely:</p>
+ * <ul>
+ *   <li><strong>Logger</strong> - by default logback is used and its default configuration is defined
+ *   in <tt>default-service-logback.xml</tt></li>
+ *   <li><strong>Dependency injection</strong> - spring and spring MVC are supposed to be used</li>
+ *   <li><strong>Standard HTTP filters</strong> - for logging request/response-specific data</li>
+ *   <li><strong>Configuration layout</strong> - standard configuration implies <tt>service.xml</tt>,
+ *   <tt>webmvc.xml</tt> spring configs and <tt>core.properties</tt> file that contains default service
+ *   configuration properties</li>
+ * </ul>
  *
  * @author Alexander Shabanov
  */
@@ -125,30 +138,56 @@ public class StandardLauncher implements AutoCloseable {
   /**
    * Constructor, that initializes both property source and default configuration directory prefix.
    *
-   * @param propertySource Property source, to be used while initializing server and propagated to the spring
-   *                       context environment and used as property placeholder provider
-   * @param defaultDirPrefix Path where project configuration is located, for example <code>"classpath:/myService/"</code>
+   * <p><strong>IMPORTANT:</strong>This constructor initializes loggers, it is very important to not to do
+   * anything which directly or indirectly results in calls to the slf4j logger prior to calling this constructor</p>
+   * <p>This is the reason why this method takes Callable instance and not just the PropertySource as
+   * standard spring's implementation of PropertySource uses loggers even in class constructors.</p>
+   *
+   * <p>If it is very inconvenient or impossible, then explicit call to {@link #ensureLoggersConfigured()}
+   * is advised as first operation after starting an application. This will perform default loggers configuration if
+   * external properties do not override it.</p>
+   *
+   * @param propertySourceCallable A method, that should create and return property source instance,
+   *                               which will be used while initializing server and propagated to the spring
+   *                               context environment and used as property placeholder provider
+   * @param defaultDirPrefix Path where project configuration is located,
+   *                         for example <code>"classpath:/myService/"</code>
+   * @throws Exception if unable to perform initialization
    */
-  public StandardLauncher(@Nonnull PropertySource<?> propertySource, @Nonnull String defaultDirPrefix) {
+  public StandardLauncher(@Nonnull Callable<PropertySource<?>> propertySourceCallable,
+                          @Nonnull String defaultDirPrefix) throws Exception {
+    // Loggers need to be configured as soon as possible, otherwise jetty will use its own default logger
+    configureLoggers();
+
     if (!defaultDirPrefix.endsWith("/")) {
       throw new IllegalArgumentException("defaultDirPrefix should end with slash");
     }
 
-    this.propertySource = propertySource;
+    this.propertySource = propertySourceCallable.call();
     this.defaultDirPrefix = defaultDirPrefix;
 
     final MutablePropertySources mutablePropertySources = new MutablePropertySources();
     mutablePropertySources.addFirst(propertySource);
     this.propertyResolver = new PropertySourcesPropertyResolver(mutablePropertySources);
 
-    // Loggers need to be configured as soon as possible, otherwise jetty will use its own default logger
-    configureLoggers();
-
     setRequestIdOperationsEnabled(true);
   }
 
-  public StandardLauncher(@Nonnull String defaultDirPrefix) {
-    this(createPropertySource(getConfigurationPaths(defaultDirPrefix)), defaultDirPrefix);
+  /**
+   * Constructor that uses default way of initializing property source.
+   * For more details see
+   *
+   * @param defaultDirPrefix Path where project configuration is located,
+   *                         for example <code>"classpath:/myService/"</code>
+   * @throws Exception if unable to perform initialization
+   */
+  public StandardLauncher(@Nonnull final String defaultDirPrefix) throws Exception {
+    this(new Callable<PropertySource<?>>() {
+      @Override
+      public PropertySource<?> call() throws Exception {
+        return createPropertySource(getConfigurationPaths(defaultDirPrefix));
+      }
+    }, defaultDirPrefix);
   }
 
   @Override
@@ -205,6 +244,16 @@ public class StandardLauncher implements AutoCloseable {
     return this;
   }
 
+  /**
+   * Default logback initialization. Should be called explicitly if there is a code that calls or creates loggers
+   * directly or indirectly.
+   */
+  public static void ensureLoggersConfigured() {
+    // initialize logback if logback.configurationFile property has not been set
+    if (System.getProperty("logback.configurationFile") == null) {
+      System.setProperty("logback.configurationFile", "default-service-logback.xml");
+    }
+  }
 
   //
   // Protected
@@ -216,10 +265,7 @@ public class StandardLauncher implements AutoCloseable {
   }
 
   protected void configureLoggers() {
-    // initialize logback if logback.configurationFile property has not been set
-    if (System.getProperty("logback.configurationFile") == null) {
-      System.setProperty("logback.configurationFile", "default-service-logback.xml");
-    }
+    ensureLoggersConfigured();
   }
 
   @Nonnull

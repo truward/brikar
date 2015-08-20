@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
  * @author Alexander Shabanov
  */
 public final class ZooLauncher extends StandardLauncher {
-  public ZooLauncher(@Nonnull String defaultDirPrefix) {
+  public ZooLauncher(@Nonnull String defaultDirPrefix) throws Exception {
     super(defaultDirPrefix);
   }
 

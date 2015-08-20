@@ -44,7 +44,6 @@ public class ConfigReportController {
 
   @RequestMapping(value = "/config", produces = MediaType.TEXT_PLAIN_VALUE)
   public void reportConfig(@Nonnull HttpServletResponse response) throws IOException {
-    //response.setHeader("Content-Type", "text/plain");
     final PrintWriter writer = response.getWriter();
 
     writer.append("Generated at ").append(new Date().toString()).append('\n').append('\n');
