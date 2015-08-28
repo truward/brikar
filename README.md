@@ -16,6 +16,13 @@ see ``default-service-logback.xml``.
 * Log includes specially formatted meta information.
 See ``LogUtil.java`` and ``TrackingHttpHeaderNames.java`` for details.
 
+Also includes optional components, such as:
+
+* Basic spring context that propagates environment properties as property placeholder making them visible inside the context.
+* A controller, that exposes primitive health check API.
+* A controller, that exposes text representation of JVM settings.
+* Spring Security developer-only configuration
+
 # How to use
 
 Add jar dependency in your pom.xml:
