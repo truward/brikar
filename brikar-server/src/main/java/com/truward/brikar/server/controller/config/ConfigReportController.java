@@ -45,9 +45,15 @@ public class ConfigReportController {
   @RequestMapping(value = "/config", produces = MediaType.TEXT_PLAIN_VALUE)
   public void reportConfig(@Nonnull HttpServletResponse response) throws IOException {
     final PrintWriter writer = response.getWriter();
-
     writer.append("Generated at ").append(new Date().toString()).append('\n').append('\n');
+    appendProperties(writer);
+  }
 
+  //
+  // Protected
+  //
+
+  protected void appendProperties(@Nonnull PrintWriter writer) throws IOException {
     if (includeSystemProperties) {
       writeProperties(writer, "System", System.getProperties());
     }
@@ -57,13 +63,9 @@ public class ConfigReportController {
     }
   }
 
-  //
-  // Private
-  //
-
-  private static void writeProperties(@Nonnull PrintWriter writer,
-                                      @Nonnull String propertyBlockName,
-                                      @Nonnull Map<?, ?> properties) {
+  protected static void writeProperties(@Nonnull PrintWriter writer,
+                                        @Nonnull String propertyBlockName,
+                                        @Nonnull Map<?, ?> properties) {
     writer.append(propertyBlockName).append(' ').append("properties:\n");
     for (final Map.Entry<?, ?> entry : properties.entrySet()) {
       writer

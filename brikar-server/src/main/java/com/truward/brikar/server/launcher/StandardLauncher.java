@@ -7,6 +7,7 @@ import com.truward.brikar.server.tracking.RequestIdAwareFilter;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 import javax.annotation.Nonnull;
 import javax.servlet.DispatcherType;
+import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.*;
@@ -130,6 +132,8 @@ public class StandardLauncher implements AutoCloseable {
   private boolean simpleSecurityEnabled;
   private boolean requestIdOperationsEnabled;
   private String authPropertiesPrefix = "auth";
+  private boolean springSecurityEnabled;
+  private boolean staticHandlerEnabled;
 
   //
   // Public Methods
@@ -205,6 +209,12 @@ public class StandardLauncher implements AutoCloseable {
   }
 
   @Nonnull
+  public StandardLauncher setSpringSecurityEnabled(boolean enabled) {
+    this.springSecurityEnabled = enabled;
+    return this;
+  }
+
+  @Nonnull
   public StandardLauncher setRequestIdOperationsEnabled(boolean enabled) {
     this.requestIdOperationsEnabled = enabled;
     return this;
@@ -213,6 +223,12 @@ public class StandardLauncher implements AutoCloseable {
   @Nonnull
   public StandardLauncher setAuthPropertiesPrefix(@Nonnull String authPropertiesPrefix) {
     this.authPropertiesPrefix = authPropertiesPrefix;
+    return this;
+  }
+
+  @Nonnull
+  public StandardLauncher setStaticHandlerEnabled(boolean enabled) {
+    this.staticHandlerEnabled = enabled;
     return this;
   }
 
@@ -269,8 +285,13 @@ public class StandardLauncher implements AutoCloseable {
   }
 
   @Nonnull
-  protected List<Handler> getHandlers() {
-    return Collections.<Handler>singletonList(contextHandler);
+  protected List<Handler> getHandlers() throws Exception {
+    final List<Handler> result = new ArrayList<>();
+    result.add(contextHandler);
+    if (staticHandlerEnabled) {
+      result.add(createStaticHandler());
+    }
+    return result;
   }
 
   @Nonnull
@@ -281,10 +302,6 @@ public class StandardLauncher implements AutoCloseable {
   @Nonnull
   protected String getDispatcherServletConfigLocations() {
     return defaultDirPrefix + "spring/webmvc.xml";
-  }
-
-  protected boolean isSpringSecurityEnabled() {
-    return false;
   }
 
   /**
@@ -306,7 +323,7 @@ public class StandardLauncher implements AutoCloseable {
    * @param contextHandler Servlet context handler
    */
   protected void initContextFilters(@Nonnull ServletContextHandler contextHandler) {
-    if (isSpringSecurityEnabled()) {
+    if (springSecurityEnabled) {
       initSpringSecurity(contextHandler);
     }
 
@@ -366,6 +383,27 @@ public class StandardLauncher implements AutoCloseable {
   protected int getServletContextOptions() {
     //noinspection PointlessBitwiseExpression
     return ServletContextHandler.NO_SESSIONS | ServletContextHandler.NO_SECURITY;
+  }
+
+  @Nonnull
+  protected ResourceHandler createStaticHandler() throws IOException {
+    final ResourceHandler resourceHandler = new ResourceHandler();
+
+    final String overrideStaticPath = getPropertyResolver().getProperty("brikar.dev.overrideStaticPath");
+    if (overrideStaticPath != null) {
+      getLogger().info("Using override path for static resources: {}", overrideStaticPath);
+      resourceHandler.setBaseResource(org.eclipse.jetty.util.resource.Resource
+          .newResource(new File(overrideStaticPath)));
+    } else {
+      resourceHandler.setBaseResource(getDefaultStaticResource());
+    }
+
+    return resourceHandler;
+  }
+
+  @Nonnull
+  protected org.eclipse.jetty.util.resource.Resource getDefaultStaticResource() {
+    return org.eclipse.jetty.util.resource.Resource.newClassPathResource("/eolaireService/web");
   }
 
   protected void setServerSettings(@Nonnull Server server) {

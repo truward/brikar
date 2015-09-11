@@ -7,17 +7,8 @@ import javax.annotation.Nonnull;
 /**
  * @author Alexander Shabanov
  */
-public final class ZooLauncher extends StandardLauncher {
-  public ZooLauncher(@Nonnull String defaultDirPrefix) throws Exception {
-    super(defaultDirPrefix);
-  }
-
+public final class ZooLauncher {
   public static void main(String[] args) throws Exception {
-    new ZooLauncher("classpath:/zooService/").start().close();
-  }
-
-  @Override
-  protected boolean isSpringSecurityEnabled() {
-    return true;
+    new StandardLauncher("classpath:/zooService/").setSpringSecurityEnabled(true).start().close();
   }
 }

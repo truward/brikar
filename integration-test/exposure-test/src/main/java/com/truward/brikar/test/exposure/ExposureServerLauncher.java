@@ -46,16 +46,13 @@ public final class ExposureServerLauncher {
           serverAware.setServer(server);
         }
       }
-
-      @Override
-      protected boolean isSpringSecurityEnabled() {
-        return springSecurityEnabled; // should get authentication from the context
-      }
     };
 
     if (!springSecurityEnabled) {
       launcher.setSimpleSecurityEnabled(true);
       launcher.setAuthPropertiesPrefix("exposureService.auth");
+    } else {
+      launcher.setSpringSecurityEnabled(true);
     }
 
     launcher.start();
