@@ -141,6 +141,7 @@ public class StandardLauncher implements AutoCloseable {
   private String authPropertiesPrefix = "auth";
   private boolean springSecurityEnabled;
   private boolean staticHandlerEnabled;
+  private int servletContextOptions;
 
   //
   // Public Methods
@@ -183,6 +184,8 @@ public class StandardLauncher implements AutoCloseable {
     this.propertyResolver = new PropertySourcesPropertyResolver(mutablePropertySources);
 
     setRequestIdOperationsEnabled(true);
+    setSessionsEnabled(false);
+    setContextSecurityEnabled(false);
   }
 
   /**
@@ -234,6 +237,32 @@ public class StandardLauncher implements AutoCloseable {
     return this;
   }
 
+  /**
+   * Enables session support.
+   * See also {@link ServletContextHandler#SESSIONS}.
+   *
+   * @param enabled Identifies whether sessions should be enabled
+   * @return Launcher instance for chaining
+   */
+  @Nonnull
+  public StandardLauncher setSessionsEnabled(boolean enabled) {
+    toggleServletContextHandlerParameter(enabled, ServletContextHandler.SESSIONS);
+    return this;
+  }
+
+  /**
+   * Enables builtin Jetty security.
+   * See also {@link ServletContextHandler#SECURITY}.
+   *
+   * @param enabled Identifies whether context security should be enabled
+   * @return Launcher instance for chaining
+   */
+  @Nonnull
+  public StandardLauncher setContextSecurityEnabled(boolean enabled) {
+    toggleServletContextHandlerParameter(enabled, ServletContextHandler.SECURITY);
+    return this;
+  }
+
   @Nonnull
   public StandardLauncher setStaticHandlerEnabled(boolean enabled) {
     this.staticHandlerEnabled = enabled;
@@ -252,7 +281,7 @@ public class StandardLauncher implements AutoCloseable {
     final Server server = new Server(port);
     setServerSettings(server);
 
-    contextHandler = new ServletContextHandler(getServletContextOptions());
+    contextHandler = new ServletContextHandler(servletContextOptions);
     contextHandler.setContextPath("/");
     initSpringContext();
 
@@ -388,11 +417,6 @@ public class StandardLauncher implements AutoCloseable {
     return Collections.singletonList(new SimpleServiceUser(username, password));
   }
 
-  protected int getServletContextOptions() {
-    //noinspection PointlessBitwiseExpression
-    return ServletContextHandler.NO_SESSIONS | ServletContextHandler.NO_SECURITY;
-  }
-
   @Nonnull
   protected ResourceHandler createStaticHandler() throws IOException {
     final ResourceHandler resourceHandler = new ResourceHandler();
@@ -462,5 +486,17 @@ public class StandardLauncher implements AutoCloseable {
     contextHandler.addEventListener(new ContextLoaderListener());
 
     initServlets(contextHandler);
+  }
+
+  //
+  // Private
+  //
+
+  private void toggleServletContextHandlerParameter(boolean enabled, int param) {
+    if (enabled) {
+      this.servletContextOptions |= param;
+    } else {
+      this.servletContextOptions &= ~param;
+    }
   }
 }
