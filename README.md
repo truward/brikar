@@ -29,7 +29,7 @@ Add jar dependency in your pom.xml:
 
 ```xml
 <!-- in properties: -->
-<brikar.version>1.2.17</brikar.version>
+<brikar.version>1.3.19</brikar.version>
 <!-- ... skipped ... -->
 
 <dependency>
