@@ -4,6 +4,7 @@ import com.truward.brikar.server.auth.SimpleServiceUser;
 import org.junit.BeforeClass;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Integration tests for server that uses embedded jetty authentication means.
@@ -15,10 +16,10 @@ public final class ExposureServerIntegrationTest extends AbstractServerIntegrati
 
   @BeforeClass
   public static void initServer() {
-    initServer(USER, false);
+    initServer(USER, LaunchMode.EXPOSURE_WITH_SIMPLE_SECURITY);
   }
 
-  @Nonnull
+  @Nullable
   @Override
   protected SimpleServiceUser getUser() {
     return USER;

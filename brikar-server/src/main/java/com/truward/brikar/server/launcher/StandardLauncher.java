@@ -17,6 +17,7 @@ import org.springframework.core.env.*;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -83,6 +84,12 @@ public class StandardLauncher implements AutoCloseable {
    * Name of the file that should contain default property files.
    */
   public static final String DEFAULT_PROPERTIES_FILE_NAME = "core.properties";
+
+  /**
+   * A relative path, where launcher expect to find static resources, served by {@link ResourceHandler} if
+   * {@link #staticHandlerEnabled} property has been set to true.
+   */
+  public static final String STATIC_WEB_FOLDER = "web/static";
 
   @Nonnull
   public static List<String> getConfigurationPaths(@Nonnull String defaultDirPrefix) {
@@ -163,12 +170,13 @@ public class StandardLauncher implements AutoCloseable {
     // Loggers need to be configured as soon as possible, otherwise jetty will use its own default logger
     configureLoggers();
 
-    if (!defaultDirPrefix.endsWith("/")) {
-      throw new IllegalArgumentException("defaultDirPrefix should end with slash");
+    if (defaultDirPrefix.endsWith("/")) {
+      this.defaultDirPrefix = defaultDirPrefix;
+    } else {
+      this.defaultDirPrefix = defaultDirPrefix + '/';
     }
 
     this.propertySource = propertySourceCallable.call();
-    this.defaultDirPrefix = defaultDirPrefix;
 
     final MutablePropertySources mutablePropertySources = new MutablePropertySources();
     mutablePropertySources.addFirst(propertySource);
@@ -402,8 +410,20 @@ public class StandardLauncher implements AutoCloseable {
   }
 
   @Nonnull
-  protected org.eclipse.jetty.util.resource.Resource getDefaultStaticResource() {
-    return org.eclipse.jetty.util.resource.Resource.newClassPathResource("/eolaireService/web");
+  protected org.eclipse.jetty.util.resource.Resource getDefaultStaticResource() throws IOException {
+    if (defaultDirPrefix.startsWith(ResourceUtils.CLASSPATH_URL_PREFIX)) {
+      return org.eclipse.jetty.util.resource.Resource.newClassPathResource(defaultDirPrefix
+          .substring(ResourceUtils.CLASSPATH_URL_PREFIX.length()) + STATIC_WEB_FOLDER);
+    } else if (defaultDirPrefix.startsWith(ResourceUtils.FILE_URL_PREFIX)) {
+      return org.eclipse.jetty.util.resource.Resource
+          .newResource(new File(defaultDirPrefix
+              .substring(ResourceUtils.FILE_URL_PREFIX.length()) + STATIC_WEB_FOLDER));
+    } else if (defaultDirPrefix.startsWith("/")) {
+      return org.eclipse.jetty.util.resource.Resource
+          .newResource(new File(defaultDirPrefix + STATIC_WEB_FOLDER));
+    }
+
+    throw new IOException("Unknown protocol in defaultDirPrefix=" + defaultDirPrefix);
   }
 
   protected void setServerSettings(@Nonnull Server server) {

@@ -20,6 +20,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestOperations;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static org.junit.Assert.*;
 
@@ -60,42 +61,13 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
 
   @Test
   public void shouldGetServerConfiguration() {
-    try (final StandardRestBinder restBinder = new StandardRestBinder(new StringHttpMessageConverter())) {
-      class ConfigFetcherService {
-        final RestOperations restOperations;
-
-        public ConfigFetcherService(@Nonnull RestOperations restOperations) {
-          this.restOperations = restOperations;
-        }
-
-        @Nonnull
-        public String getConfig() {
-          return restOperations.getForObject(getServerUrl("/g/admin/config"), String.class);
-        }
+    withCustomRestBinder("/g/admin/config", new TextRetrievalTestScenario() {
+      @Override
+      public void execute(@Nonnull RetrievalService retrievalService) {
+        final String config = retrievalService.getResource();
+        assertNotNull(config);
       }
-
-      restBinder.setRestServiceBinderFactory(new RestServiceBinderFactory() {
-        @Nonnull
-        @Override
-        public RestServiceBinder create(@Nonnull final RestOperations restOperations) {
-          return new RestServiceBinder() {
-            @Nonnull
-            @Override
-            public <T> T createClient(@Nonnull String serviceBaseUrl, @Nonnull Class<T> restServiceClass, @Nonnull Class<?>... extraClasses) {
-              assertEquals(ConfigFetcherService.class, restServiceClass);
-              return restServiceClass.cast(new ConfigFetcherService(restOperations));
-            }
-          };
-        }
-      });
-      restBinder.afterPropertiesSet();
-
-      final ConfigFetcherService configFetcherService = newClient(restBinder, ConfigFetcherService.class, "/");
-
-      final String config = configFetcherService.getConfig();
-
-      assertNotNull(config);
-    }
+    });
   }
 
   @Test
@@ -103,8 +75,11 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
     try (final StandardRestBinder restBinder = new StandardRestBinder(new ProtobufHttpMessageConverter())) {
       restBinder.afterPropertiesSet();
 
+      final SimpleServiceUser user = getUser();
+      assertNotNull(user);
+
       final ExposureRestService exposureService = newClient(restBinder, ExposureRestService.class, "/rest/test",
-          new SimpleServiceUser(getUser().getUsername(), getUser().getPassword() + "1"));
+          new SimpleServiceUser(user.getUsername(), user.getPassword() + "1"));
 
       try {
         exposureService.greet(ExposureModel.HelloRequest.newBuilder()
@@ -152,16 +127,4 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
       assertTrue(e.getResponseBodyAsString().isEmpty());
     }
   }
-
-  //
-  // Protected
-  //
-
-  @Nonnull
-  protected <T> T newClient(@Nonnull RestBinder binder, @Nonnull Class<T> clientClass, @Nonnull String relPath) {
-    return newClient(binder, clientClass, relPath, getUser());
-  }
-
-  @Nonnull
-  protected abstract SimpleServiceUser getUser();
 }

@@ -16,17 +16,12 @@ import java.util.concurrent.Callable;
  */
 public final class ExposureServerLauncher {
 
-  public interface ServerAware {
-    void setServer(@Nonnull Server server);
-  }
-
   public static void main(@Nonnull List<String> extraConfigPaths,
                           @Nullable final ServerAware serverAware,
-                          final boolean springSecurityEnabled) throws Exception {
+                          @Nonnull LaunchMode launchMode) throws Exception {
     StandardLauncher.ensureLoggersConfigured();
 
-    final String dirPrefix = springSecurityEnabled ? "classpath:/exposureServiceSpringSec/" :
-        "classpath:/exposureService/";
+    final String dirPrefix = getConfigPath(launchMode);
 
     final List<String> configPaths = new ArrayList<>(StandardLauncher.getConfigurationPaths(dirPrefix));
     configPaths.addAll(extraConfigPaths);
@@ -48,14 +43,36 @@ public final class ExposureServerLauncher {
       }
     };
 
-    if (!springSecurityEnabled) {
-      launcher.setSimpleSecurityEnabled(true);
-      launcher.setAuthPropertiesPrefix("exposureService.auth");
-    } else {
-      launcher.setSpringSecurityEnabled(true);
+    switch (launchMode) {
+      case EXPOSURE_WITH_SIMPLE_SECURITY:
+        launcher.setSimpleSecurityEnabled(true);
+        launcher.setAuthPropertiesPrefix("exposureService.auth");
+        break;
+      case EXPOSURE_WITH_SPRING_SECURITY:
+        launcher.setSpringSecurityEnabled(true);
+        break;
+      case STATIC_WEBSITE:
+        launcher.setStaticHandlerEnabled(true);
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown launchMode=" + launchMode);
     }
 
     launcher.start();
     launcher.close();
+  }
+
+  @Nonnull
+  private static String getConfigPath(@Nonnull LaunchMode launchMode) {
+    switch (launchMode) {
+      case EXPOSURE_WITH_SIMPLE_SECURITY:
+        return "classpath:/exposureService/";
+      case EXPOSURE_WITH_SPRING_SECURITY:
+        return "classpath:/exposureServiceSpringSec/";
+      case STATIC_WEBSITE:
+        return "classpath:/staticWebsite/";
+      default:
+        throw new IllegalArgumentException("Unknown launchMode=" + launchMode);
+    }
   }
 }

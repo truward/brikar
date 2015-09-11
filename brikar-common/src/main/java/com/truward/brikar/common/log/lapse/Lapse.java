@@ -6,6 +6,8 @@ import javax.annotation.Nonnull;
  * Identifies a single measurement of a service call, that needs to be logged.
  * Usually this is associated with the particular operation that takes certain amount of time and can fail.
  * The only purpose of this class is to provide structured data to logger writer which is capable to write lapses.
+ * Normally the lapse should be used internally by an aspect, that
+ * processes {@link com.truward.brikar.common.log.LogLapse} annotation.
  *
  * @author Alexander Shabanov
  */
