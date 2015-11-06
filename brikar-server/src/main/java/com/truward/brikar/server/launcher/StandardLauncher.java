@@ -81,6 +81,12 @@ public class StandardLauncher implements AutoCloseable {
   public static final String SYS_PROP_SETTINGS_OVERRIDE = "brikar.settings.path";
 
   /**
+   * A path to static resources that will be used to override default locations for resources, served by static
+   * servlet.
+   */
+  public static final String OVERRIDE_STATIC_PATH = "brikar.dev.overrideStaticPath";
+
+  /**
    * Name of the file that should contain default property files.
    */
   public static final String DEFAULT_PROPERTIES_FILE_NAME = "core.properties";
@@ -123,7 +129,7 @@ public class StandardLauncher implements AutoCloseable {
       // initialize property source based on these properties
       return new PropertiesPropertySource("profile", properties);
     } catch (IOException e) {
-      throw new IllegalStateException(e);
+      throw new IllegalStateException("Error while creating property source", e);
     }
   }
 
@@ -421,7 +427,7 @@ public class StandardLauncher implements AutoCloseable {
   protected ResourceHandler createStaticHandler() throws IOException {
     final ResourceHandler resourceHandler = new ResourceHandler();
 
-    final String overrideStaticPath = getPropertyResolver().getProperty("brikar.dev.overrideStaticPath");
+    final String overrideStaticPath = getPropertyResolver().getProperty(OVERRIDE_STATIC_PATH);
     if (overrideStaticPath != null) {
       getLogger().info("Using override path for static resources: {}", overrideStaticPath);
       resourceHandler.setBaseResource(org.eclipse.jetty.util.resource.Resource

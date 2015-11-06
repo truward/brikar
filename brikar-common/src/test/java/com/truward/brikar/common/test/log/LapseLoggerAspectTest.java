@@ -15,6 +15,8 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 /**
@@ -22,9 +24,8 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/spring/LapseLoggerAspectTest-context.xml")
-public class LapseLoggerAspectTest {
-  @Resource
-  TimeSource timeSource;
+public final class LapseLoggerAspectTest {
+  @Resource TimeSource timeSource;
   @Resource(name = "test.mock.calcService") CalcService mockCalcService;
   @Resource(name = "test.real.calcService") CalcService realCalcService;
   @Resource(name = "test.real.calcService2") CalcService realCalcService2;
@@ -33,6 +34,8 @@ public class LapseLoggerAspectTest {
 
   @Before
   public void initMocks() {
+    reset(mockCalcService);
+
     when(timeSource.getTimeUnit()).thenReturn(TimeUnit.MILLISECONDS);
     loggerProvider.reset();
   }
@@ -52,7 +55,28 @@ public class LapseLoggerAspectTest {
     // Then:
     assertEquals(3, result);
     final String logContent = loggerProvider.getRawLogContents();
-    assertTrue(logContent.contains("@metric op=CalcService.plus, tDelta=200"));
+    assertTrue(logContent.contains("@metric op=CalcService.plus, tDelta=200\n"));
+  }
+
+  @Test
+  public void shouldLogFailedOperation() {
+    // Given:
+    when(timeSource.currentTime())
+        .thenReturn(1000L) // 1st time
+        .thenReturn(1001L); // 2nd time
+    when(mockCalcService.add(1, 2)).thenThrow(new IllegalArgumentException());
+
+    // When:
+    try {
+      realCalcService.add(1, 2);
+      fail("Calc service should throw an exception");
+    } catch (IllegalArgumentException ignored) {
+      // OK
+    }
+
+    // Then:
+    final String logContent = loggerProvider.getRawLogContents();
+    assertTrue(logContent.contains("@metric op=CalcService.plus, tDelta=1, failed=true\n"));
   }
 
   @Test
