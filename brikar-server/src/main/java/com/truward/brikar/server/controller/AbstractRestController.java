@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 
 /**
  * Base class for handling exceptions. It is not required to inherit this class, but it might bring some benefits such

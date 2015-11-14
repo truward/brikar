@@ -55,6 +55,7 @@
   </issueManagement>
 
   <modules>
+    <module>brikar-error-response</module>
     <module>brikar-common</module>
     <module>brikar-protobuf</module>
     <module>brikar-client</module>

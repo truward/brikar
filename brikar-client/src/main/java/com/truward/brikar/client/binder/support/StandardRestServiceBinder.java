@@ -123,32 +123,8 @@ public class StandardRestServiceBinder implements RestServiceBinder {
     final RequestMethod requestMethod = getRequestMethod(requestMapping);
     final MethodParseResult parseResult = parseMethod(method, serviceBaseUrl, requestMapping);
 
-    return new RestMethodInvocationHandler(getHttpMethod(requestMethod), parseResult.uriExtractor,
+    return new RestMethodInvocationHandler(HttpMethod.valueOf(requestMethod.name()), parseResult.uriExtractor,
         parseResult.bodyExtractor, restOperations);
-  }
-
-  @Nonnull
-  private HttpMethod getHttpMethod(@Nonnull RequestMethod requestMethod) {
-    switch (requestMethod) {
-      case GET:
-        return HttpMethod.GET;
-      case DELETE:
-        return HttpMethod.DELETE;
-      case HEAD:
-        return HttpMethod.HEAD;
-      case OPTIONS:
-        return HttpMethod.OPTIONS;
-      case POST:
-        return HttpMethod.POST;
-      case PUT:
-        return HttpMethod.PUT;
-      case TRACE:
-        return HttpMethod.TRACE;
-      case PATCH:
-        return HttpMethod.PATCH;
-      default:
-        throw new IllegalArgumentException("Invalid HTTP method: " + requestMethod);
-    }
   }
 
   @Nonnull

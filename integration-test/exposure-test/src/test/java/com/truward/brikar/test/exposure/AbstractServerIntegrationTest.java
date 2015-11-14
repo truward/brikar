@@ -1,26 +1,26 @@
 package com.truward.brikar.test.exposure;
 
-import com.truward.brikar.client.binder.RestServiceBinder;
-import com.truward.brikar.client.binder.RestServiceBinderFactory;
-import com.truward.brikar.client.rest.RestBinder;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.truward.brikar.client.rest.support.StandardRestBinder;
 import com.truward.brikar.common.log.LogUtil;
+import com.truward.brikar.error.model.ErrorModel;
+import com.truward.brikar.protobuf.http.ProtobufHttpConstants;
 import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
 import com.truward.brikar.protobuf.http.json.ProtobufJsonHttpMessageConverter;
 import com.truward.brikar.server.auth.SimpleServiceUser;
 import com.truward.brikar.test.exposure.controller.ExposureRestController;
 import com.truward.brikar.test.exposure.model.ExposureModel;
 import com.truward.brikar.test.exposure.service.ExposureRestService;
+import org.apache.http.HttpHeaders;
 import org.junit.Test;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestOperations;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -125,6 +125,38 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
     } catch (HttpServerErrorException e) {
       assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getStatusCode());
       assertTrue(e.getResponseBodyAsString().isEmpty());
+    }
+
+    checkErrorModelInErrorResponse(exposureService);
+  }
+
+  private void checkErrorModelInErrorResponse(@Nonnull ExposureRestService exposureService) {
+    final HttpServerErrorException exception;
+    try {
+      exposureService.greet(ExposureModel.HelloRequest.newBuilder().setPerson("admin").build());
+      fail("Should not greet admin");
+      return;
+    } catch (HttpServerErrorException e) {
+      exception = e;
+    }
+
+    final List<String> contentTypeList = exception.getResponseHeaders().get(HttpHeaders.CONTENT_TYPE);
+    assertEquals(1, contentTypeList.size());
+
+    final MediaType actualContentType = MediaType.parseMediaType(contentTypeList.get(0));
+    if (ProtobufHttpConstants.PROTOBUF_MEDIA_TYPE.isCompatibleWith(actualContentType)) {
+      final ErrorModel.Error error;
+      try {
+        error = ErrorModel.Error.parseFrom(exception.getResponseBodyAsByteArray());
+        assertEquals(ExposureRestController.ACCESS_DENIED, error.getMessage());
+      } catch (InvalidProtocolBufferException e) {
+        throw new AssertionError(e);
+      }
+    } else if (MediaType.APPLICATION_JSON.isCompatibleWith(actualContentType)) {
+      assertEquals("{\"message\":\"" + ExposureRestController.ACCESS_DENIED + "\"}",
+          exception.getResponseBodyAsString());
+    } else {
+      fail("Unexpected content type: " + actualContentType);
     }
   }
 }

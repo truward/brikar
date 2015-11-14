@@ -29,6 +29,12 @@
       <artifactId>brikar-protobuf-http-json</artifactId>
     </dependency>
 
+    <!-- Generic error response -->
+    <dependency>
+      <groupId>com.truward.brikar</groupId>
+      <artifactId>brikar-error-response</artifactId>
+    </dependency>
+
     <!-- Exposure Base -->
     <dependency>
       <groupId>com.truward.brikar</groupId>

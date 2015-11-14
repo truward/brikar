@@ -1,0 +1,10 @@
+package truward.brikar.error.model;
+
+option java_package = "com.truward.brikar.error.model";
+option java_outer_classname = "ErrorModel";
+
+message Error {
+  optional int32 code = 1;
+  optional string message = 2;
+  optional Error cause = 3;
+}

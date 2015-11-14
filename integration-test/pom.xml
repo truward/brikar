@@ -63,6 +63,11 @@
         <artifactId>brikar-server</artifactId>
         <version>${brikar.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.truward.brikar</groupId>
+        <artifactId>brikar-error-response</artifactId>
+        <version>${brikar.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 </project>
