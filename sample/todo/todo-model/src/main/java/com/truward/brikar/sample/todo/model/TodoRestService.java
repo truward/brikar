@@ -1,6 +1,8 @@
 package com.truward.brikar.sample.todo.model;
 
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author Alexander Shabanov

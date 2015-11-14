@@ -5,7 +5,6 @@ import com.truward.brikar.sample.todo.model.TodoRestService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author Alexander Shabanov

@@ -2,8 +2,6 @@ package com.truward.brikar.sample.zoo.server;
 
 import com.truward.brikar.server.launcher.StandardLauncher;
 
-import javax.annotation.Nonnull;
-
 /**
  * @author Alexander Shabanov
  */

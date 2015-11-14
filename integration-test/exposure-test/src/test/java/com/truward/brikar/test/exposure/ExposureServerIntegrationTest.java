@@ -3,7 +3,6 @@ package com.truward.brikar.test.exposure;
 import com.truward.brikar.server.auth.SimpleServiceUser;
 import org.junit.BeforeClass;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**

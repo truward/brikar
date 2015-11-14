@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.web.filter.OncePerRequestFilter;
-import sun.rmi.runtime.Log;
 
 import javax.annotation.Nonnull;
 import javax.servlet.FilterChain;

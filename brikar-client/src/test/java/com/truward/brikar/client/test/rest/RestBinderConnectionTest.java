@@ -3,11 +3,8 @@ package com.truward.brikar.client.test.rest;
 import com.truward.brikar.client.binder.RestServiceBinder;
 import com.truward.brikar.client.binder.RestServiceBinderFactory;
 import com.truward.brikar.client.rest.support.StandardRestBinder;
-import com.truward.it.httpserver.ItHttpServer;
-import com.truward.it.httpserver.ItResponseProducer;
 import com.truward.it.httpserver.producer.AbstractResponseProducer;
 import com.truward.it.httpserver.support.DefaultItHttpServer;
-import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -25,8 +22,6 @@ import java.io.IOException;
 import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 
 /**
  * Integration tests for {@link com.truward.brikar.client.rest.support.StandardRestBinder}.
