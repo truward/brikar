@@ -77,9 +77,20 @@ Add jar dependency in your pom.xml:
 
 See also samples in ``sample`` folder. The structure of samples is identical to the one descibed above.
 
-## How Metric Logging Looks Like
+## Logging and Metrics
 
-Request-response-related (both client and server):
+Brikar comes with pre-configured logging (slf4j+logback). See also ``default-service-logback.xml``.
+
+Metrics are necessary to capture information on how application processed particular request.
+That metric-specific information usually has the following attributes:
+
+* Operation name. This is used to associate the particular place in code with business procedure.
+It can be a class and method names combined if such processing is encapsulated in the particular method, or it can
+match an exposed REST API URL.
+* Time, to do the corresponding data processing, for example how much time it took to process an HTTP request.
+* Various extra parameters, such as whether or not operation succeeded, HTTP method name for capturing RESTful operations behavior, etc.
+
+Examples of request-response-related metrics (both client and server):
 
 ```
 2015-07-28 06:34:05,942 INFO c.t.b.s.t.RequestIdAwareFilter rid=26lrh002OXW/bE, oid=JsonProtocol [qtp1556534733-21] @metric op=/test/exposure/greet, tDelta=9
