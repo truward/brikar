@@ -44,7 +44,7 @@ Add jar dependency in your pom.xml:
 
 ```xml
 <!-- in properties: -->
-<brikar.version>1.3.19</brikar.version>
+<brikar.version>1.3.20</brikar.version>
 <!-- ... skipped ... -->
 
 <dependency>
