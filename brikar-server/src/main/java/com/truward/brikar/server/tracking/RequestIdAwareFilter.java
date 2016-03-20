@@ -8,14 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.annotation.Nonnull;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * A filter which performs processing of request ID and originating reqiest ID, such as
