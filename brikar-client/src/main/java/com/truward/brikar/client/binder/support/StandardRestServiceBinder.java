@@ -27,8 +27,7 @@ public class StandardRestServiceBinder implements RestServiceBinder {
   private final RestOperations restOperations;
 
   public StandardRestServiceBinder(@Nonnull RestOperations restOperations) {
-    Assert.notNull(restOperations, "restOperations");
-    this.restOperations = restOperations;
+    this.restOperations = Objects.requireNonNull(restOperations, "restOperations");
   }
 
   @Override

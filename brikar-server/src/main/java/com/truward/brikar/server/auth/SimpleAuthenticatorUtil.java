@@ -13,9 +13,15 @@ import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
 
 import javax.annotation.Nonnull;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Utility class for working with embedded jetty authentication.
@@ -28,8 +34,6 @@ public final class SimpleAuthenticatorUtil {
   public static final String DEFAULT_REALM = "default";
 
   public static final String DEFAULT_REALM_NAME = "defaultRealm";
-
-  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   /**
    * Creates a handler for jetty server with the given list of users.

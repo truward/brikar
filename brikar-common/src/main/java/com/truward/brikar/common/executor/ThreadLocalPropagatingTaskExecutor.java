@@ -6,6 +6,7 @@ import org.springframework.util.Assert;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -22,11 +23,9 @@ public final class ThreadLocalPropagatingTaskExecutor implements AsyncTaskExecut
 
   public ThreadLocalPropagatingTaskExecutor(AsyncTaskExecutor delegate,
                                             List<ThreadParametersBinder> threadParametersBinders) {
-    Assert.notNull(delegate, "delegate");
-    Assert.notNull(threadParametersBinders, "threadParameterBinders");
-
-    this.delegate = delegate;
-    this.threadParametersBinders = Collections.unmodifiableList(new ArrayList<>(threadParametersBinders));
+    this.delegate = Objects.requireNonNull(delegate, "delegate") ;
+    this.threadParametersBinders = Collections.unmodifiableList(new ArrayList<>(Objects
+        .requireNonNull(threadParametersBinders, "threadParameterBinders")));
   }
 
   @Override
@@ -84,8 +83,7 @@ public final class ThreadLocalPropagatingTaskExecutor implements AsyncTaskExecut
 
     public DelegatedRunnable(Runnable delegate, List<ThreadParametersBinder> binders) {
       super(binders);
-      Assert.notNull(delegate, "delegate");
-      this.delegate = delegate;
+      this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
     @Override
@@ -104,8 +102,7 @@ public final class ThreadLocalPropagatingTaskExecutor implements AsyncTaskExecut
 
     public DelegatedCallable(Callable<T> delegate, List<ThreadParametersBinder> binders) {
       super(binders);
-      Assert.notNull(delegate, "delegate");
-      this.delegate = delegate;
+      this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
     @Override

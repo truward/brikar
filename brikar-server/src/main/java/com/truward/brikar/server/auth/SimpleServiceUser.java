@@ -4,6 +4,7 @@ import org.springframework.util.Assert;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -23,11 +24,10 @@ public final class SimpleServiceUser {
   private final List<String> roles;
 
   public SimpleServiceUser(@Nonnull  String username, @Nonnull String password, @Nonnull List<String> roles) {
-    Assert.notNull(username, "username");
-    Assert.notNull(password, "password");
-    Assert.notNull(roles, "roles");
-    this.username = username;
-    this.password = password;
+    this.username = Objects.requireNonNull(username, "username");
+    this.password = Objects.requireNonNull(password, "password");
+
+    Objects.requireNonNull(roles, "roles");
     this.roles = unmodifiableList(asList(roles.toArray(new String[roles.size()])));
   }
 

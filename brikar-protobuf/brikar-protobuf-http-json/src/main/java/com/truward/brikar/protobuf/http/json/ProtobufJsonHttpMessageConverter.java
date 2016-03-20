@@ -24,7 +24,6 @@ public class ProtobufJsonHttpMessageConverter extends AbstractHttpMessageConvert
 
   public ProtobufJsonHttpMessageConverter(@Nonnull JsonFactory jsonFactory) {
     super(MediaType.APPLICATION_JSON);
-    Assert.notNull(jsonFactory, "jsonFactory");
     this.jsonFactory = jsonFactory;
   }
 

@@ -5,6 +5,7 @@ import com.truward.brikar.common.time.TimeSource;
 import org.springframework.util.Assert;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 /**
  * @author Alexander Shabanov
@@ -24,7 +25,6 @@ public final class SimpleLapse implements Lapse {
   }
 
   public void setStartTime(@Nonnull TimeSource timeSource) {
-    Assert.notNull(timeSource, "timeSource");
     setStartTime(timeSource.getTimeUnit().toMillis(timeSource.currentTime()));
   }
 
@@ -40,7 +40,6 @@ public final class SimpleLapse implements Lapse {
   }
 
   public void setEndTime(@Nonnull TimeSource timeSource) {
-    Assert.notNull(timeSource, "timeSource");
     setEndTime(timeSource.getTimeUnit().toMillis(timeSource.currentTime()));
   }
 
