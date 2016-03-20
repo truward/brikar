@@ -6,16 +6,23 @@
 Brikar
 ======
 
-Framework for exposing microservices using Spring MVC + Google Protobuf + Jackson (JSON) + Jetty (Servlet Container).
+Brikar is a set of non-intrusive libraries for exposing microservices.
+It uses existing frameworks and libraries, such as Spring, Google Protocol Buffers, Jackson, Jetty.
 
-It also offers:
+It's primary purpose, similar to [dropwizard](https://github.com/dropwizard) is to combine existing framework into a few,
+easy to include and use artifacts with some wiring code to connect them together.
+
+Brikar pro also offers:
 
 * Wiring protobuf-generated domain model with REST API
 * Defining RESTful service interface
 * Generating a client by using single service interface definition
 * Standardized logging
+* Optional spring security configuration
+* Simple service authentication
 * Emitting metrics to logs
-* Tracking request IDs
+* Tracking request IDs - associating unique request-specific ID with every message in the logs that correspond
+to particular request
 * Retries with backoff (for generated clients)
 
 # Assumptions
