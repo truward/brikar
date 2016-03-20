@@ -59,14 +59,16 @@ Add jar dependency in your pom.xml:
 ## How to Implement Simplest Microservice
 
 1000 foot view:
+
 * First, create a parent pom, say ``hello/pom.xml``
-* Create three subprojects
+* Create three subprojects:
+** One - model definition, say ``hello-model``. This module will contain protocol buffer model definition and service interface contract
+** Other - for server, that will implement and expose service contract from ``hello-model``, say ``hello-server``
+** Third (optional) - for client definition, that will contain sample client implementation that will access remote server using contract from ``hello-model``
 
-# Examples
+See also samples in ``sample`` folder.
 
-See ``sample`` folder.
-
-## How Logging Looks Like
+## How Metric Logging Looks Like
 
 Request-response-related (both client and server):
 
@@ -78,3 +80,7 @@ Request-response-related (both client and server):
 2015-07-28 06:34:05,951 INFO c.t.b.s.t.RequestIdAwareFilter rid=FQnDh+T9A2zPKY, oid=JsonProtocol [qtp1556534733-21] @metric op=/test/exposure/greet, tDelta=2
 2015-07-28 06:34:05,952 WARN c.t.b.c.r.s.StandardRestBinder oid=JsonProtocol [main] @metric op=/rest/test/exposure/greet, tDelta=5, method=POST, responseCode=400, responseRid=FQnDh+T9A2zPKY
 ```
+
+Each line contains specifically formatted metric entry.
+
+For example ``@metric op=/test/exposure/greet, tDelta=9`` line means that service invocation of ``/test/exposure/greet`` takes ``9`` milliseconds.
