@@ -4,7 +4,7 @@
   <parent>
     <artifactId>brikar</artifactId>
     <groupId>com.truward.brikar</groupId>
-    <version>1.3.20-SNAPSHOT</version>
+    <version>1.3.20</version>
   </parent>
 
   <artifactId>brikar-persistence-util</artifactId>
