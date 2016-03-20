@@ -58,17 +58,17 @@ Add jar dependency in your pom.xml:
 
 # Notes
 
-## How to Implement Simplest Microservice
+## How to Implement Simplest Microservice Using Brikar
 
 10000 foot view:
 
 * First, create a parent pom, say ``hello/pom.xml``
 * Create three subprojects:
-* One - model definition, say ``hello-model``. This module will contain protocol buffer model definition and service interface contract
+* One - model definition, say ``hello-model``. This module will contain protocol buffer model definition and service interface contract.
 * Other - for server, that will implement and expose service contract from ``hello-model``, say ``hello-server``
 * Third (optional) - for client definition, that will contain sample client implementation that will access remote server using contract from ``hello-model``
 
-See also samples in ``sample`` folder.
+See also samples in ``sample`` folder. The structure of samples is identical to the one descibed above.
 
 ## How Metric Logging Looks Like
 
