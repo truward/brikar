@@ -62,9 +62,9 @@ Add jar dependency in your pom.xml:
 
 * First, create a parent pom, say ``hello/pom.xml``
 * Create three subprojects:
-** One - model definition, say ``hello-model``. This module will contain protocol buffer model definition and service interface contract
-** Other - for server, that will implement and expose service contract from ``hello-model``, say ``hello-server``
-** Third (optional) - for client definition, that will contain sample client implementation that will access remote server using contract from ``hello-model``
+* One - model definition, say ``hello-model``. This module will contain protocol buffer model definition and service interface contract
+* Other - for server, that will implement and expose service contract from ``hello-model``, say ``hello-server``
+* Third (optional) - for client definition, that will contain sample client implementation that will access remote server using contract from ``hello-model``
 
 See also samples in ``sample`` folder.
 
