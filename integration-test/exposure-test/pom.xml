@@ -74,31 +74,14 @@
 
   <build>
     <plugins>
-
-      <!-- protocol buffers runner, requires protoc -->
+      <!-- Protocol Buffers -->
       <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>generate-sources</id>
-            <phase>generate-sources</phase>
-            <configuration>
-              <tasks>
-                <mkdir dir="target/generated-sources"/>
-                <mkdir dir="target/generated-sources/java"/>
-
-                <exec executable="protoc">
-                  <arg value="--java_out=target/generated-sources/java"/>
-                  <arg value="src/main/protobuf/exposure.proto"/>
-                </exec>
-              </tasks>
-              <sourceRoot>target/generated-sources/java</sourceRoot>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protoc</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

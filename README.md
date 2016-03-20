@@ -1,10 +1,24 @@
-brikar
+[![GitHub license](https://img.shields.io/badge/license-Apache%202-green.svg)](https://raw.githubusercontent.com/truward/brikar/master/LICENSE)
+[![Maven Central](https://img.shields.io/maven-central/v/com.truward.brikar/brikar.svg)](https://repo1.maven.org/maven2/com/truward/brikar/brikar/)
+
+Brikar
 ======
 
 Framework for exposing microservices using Spring MVC + Google Protobuf + Jackson (JSON) + Jetty (Servlet Container).
-This framework makes a lot of assumptions about client and server.
+
+It also offers:
+
+* Wiring protobuf-generated domain model with REST API
+* Defining RESTful service interface
+* Generating a client by using single service interface definition
+* Standardized logging
+* Emitting metrics to logs
+* Tracking request IDs
+* Retries with backoff (for generated clients)
 
 # Assumptions
+
+This framework makes a lot of assumptions about client and server.
 
 * Spring is used to wire dependencies, Spring MVC - for exposing RESTful controllers.
 * Embedded jetty is used as servlet container.
@@ -22,6 +36,7 @@ Also includes optional components, such as:
 * A controller, that exposes primitive health check API.
 * A controller, that exposes text representation of JVM settings.
 * Spring Security developer-only configuration
+* REST controller that exposes health check API
 
 # How to use
 
@@ -39,7 +54,17 @@ Add jar dependency in your pom.xml:
 </dependency>
 ```
 
+# Notes
+
+## How to Implement Simplest Microservice
+
+1000 foot view:
+* First, create a parent pom, say ``hello/pom.xml``
+* Create three subprojects
+
 # Examples
+
+See ``sample`` folder.
 
 ## How Logging Looks Like
 
