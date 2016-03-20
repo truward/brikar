@@ -58,7 +58,7 @@ Add jar dependency in your pom.xml:
 
 ## How to Implement Simplest Microservice
 
-1000 foot view:
+10000 foot view:
 
 * First, create a parent pom, say ``hello/pom.xml``
 * Create three subprojects:
@@ -83,4 +83,4 @@ Request-response-related (both client and server):
 
 Each line contains specifically formatted metric entry.
 
-For example ``@metric op=/test/exposure/greet, tDelta=9`` line means that service invocation of ``/test/exposure/greet`` takes ``9`` milliseconds.
+For example ``@metric op=/test/exposure/greet, tDelta=9`` line means that service invocation of ``/test/exposure/greet`` took ``9`` milliseconds.
