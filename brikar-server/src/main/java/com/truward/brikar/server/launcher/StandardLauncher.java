@@ -4,6 +4,7 @@ import com.truward.brikar.server.auth.SimpleAuthenticatorUtil;
 import com.truward.brikar.server.auth.SimpleServiceUser;
 import com.truward.brikar.server.context.StandardWebApplicationContextInitializer;
 import com.truward.brikar.server.tracking.RequestIdAwareFilter;
+import com.truward.brikar.server.util.JettyResourceUtil;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
@@ -430,8 +431,7 @@ public class StandardLauncher implements AutoCloseable {
     final String overrideStaticPath = getPropertyResolver().getProperty(OVERRIDE_STATIC_PATH);
     if (overrideStaticPath != null) {
       getLogger().info("Using override path for static resources: {}", overrideStaticPath);
-      resourceHandler.setBaseResource(org.eclipse.jetty.util.resource.Resource
-          .newResource(new File(overrideStaticPath)));
+      resourceHandler.setBaseResource(JettyResourceUtil.createResource(overrideStaticPath));
     } else {
       resourceHandler.setBaseResource(getDefaultStaticResource());
     }
@@ -441,19 +441,7 @@ public class StandardLauncher implements AutoCloseable {
 
   @Nonnull
   protected org.eclipse.jetty.util.resource.Resource getDefaultStaticResource() throws IOException {
-    if (defaultDirPrefix.startsWith(ResourceUtils.CLASSPATH_URL_PREFIX)) {
-      return org.eclipse.jetty.util.resource.Resource.newClassPathResource(defaultDirPrefix
-          .substring(ResourceUtils.CLASSPATH_URL_PREFIX.length()) + STATIC_WEB_FOLDER);
-    } else if (defaultDirPrefix.startsWith(ResourceUtils.FILE_URL_PREFIX)) {
-      return org.eclipse.jetty.util.resource.Resource
-          .newResource(new File(defaultDirPrefix
-              .substring(ResourceUtils.FILE_URL_PREFIX.length()) + STATIC_WEB_FOLDER));
-    } else if (defaultDirPrefix.startsWith("/")) {
-      return org.eclipse.jetty.util.resource.Resource
-          .newResource(new File(defaultDirPrefix + STATIC_WEB_FOLDER));
-    }
-
-    throw new IOException("Unknown protocol in defaultDirPrefix=" + defaultDirPrefix);
+    return JettyResourceUtil.createResource(defaultDirPrefix + STATIC_WEB_FOLDER);
   }
 
   protected void setServerSettings(@Nonnull Server server) {
