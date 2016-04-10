@@ -129,14 +129,6 @@
         <version>${project.version}</version>
       </dependency>
 
-      <!-- Project Artifacts for Testing Only -->
-      <dependency>
-        <groupId>com.truward.brikar.protobuf</groupId>
-        <artifactId>brikar-protobuf-test</artifactId>
-        <version>${project.version}</version>
-        <scope>test</scope>
-      </dependency>
-
       <!-- Logging -->
       <dependency>
         <groupId>org.slf4j</groupId>

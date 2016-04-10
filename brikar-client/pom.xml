@@ -50,10 +50,6 @@
       <artifactId>spring-test</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.truward.brikar.protobuf</groupId>
-      <artifactId>brikar-protobuf-test</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.truward.it.httpserver</groupId>
       <artifactId>http-server-it</artifactId>
     </dependency>
@@ -63,5 +59,23 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+
+      <!-- Protobuf Compiler -->
+      <plugin>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protoc</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <configuration>
+          <protoTestSourceRoot>../brikar-protobuf/test-proto</protoTestSourceRoot>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
 
