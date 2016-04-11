@@ -55,6 +55,7 @@
   </issueManagement>
 
   <modules>
+    <module>brikar-rpc-rest</module>
     <module>brikar-persistence-util</module>
     <module>brikar-error-response</module>
     <module>brikar-common</module>
