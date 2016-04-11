@@ -1,4 +1,4 @@
-package com.truward.brikar.grpc;
+package com.truward.brikar.rpc;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
