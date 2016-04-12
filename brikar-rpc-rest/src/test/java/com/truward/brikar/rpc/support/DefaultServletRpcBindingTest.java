@@ -15,6 +15,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.util.StreamUtils;
 
 import javax.annotation.Generated;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -24,9 +25,12 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
+ * Tests for {@link DefaultServletRpcBinding}.
+ *
  * @author Alexander Shabanov
  */
 public final class DefaultServletRpcBindingTest {
+
   private ServletRpcBinding rpcBinding;
   private DefaultService defaultService;
 
@@ -54,6 +58,66 @@ public final class DefaultServletRpcBindingTest {
     // Then:
     final String last = defaultService.getLast();
     assertEquals("Foo+test", last);
+  }
+
+  @Test
+  public void shouldSendNotAllowedCode() throws Exception {
+    // Given:
+    final MockHttpServletRequest request = new MockHttpServletRequest("GET", "http://localhost:9001/Service");
+    final MockHttpServletResponse response = new MockHttpServletResponse();
+
+    // When:
+    rpcBinding.process(request, response);
+
+    // Then:
+    assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, response.getStatus());
+  }
+
+  @Test
+  public void shouldSendBadRequestCode() throws Exception {
+    // Given:
+    final MockHttpServletRequest request = new MockHttpServletRequest("POST", "http://localhost:9001/Service");
+    request.setParameter("m", "getFoo");
+    request.setContent(("Bar,test").getBytes(StandardCharsets.UTF_8));
+    final MockHttpServletResponse response = new MockHttpServletResponse();
+
+    // When:
+    rpcBinding.process(request, response);
+
+    // Then:
+    assertEquals(HttpServletResponse.SC_BAD_REQUEST, response.getStatus());
+  }
+
+  @Test
+  public void shouldSendNotFoundCode() throws Exception {
+    // Given:
+    final MockHttpServletRequest request = new MockHttpServletRequest("POST", "http://localhost:9001/Service");
+    request.setParameter("m", "getFoo2");
+    request.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    request.setContent(("Bar,test").getBytes(StandardCharsets.UTF_8));
+    final MockHttpServletResponse response = new MockHttpServletResponse();
+
+    // When:
+    rpcBinding.process(request, response);
+
+    // Then:
+    assertEquals(HttpServletResponse.SC_NOT_FOUND, response.getStatus());
+  }
+
+  @Test
+  public void shouldSendInternalServerError() throws Exception {
+    // Given:
+    final MockHttpServletRequest request = new MockHttpServletRequest("POST", "http://localhost:9001/Service");
+    request.setParameter("m", "getBar");
+    request.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    request.setContent(("Foo,test").getBytes(StandardCharsets.UTF_8));
+    final MockHttpServletResponse response = new MockHttpServletResponse();
+
+    // When:
+    rpcBinding.process(request, response);
+
+    // Then:
+    assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response.getStatus());
   }
 
   //
@@ -94,7 +158,7 @@ public final class DefaultServletRpcBindingTest {
 
     @Override
     public Bar getBar(Foo foo) {
-      return recordLast(new Bar().setProp("Bar+" + foo.getProp()));
+      throw new UnsupportedOperationException("Not implemented");
     }
 
     public String getLast() {

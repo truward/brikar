@@ -87,8 +87,12 @@ public class DefaultServletRpcBinding implements ServletRpcBinding {
     final Object result;
     try {
       result = method.invoke(serviceProxy, arg1);
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      log.error("Error while invoking {}", method);
+    } catch (IllegalAccessException e) {
+      log.error("IllegalAccessException while invoking {}", method);
+      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      return;
+    } catch (InvocationTargetException e) {
+      log.error("InvocationTargetException while invoking {}", method, e);
       response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       return;
     }
