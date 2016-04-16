@@ -10,9 +10,9 @@ Brikar is a set of non-intrusive libraries for exposing microservices.
 It uses existing frameworks and libraries, such as Spring, Google Protocol Buffers, Jackson, Jetty.
 
 It's primary purpose, similar to [dropwizard](https://github.com/dropwizard) is to combine existing framework into a few,
-easy to include and use artifacts with some wiring code to connect them together.
+easy to include and use artifacts with some wiring code to connect them together. Main difference from dropwizard is in using Spring instead of Guice and choice of Jackson and Protobuf as serialization libraries.
 
-Brikar pro also offers:
+Brikar also offers:
 
 * Wiring protobuf-generated domain model with REST API
 * Defining RESTful service interface

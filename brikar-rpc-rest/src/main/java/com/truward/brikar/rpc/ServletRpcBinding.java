@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
+ * An abstraction that represents RPC-over-HTTP service.
+ * 
  * @author Alexander Shabanov
  */
 public interface ServletRpcBinding {
