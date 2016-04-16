@@ -25,11 +25,11 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link DefaultServletRpcBinding}.
+ * Tests for {@link ServiceInterfaceServletRpcBinding}.
  *
  * @author Alexander Shabanov
  */
-public final class DefaultServletRpcBindingTest {
+public final class ServiceInterfaceServletRpcBindingTest {
 
   private ServletRpcBinding rpcBinding;
   private DefaultService defaultService;
@@ -37,7 +37,7 @@ public final class DefaultServletRpcBindingTest {
   @Before
   public void init() {
     defaultService = new DefaultService();
-    rpcBinding = new DefaultServletRpcBinding(
+    rpcBinding = new ServiceInterfaceServletRpcBinding(
         Collections.<HttpMessageConverter<?>>singletonList(new TestHttpMessageConverter()),
         DerivedService.class,
         defaultService);

@@ -21,7 +21,7 @@ import java.util.*;
  *
  * @author Alexander Shabanov
  */
-public class DefaultServletRpcBinding implements ServletRpcBinding {
+public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   public static final String METHOD_PARAM_NAME = "m";
@@ -31,9 +31,9 @@ public class DefaultServletRpcBinding implements ServletRpcBinding {
 
   private final Map<String, Method> methodMap;
 
-  public DefaultServletRpcBinding(List<HttpMessageConverter<?>> messageConverters,
-                                  Class<?> serviceInterface,
-                                  Object serviceProxy) {
+  public ServiceInterfaceServletRpcBinding(List<HttpMessageConverter<?>> messageConverters,
+                                           Class<?> serviceInterface,
+                                           Object serviceProxy) {
     Objects.requireNonNull(messageConverters, "messageConverters");
     final List<HttpMessageConverter<?>> messageConvertersCopy = new ArrayList<>(messageConverters.size());
     for (int i = 0; i < messageConverters.size(); ++i) {
@@ -153,13 +153,13 @@ public class DefaultServletRpcBinding implements ServletRpcBinding {
   }
 
   private static MediaType getMediaType(HttpServletRequest request, String headerName) throws ServletException {
-    final String contentType = request.getHeader(headerName);
-    if (contentType == null) {
+    final String mediaTypeName = request.getHeader(headerName);
+    if (mediaTypeName == null) {
       return null;
     }
 
     try {
-      return MediaType.valueOf(contentType);
+      return MediaType.valueOf(mediaTypeName);
     } catch (InvalidMediaTypeException ignored) {
       return null;
     }

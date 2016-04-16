@@ -19,6 +19,7 @@
     <module>calc</module>
     <module>zoo</module>
     <module>todo</module>
+    <module>rpc-explorer-demo</module>
   </modules>
 
   <properties>
@@ -57,6 +58,16 @@
       <dependency>
         <groupId>com.truward.brikar</groupId>
         <artifactId>brikar-server</artifactId>
+        <version>${brikar.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.truward.brikar</groupId>
+        <artifactId>brikar-rpc-rest</artifactId>
+        <version>${brikar.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.truward.brikar</groupId>
+        <artifactId>brikar-rpc-explorer-support</artifactId>
         <version>${brikar.version}</version>
       </dependency>
     </dependencies>
