@@ -4,6 +4,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * An abstraction that represents RPC-over-HTTP service.
@@ -12,5 +13,9 @@ import java.io.IOException;
  */
 public interface ServletRpcBinding {
 
+  String getServiceName();
+
   void process(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
+
+  List<String> getExposedMethodNames();
 }

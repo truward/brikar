@@ -28,6 +28,7 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
 
   private final List<HttpMessageConverter<?>> messageConverters;
   private final Object serviceProxy;
+  private String serviceName;
 
   private final Map<String, Method> methodMap;
 
@@ -52,7 +53,23 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
       throw new IllegalArgumentException("serviceProxy is not an instance of " + serviceInterface);
     }
 
-    methodMap = getCheckedMethodMap(serviceInterface);
+    this.methodMap = getCheckedMethodMap(serviceInterface);
+    this.serviceName = serviceInterface.getSimpleName();
+  }
+
+  public ServiceInterfaceServletRpcBinding(List<HttpMessageConverter<?>> messageConverters,
+                                           Object serviceProxy) {
+    this(messageConverters, getInferredInteraceFromServiceProxy(serviceProxy), serviceProxy);
+  }
+
+  @Override
+  public String getServiceName() {
+    return serviceName;
+  }
+
+  @Override
+  public List<String> getExposedMethodNames() {
+    return new ArrayList<>(methodMap.keySet());
   }
 
   @Override
@@ -105,6 +122,16 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
   //
   // Private
   //
+
+  private static Class<?> getInferredInteraceFromServiceProxy(Object serviceProxy) {
+    Objects.requireNonNull(serviceProxy, "serviceProxy");
+    final Class[] interfaces = serviceProxy.getClass().getInterfaces();
+    if (interfaces.length != 1) {
+      throw new IllegalArgumentException("Can't infer single implementing interface for given proxy of type=" +
+          serviceProxy.getClass());
+    }
+    return interfaces[0];
+  }
 
   private Map<String, Method> getCheckedMethodMap(Class<?> serviceInterface) {
     final Method[] methods = serviceInterface.getMethods();

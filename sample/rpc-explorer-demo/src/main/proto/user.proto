@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package truward.brikar.sample.rpcExplorerDemo;
+
+option java_package = "com.truward.brikar.sample.rpcExplorerDemo.model";
+option java_outer_classname = "UserModel";
+
+//
+// Model
+//
+
+message User {
+  int64 id = 1;
+  string name = 2;
+  string password = 3;
+}
+
+message Registration {
+  string name = 2;
+  string password = 3;
+}
+
+//
+// Request/Reply objects
+//
+
+message GetUserRequest {
+  int64 userId = 1;
+}
+
+message GetUserReply {
+  User user = 1;
+}
+
+//
+// Service
+//
+
+service CustomerService {
+  rpc GetUser(GetUserRequest) returns (GetUserReply) {}
+}

@@ -7,14 +7,25 @@
         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
   <import resource="classpath:/spring/default-webmvc-base.xml"/>
 
+  <bean id="protobufJsonMessageConverter" class="com.truward.brikar.protobuf.http.json.ProtobufJsonHttpMessageConverter" />
+
   <!-- Controllers -->
-  <bean class="com.truward.brikar.sample.rpcExplorerDemo.controller.UserServiceExplorerController" autowire="constructor"/>
+  <bean class="com.truward.brikar.rpc.explorer.ExplorerController">
+    <property name="rpcBindings">
+      <list>
+        <bean class="com.truward.brikar.rpc.support.ServiceInterfaceServletRpcBinding">
+          <constructor-arg ><list><ref bean="protobufJsonMessageConverter"/></list></constructor-arg>
+          <constructor-arg ref="userService" />
+        </bean>
+      </list>
+    </property>
+  </bean>
 
   <!-- Annotation driven support for MVC controllers -->
   <mvc:annotation-driven>
     <!-- custom marshallers -->
     <mvc:message-converters>
-      <bean class="com.truward.brikar.protobuf.http.json.ProtobufJsonHttpMessageConverter" />
+      <ref bean="protobufJsonMessageConverter"/>
     </mvc:message-converters>
   </mvc:annotation-driven>
 </beans>

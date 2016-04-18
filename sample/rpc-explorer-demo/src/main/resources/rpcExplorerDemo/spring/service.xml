@@ -3,4 +3,6 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   <import resource="classpath:/spring/default-service-base.xml"/>
+
+  <bean id="userService" class="com.truward.brikar.sample.rpcExplorerDemo.service.UserServiceImpl"/>
 </beans>

@@ -19,8 +19,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
+      <groupId>com.truward.brikar</groupId>
+      <artifactId>brikar-rpc-rest</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
