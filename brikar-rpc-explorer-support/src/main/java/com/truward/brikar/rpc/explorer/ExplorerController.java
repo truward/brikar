@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -80,21 +81,60 @@ public class ExplorerController {
     writer.append("<div class=\"container\">");
     writer.append("<h2>").append(rpcBinding.getServiceName()).append(" Service Explorer").append("</h2>");
 
-    writer.append("<div class=\"well\">" +
-        "<h2>Test</h2>\n" +
-        "<p>Lorem ipsum</p>\n");
+    writer.append("<div class=\"row\">");
 
-    writer.append("<li>").append('\n'); // list
-    for (final String methodName : rpcBinding.getExposedMethodNames()) {
-      writer.append("<ul>").append(methodName).append("</ul>").append('\n');
+    // div holding input requests
+    {
+      writer.append("<div class=\"col-md-3\">\n");
+
+      writer.append("<ul class=\"list-group\">\n");
+      for (final String methodName : rpcBinding.getExposedMethodNames()) {
+
+        writer.append("<li class=\"list-group-item\">")
+            .append("<button class=\"j-method-btn btn btn-block\" ")
+            .append("data-request-template=\"")
+            .append(URLEncoder.encode("{}", StandardCharsets.UTF_8.name())).append('"')
+            .append('>').append(methodName).append("</button>")
+            .append("</li>").append('\n');
+      }
+      writer.append("</ul>\n"); // /ul.list-group
+
+      writer.append("</div>\n"); // /div.col-md-3
     }
-    writer.append("</li>").append('\n'); // list
 
-    writer.append("</div>").append('\n'); // well
 
-    writer.append("<p>Generated at ").append(String.valueOf(new Date())).append("</p>");
+    // div holding request input and responses
+    {
+      writer.append("<div class=\"col-md-9\">\n");
 
-    writer.append("</div>").append('\n'); // container
+      writer.append("<div>\n" +
+          "<h2 id=\"j-method-name\">?</h2>\n" +
+          "<div>\n" +
+          "<textarea id=\"j-request-editor\"\n" +
+          "  class=\"form-control use-monospace\"\n" +
+          "  ref=\"textarea\"\n" +
+          "  rows=\"8\">\n" +
+          "</textarea>\n" +
+          "</div>\n" +
+          "<p id=\"j-hint\" class=\"text-muted\">?</p>\n" + // displays text: "please, wait..." / "click run..."
+          "<button class=\"btn btn-danger pull-right\" type=\"button\">Clear Request Log</button>\n" +
+          "<button class=\"btn btn-primary\" type=\"button\">Run</button>\n" +
+          "<hr/>\n" +
+          "</div>\n");
+
+      // responses
+      writer.append("<h3>Responses:</h3>\n");
+      writer.append("<ul class=\"list-group\">\n");
+      writer.append("</ul>\n"); // /ul.list-group
+
+      writer.append("</div>\n"); // /div.col-md-9
+    }
+
+    writer.append("</div>\n"); // /div.row
+
+    writer.append("<p>Generated at ").append(String.valueOf(new Date())).append("</p>\n");
+
+    writer.append("</div>\n"); // /div.container
   }
 
   protected void writeHeader(String serviceName, Writer writer) throws IOException {
@@ -117,18 +157,40 @@ public class ExplorerController {
             "integrity=\"sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r\" crossorigin=\"anonymous\"/>\n" +
 
             "</head>\n" +
-            "<body>\n"
+            "<body>\n" +
+            "<style>\n" +
+            ".use-monospace {\n" +
+            " font-family: Consolas, Lucida Console, monospace;\n" +
+            "}\n" +
+            "</style>"
     );
   }
 
   protected void writeFooter(Writer writer) throws IOException {
-    writer.append(
-        "<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js\"></script>\n" +
-            "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js\" " +
-            "integrity=\"sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS\" " +
-            "crossorigin=\"anonymous\"></script>\n" +
-            "</body>" +
-            "</html>"
-    );
+    // external scripts
+    writer.append("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js\"></script>\n" +
+        "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js\" " +
+        "integrity=\"sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS\" " +
+        "crossorigin=\"anonymous\"></script>\n");
+
+    // internal script
+    writer.append("<script type=\"text/javascript\">\n" +
+        "\n" +
+        " function toggleHint() {\n" +
+        " }\n" +
+        "\n" +
+        " $(document).ready(function () {\n" +
+        "   console.log('loaded..');\n" +
+        " });\n" +
+        "\n" +
+        " $('.j-method-btn').click(function () {\n" +
+        "   $('#j-method-name').text($(this).text());\n" +
+        "   console.log($(this).attr('data-request-template'), ' - ', $(this).text());\n" +
+        " });\n" +
+        "\n" +
+        "</script>\n");
+
+    // closing body and html tags
+    writer.append("</body>\n</html>");
   }
 }
