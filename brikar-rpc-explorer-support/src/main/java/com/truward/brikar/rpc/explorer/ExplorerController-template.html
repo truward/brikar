@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv='Content-type' content='text/html; charset=utf-8'>
+  <title>Service Explorer</title>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"/>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous"/>
+</head>
+
+<body>
+<style scoped>
+.use-monospace {
+  font-family: Consolas, Lucida Console, monospace;
+}
+</style>
+
+<div class="container">
+  <h2>UserService Service Explorer</h2>
+  <div class="row">
+    <div class="col-md-3">
+      <ul class="list-group">
+        <li class="list-group-item"><button class="j-method-btn btn btn-block">getUser</button></li>
+      </ul>
+    </div>
+    <div class="col-md-9">
+      <div id="j-request-holder" class="hide">
+        <h2 id="j-method-name"></h2>
+        <div>
+          <textarea id="j-request-editor"
+                    class="form-control use-monospace"
+                    rows="8">
+          </textarea>
+        </div>
+        <p id="j-hint" class="text-muted"></p>
+        <button id="j-clear-btn" class="btn btn-danger pull-right" type="button">Clear Request Log</button>
+        <button id="j-run-btn" class="btn btn-primary" type="button">Run</button>
+        <hr/>
+      </div>
+      <h3>Responses:</h3>
+      <ul id="j-response-log" class="list-group">
+      </ul>
+    </div>
+  </div>
+  <p>Generated at <span id="j-generated-at"></span></p>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+<script id="j-response-log-entry-tpl" type="text/template">
+<li class="list-group-item">
+  <small><span class="j-started"></span> - took <span class="j-time-delta"></span></small>
+  <br/>
+  <p class="j-method-p"><span class="j-method-name"></span> - <span class="j-status"></span></p>
+  <h4>Request</h4>
+  <p class="use-monospace break-all j-request"></p>
+  <h4>Response</h4>
+  <p class="use-monospace break-all j-response"></p>
+</li>
+</script>
+
+<script type="text/javascript">
+
+// Rest
+
+var state = null;
+
+// State Initializer
+
+
+if (state === null) {
+  state = {
+    methods: {
+      "getUser": {
+        "templateRequest": "{}"
+      }
+    },
+    serviceName: 'UserService',
+    generated: 1463521876485
+  };
+}
+
+var inProgress = false;
+var responseLogEntryTemplate;
+
+function toggleHint() {
+  $('#j-hint').text(inProgress ? 'Executing query. Please, wait...' : 'Click [Run] when done.');
+}
+
+function addLogEntry(logEntry) {
+  var statusStr = logEntry.failed ? 'FAILED' : 'SUCCEEDED';
+  var headingClassName = logEntry.failed ? 'bg-danger' : 'bg-success';
+  var startedStr = (new Date(logEntry.started)).toString();
+  var timeDeltaStr = logEntry.timeDelta + ' ms';
+
+  var responseLogEntry = $(responseLogEntryTemplate);
+  $('.j-started', responseLogEntry).text(startedStr);
+  $('.j-method-p', responseLogEntry).addClass(headingClassName);
+  $('.j-time-delta', responseLogEntry).text(timeDeltaStr);
+  $('.j-method-name', responseLogEntry).text(logEntry.methodName);
+  $('.j-status', responseLogEntry).text(statusStr);
+  $('.j-request', responseLogEntry).text(logEntry.requestStr);
+  $('.j-response', responseLogEntry).text(logEntry.responseStr);
+
+  $('#j-response-log').append(responseLogEntry);
+}
+
+$(document).ready(function () {
+  responseLogEntryTemplate = $('#j-response-log-entry-tpl').text();
+  $('#j-generated-at').text(new Date(state.generated));
+});
+
+$('.j-method-btn').click(function () {
+  var methodName = $(this).text();
+  $('#j-method-name').text(methodName);
+
+  var methodInfo = state.methods[methodName];
+  if (methodInfo == null) {
+    console.error('Missing method info, methodName:', methodName);
+    return;
+  }
+
+  $('#j-request-editor').val(state.methods[methodName].templateRequest);
+  $('#j-request-holder').removeClass('hide');
+  $('#j-request-holder').attr('x-method-name', methodName);
+  toggleHint();
+});
+
+$('#j-run-btn').click(function () {
+  addLogEntry({
+    failed: false,
+    started: 1463521876485,
+    timeDelta: 1534,
+    methodName: 'getUser',
+    requestStr: '{"a": "request"}',
+    responseStr: '{"a": "response"}'
+  });
+});
+
+</script>
+</body>
+</html>
