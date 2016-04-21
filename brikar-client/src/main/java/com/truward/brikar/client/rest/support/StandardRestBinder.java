@@ -51,6 +51,11 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
    */
   public static final long DEFAULT_CONNECTION_TTL = 60000L;
 
+  /**
+   * Default value for total maxumum connections.
+   */
+  public static final int DEFAULT_MAX_CONN_TOTAL = 15;
+
   private final Logger log = LoggerFactory.getLogger(getClass());
   private final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
   private RestServiceBinder restServiceBinder;
@@ -58,6 +63,7 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
   private final List<HttpMessageConverter<?>> messageConverters;
   private HttpComponentsClientHttpRequestFactory httpRequestFactory;
   private long connectionTtlMillis;
+  private int maxConnTotal;
   private HttpRequestRetryHandler retryHandler;
 
   public StandardRestBinder(@Nonnull List<HttpMessageConverter<?>> messageConverters,
@@ -65,6 +71,7 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
     this.messageConverters = messageConverters;
     setRestServiceBinderFactory(restServiceBinderFactory);
     setConnectionTtlMillis(DEFAULT_CONNECTION_TTL);
+    setMaxConnTotal(DEFAULT_MAX_CONN_TOTAL);
     setRetryHandler(null);
   }
 
@@ -83,10 +90,20 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
    * be used which sets TTL to infitity.
    * <p>Should be set prior to {@link #afterPropertiesSet()}.</p>
    *
-   * @param connectionTtlMillis Connection time to live, in milliseconds.
+   * @param connectionTtlMillis Connection time to live, in milliseconds
    */
   public void setConnectionTtlMillis(long connectionTtlMillis) {
     this.connectionTtlMillis = connectionTtlMillis;
+  }
+
+  /**
+   * If set before bean is initialized, instructs to use provided value as maximum connections.
+   * <p>Should be set prior to {@link #afterPropertiesSet()}.</p>
+   *
+   * @param maxConnTotal Maximum total connections
+   */
+  public void setMaxConnTotal(int maxConnTotal) {
+    this.maxConnTotal = maxConnTotal;
   }
 
   /**
@@ -155,7 +172,7 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
       // don't store connection for more than given amount of milliseconds
       builder.setConnectionTimeToLive(connTtl, TimeUnit.MILLISECONDS);
     }
-    builder.setMaxConnTotal(100);
+    builder.setMaxConnTotal(maxConnTotal);
   }
 
   protected void initCredentialsProvider(@Nonnull HttpClientBuilder builder) {

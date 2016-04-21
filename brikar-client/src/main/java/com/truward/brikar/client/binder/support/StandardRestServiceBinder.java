@@ -1,11 +1,9 @@
 package com.truward.brikar.client.binder.support;
 
 import com.truward.brikar.client.binder.RestServiceBinder;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriTemplate;
@@ -115,7 +113,11 @@ public class StandardRestServiceBinder implements RestServiceBinder {
 
     final RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
     if (requestMapping == null) {
-      throw new BeanInitializationException("RequestMapping annotation is missing");
+      // Request mapping is missing - just POST to the given URL with method as a parameter
+      return new RestMethodInvocationHandler(HttpMethod.POST,
+          new PostRequestUriExtractor(serviceBaseUrl, method.getName()),
+          PostRequestBodyExtractor.INSTANCE,
+          restOperations);
     }
 
     checkUnsupportedProperties(requestMapping);
@@ -297,6 +299,24 @@ public class StandardRestServiceBinder implements RestServiceBinder {
     Object extract(@Nonnull Object[] arguments);
   }
 
+  private static final class PostRequestBodyExtractor implements RequestBodyExtractor {
+
+    public static final RequestBodyExtractor INSTANCE = new PostRequestBodyExtractor();
+
+    private PostRequestBodyExtractor() {
+    }
+
+    @Nullable
+    @Override
+    public Object extract(@Nonnull Object[] arguments) {
+      if (arguments.length != 1) {
+        throw new IllegalStateException("Exactly one argument expected for methods that are not " +
+            "annotated with RequestMapping annotation");
+      }
+      return arguments[0];
+    }
+  }
+
   private static final class EmptyRequestBodyExtractor implements RequestBodyExtractor {
     static final EmptyRequestBodyExtractor INSTANCE = new EmptyRequestBodyExtractor();
 
@@ -330,7 +350,7 @@ public class StandardRestServiceBinder implements RestServiceBinder {
     URI extract(@Nonnull Object[] arguments);
   }
 
-  private static abstract class AbstractUriExtractor {
+  private static abstract class AbstractUriExtractor implements UriExtractor {
     final String baseUrl;
 
     public AbstractUriExtractor(@Nonnull String baseUrl) {
@@ -338,7 +358,22 @@ public class StandardRestServiceBinder implements RestServiceBinder {
     }
   }
 
-  private static final class EmptyParamsUriExtractor extends AbstractUriExtractor implements UriExtractor {
+  private static final class PostRequestUriExtractor extends AbstractUriExtractor {
+    final String methodName;
+
+    public PostRequestUriExtractor(@Nonnull String baseUrl, @Nonnull String methodName) {
+      super(baseUrl);
+      this.methodName = methodName;
+    }
+
+    @Nonnull
+    @Override
+    public URI extract(@Nonnull Object[] arguments) {
+      return URI.create(baseUrl + "?m=" + methodName);
+    }
+  }
+
+  private static final class EmptyParamsUriExtractor extends AbstractUriExtractor {
 
     public EmptyParamsUriExtractor(@Nonnull String baseUri) {
       super(baseUri);
@@ -355,7 +390,7 @@ public class StandardRestServiceBinder implements RestServiceBinder {
     }
   }
 
-  private static final class StandardUriExtractor extends AbstractUriExtractor implements UriExtractor {
+  private static final class StandardUriExtractor extends AbstractUriExtractor {
     final PosNamePair[] variables;
 
     public StandardUriExtractor(@Nonnull String baseUri, @Nonnull PosNamePair[] variables) {

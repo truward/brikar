@@ -29,15 +29,22 @@ public class RestServiceBinderTest {
     final RestOperations restOperations = mock(RestOperations.class);
 
     final ProfileModel.Profile aGotProfile = ProfileModel.Profile.newBuilder().setId(1).setName("2").build();
-    when(restOperations.exchange(new URI("http://127.0.0.1/profile/1"), HttpMethod.GET, new HttpEntity<>(null), ProfileModel.Profile.class))
+    when(restOperations.exchange(new URI("http://127.0.0.1/profile/1"), HttpMethod.GET,
+        new HttpEntity<>(null), ProfileModel.Profile.class))
         .thenReturn(new ResponseEntity<>(aGotProfile, HttpStatus.OK));
 
     final ProfileModel.Profile aFoundProfile = ProfileModel.Profile.newBuilder().setId(3).setName("4").build();
-    when(restOperations.exchange(new URI("http://127.0.0.1/profile?query=test&limit=10"), HttpMethod.GET, new HttpEntity<>(null), ProfileModel.Profile.class))
+    when(restOperations.exchange(new URI("http://127.0.0.1/profile?query=test&limit=10"), HttpMethod.GET,
+        new HttpEntity<>(null), ProfileModel.Profile.class))
         .thenReturn(new ResponseEntity<>(aFoundProfile, HttpStatus.OK));
 
-    when(restOperations.exchange(new URI("http://127.0.0.1/profile"), HttpMethod.PUT, new HttpEntity<>(aGotProfile), Void.TYPE))
+    when(restOperations.exchange(new URI("http://127.0.0.1/profile"), HttpMethod.PUT,
+        new HttpEntity<>(aGotProfile), Void.TYPE))
         .thenReturn(new ResponseEntity<Void>(HttpStatus.CREATED));
+
+    when(restOperations.exchange(new URI("http://127.0.0.1?m=shuffleProfile"), HttpMethod.POST,
+        new HttpEntity<>(aGotProfile), ProfileModel.Profile.class))
+        .thenReturn(new ResponseEntity<>(aFoundProfile, HttpStatus.OK));
 
     final RestServiceBinder binder = new StandardRestServiceBinder(restOperations);
     final ProfileRestService service = binder.createClient("http://127.0.0.1", ProfileRestService.class);
@@ -46,10 +53,12 @@ public class RestServiceBinderTest {
     final ProfileModel.Profile gotProfile = service.getProfile(1);
     final ProfileModel.Profile foundProfile = service.searchProfile("test", 10);
     service.saveProfile(gotProfile);
+    final ProfileModel.Profile anotherFoundProfile = service.shuffleProfile(aGotProfile);
 
     // Then:
     assertEquals(aGotProfile, gotProfile);
     assertEquals(aFoundProfile, foundProfile);
+    assertEquals(aFoundProfile, anotherFoundProfile);
   }
 
 
@@ -66,5 +75,7 @@ public class RestServiceBinderTest {
     @RequestMapping(value = "/profile", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void saveProfile(@RequestBody ProfileModel.Profile profile);
+
+    ProfileModel.Profile shuffleProfile(ProfileModel.Profile profile);
   }
 }
