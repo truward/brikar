@@ -10,7 +10,7 @@
   <bean id="protobufJsonMessageConverter" class="com.truward.brikar.protobuf.http.json.ProtobufJsonHttpMessageConverter" />
 
   <!-- Controllers -->
-  <bean class="com.truward.brikar.rpc.explorer.ExplorerController">
+  <bean class="com.truward.brikar.rpc.explorer.RpcServiceExplorerController">
     <property name="rpcBindings">
       <list>
         <bean class="com.truward.brikar.rpc.support.ServiceInterfaceServletRpcBinding">

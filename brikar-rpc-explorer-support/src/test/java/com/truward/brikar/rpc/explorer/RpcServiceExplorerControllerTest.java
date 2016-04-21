@@ -9,12 +9,12 @@ import java.util.Collections;
 /**
  * @author Alexander Shabanov
  */
-public class ExplorerControllerTest {
-  private ExplorerController explorerController;
+public class RpcServiceExplorerControllerTest {
+  private RpcServiceExplorerController explorerController;
 
   @Before
   public void init() {
-    explorerController = new ExplorerController();
+    explorerController = new RpcServiceExplorerController();
   }
 
   @Test(expected = NullPointerException.class)

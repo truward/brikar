@@ -5,10 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -73,7 +74,7 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
   }
 
   @Override
-  public void process(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  public void process(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // check method - only POST methods are allowed
     if (!HttpMethod.POST.name().equals(request.getMethod())) {
       response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
@@ -100,7 +101,15 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
     }
 
     // invoke service method
-    final Object arg1 = read(contentType, method.getParameterTypes()[0], new ServletServerHttpRequest(request));
+    final Object arg1;
+    try {
+      arg1 = read(contentType, method.getParameterTypes()[0], new ServletServerHttpRequest(request));
+    } catch (HttpMessageNotReadableException e) {
+      log.debug("Can't read input message", e);
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST); // send bad request
+      return;
+    }
+
     final Object result;
     try {
       result = method.invoke(serviceProxy, arg1);
@@ -109,14 +118,28 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
       response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       return;
     } catch (InvocationTargetException e) {
-      log.error("InvocationTargetException while invoking {}", method, e);
-      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      handleInvocationException(response, method, e.getTargetException());
       return;
     }
 
     // write response
     // TODO: parse Accept header
     write(acceptType, method.getReturnType(), result, new ServletServerHttpResponse(response));
+  }
+
+  //
+  // Protected
+  //
+
+  protected void handleInvocationException(HttpServletResponse response, Method method, Throwable e) throws IOException {
+    // TODO: error mapping
+    if (e instanceof IllegalArgumentException) {
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+      return;
+    }
+
+    log.error("InvocationTargetException while invoking {}", method, e);
+    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
   }
 
   //
@@ -164,7 +187,8 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
       }
     }
 
-    throw new IOException("Unable to read object of type=" + clazz + " with mediaType=" + mediaType);
+    throw new HttpMessageNotReadableException("Unable to read object of type=" + clazz +
+        " with mediaType=" + mediaType);
   }
 
   @SuppressWarnings("unchecked")
@@ -176,10 +200,11 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
       }
     }
 
-    throw new IOException("Unable to write object of type=" + clazz + " with mediaType=" + mediaType);
+    throw new HttpMessageNotWritableException("Unable to write object of type=" + clazz +
+        " with mediaType=" + mediaType);
   }
 
-  private static MediaType getMediaType(HttpServletRequest request, String headerName) throws ServletException {
+  private static MediaType getMediaType(HttpServletRequest request, String headerName) {
     final String mediaTypeName = request.getHeader(headerName);
     if (mediaTypeName == null) {
       return null;

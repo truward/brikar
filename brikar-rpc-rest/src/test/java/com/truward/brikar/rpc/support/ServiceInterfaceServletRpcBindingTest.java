@@ -120,9 +120,24 @@ public final class ServiceInterfaceServletRpcBindingTest {
     assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response.getStatus());
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldFailToInferSingleServiceInterface() {
+    new ServiceInterfaceServletRpcBinding(Collections.<HttpMessageConverter<?>>singletonList(new TestHttpMessageConverter()),
+        new NonExposableService());
+  }
+
+
+  @Test
+  public void shouldNotFailToInferSingleServiceInterface() {
+    new ServiceInterfaceServletRpcBinding(Collections.<HttpMessageConverter<?>>singletonList(new TestHttpMessageConverter()),
+        new DefaultService());
+  }
+
   //
   // Private
   //
+
+  private static final class NonExposableService {}
 
   private interface BaseService1 {
     @Generated("test") Foo getFoo(Bar bar);

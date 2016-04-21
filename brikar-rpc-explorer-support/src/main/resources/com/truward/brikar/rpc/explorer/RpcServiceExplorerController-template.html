@@ -60,8 +60,6 @@
 
 <script type="text/javascript">
 
-// Rest
-
 var state = null;
 
 // State Initializer
@@ -82,6 +80,7 @@ if (state === null) {
 var inProgress = false;
 var responseLogEntryTemplate;
 
+// UI
 function toggleHint() {
   $('#j-hint').text(inProgress ? 'Executing query. Please, wait...' : 'Click [Run] when done.');
 }
@@ -101,7 +100,7 @@ function addLogEntry(logEntry) {
   $('.j-request', responseLogEntry).text(logEntry.requestStr);
   $('.j-response', responseLogEntry).text(logEntry.responseStr);
 
-  $('#j-response-log').append(responseLogEntry);
+  $('#j-response-log').prepend(responseLogEntry);
 }
 
 $(document).ready(function () {
@@ -125,15 +124,63 @@ $('.j-method-btn').click(function () {
   toggleHint();
 });
 
-$('#j-run-btn').click(function () {
-  addLogEntry({
-    failed: false,
-    started: 1463521876485,
-    timeDelta: 1534,
-    methodName: 'getUser',
-    requestStr: '{"a": "request"}',
-    responseStr: '{"a": "response"}'
+
+// Rest
+function runMethod(method, requestString) {
+  console.log('Running method =', method, ' with request =' + requestString);
+
+  inProgress = true;
+  toggleHint();
+
+  var startedMillis = Date.now();
+
+  $.ajax({
+    dataType: 'json',
+    method: 'POST',
+    url: '/rest/' + state.serviceName + '?m=' + method,
+    data: requestString,
+    contentType: 'application/json; charset=UTF-8',
+
+    success: function runMethod_success(data) {
+      inProgress = false;
+      console.log('Got AJAX response =', data);
+
+      var delta = Date.now() - startedMillis;
+      addLogEntry({
+        failed: false,
+        started: startedMillis,
+        timeDelta: delta,
+        methodName: method,
+        requestStr: requestString,
+        responseStr: JSON.stringify(data, null, 4)
+      });
+
+      toggleHint();
+    },
+
+    error: function runMethod_error(xhr) {
+      inProgress = false;
+      console.error('Failed request, status =', xhr.status);
+
+      var delta = Date.now() - startedMillis;
+      addLogEntry({
+        failed: true,
+        started: startedMillis,
+        timeDelta: delta,
+        methodName: method,
+        requestStr: requestString,
+        responseStr: 'Status: ' + xhr.status
+      });
+
+      toggleHint();
+    }
   });
+}
+
+$('#j-run-btn').click(function () {
+  var methodName = $('#j-request-holder').attr('x-method-name');
+  var requestStr = $('#j-request-editor').val();
+  runMethod(methodName, requestStr);
 });
 
 </script>
