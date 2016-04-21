@@ -168,7 +168,8 @@ public class RpcServiceExplorerController {
 
       for (final String methodName : rpcBinding.getExposedMethodNames()) {
         writer.append(methodName).append(": {\n");
-        writer.append("templateRequest: ").append("'{}'");
+        writer.append("templateRequest: ");
+        writer.append("'{}'"); // TODO: real prototype
         writer.append('\n'); // end of templateRequest
         writer.append("},\n"); // end of method
       }
