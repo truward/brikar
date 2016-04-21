@@ -4,6 +4,7 @@ package truward.brikar.sample.rpcExplorerDemo;
 
 option java_package = "com.truward.brikar.sample.rpcExplorerDemo.model";
 option java_outer_classname = "UserModel";
+option java_generic_services = true;
 
 //
 // Model
