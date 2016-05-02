@@ -77,15 +77,12 @@
 
     <apache.httpcomponents.version>4.4</apache.httpcomponents.version>
 
-    <jackson.version>2.4.2</jackson.version>
-
     <!--  compiler settings -->
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
 
     <protobuf.version>3.0.0-beta-2</protobuf.version>
     <protobuf-maven-plugin.version>0.5.0</protobuf-maven-plugin.version>
-    <grpc.version>0.13.2</grpc.version>
 
     <!-- encoding -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -99,11 +96,6 @@
       <dependency>
         <groupId>com.truward.brikar.protobuf</groupId>
         <artifactId>brikar-protobuf-http-bin</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.truward.brikar.protobuf</groupId>
-        <artifactId>brikar-protobuf-jackson</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -172,39 +164,10 @@
         <artifactId>protobuf-java</artifactId>
         <version>${protobuf.version}</version>
       </dependency>
-
-      <!-- GRPC -->
       <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-core</artifactId>
-        <version>${grpc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-stub</artifactId>
-        <version>${grpc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-protobuf</artifactId>
-        <version>${grpc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-netty</artifactId>
-        <version>${grpc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-okhttp</artifactId>
-        <version>${grpc.version}</version>
-      </dependency>
-
-      <!-- Jackson -->
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${jackson.version}</version>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java-util</artifactId>
+        <version>${protobuf.version}</version>
       </dependency>
 
       <!-- FindBugs - JSR-305 for @Nonnull etc. -->

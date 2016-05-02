@@ -40,11 +40,6 @@
       </dependency>
       <dependency>
         <groupId>com.truward.brikar.protobuf</groupId>
-        <artifactId>brikar-protobuf-jackson</artifactId>
-        <version>${brikar.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.truward.brikar.protobuf</groupId>
         <artifactId>brikar-protobuf-http-json</artifactId>
         <version>${brikar.version}</version>
       </dependency>

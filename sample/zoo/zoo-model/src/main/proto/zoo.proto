@@ -1,3 +1,5 @@
+syntax = "proto2";
+
 package truward.brikar.sample.zoo;
 
 option java_package = "com.truward.brikar.sample.zoo.model";

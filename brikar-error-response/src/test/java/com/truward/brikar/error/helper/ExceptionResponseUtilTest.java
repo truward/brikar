@@ -3,9 +3,7 @@ package com.truward.brikar.error.helper;
 import com.truward.brikar.error.model.ErrorModel;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Alexander Shabanov
@@ -23,9 +21,9 @@ public final class ExceptionResponseUtilTest {
     final ErrorModel.Error e = ExceptionResponseUtil.shallowConvert(throwable);
 
     // Then:
-    assertTrue("message missing", e.hasMessage());
+    assertNotNull("message not missing", e.getMessage());
     assertEquals(message, e.getMessage());
-    assertFalse("code present", e.hasCode());
+    assertEquals("default code", 0, e.getCode());
     assertFalse("cause present", e.hasCause());
   }
 
@@ -39,9 +37,9 @@ public final class ExceptionResponseUtilTest {
     final ErrorModel.Error e = ExceptionResponseUtil.shallowConvert(throwable);
 
     // Then:
-    assertTrue("message missing", e.hasMessage());
+    assertNotNull("message missing", e.getMessage());
     assertEquals(RuntimeException.class.getSimpleName(), e.getMessage());
-    assertFalse("code present", e.hasCode());
+    assertEquals("code present", 0, e.getCode());
     assertFalse("cause present", e.hasCause());
   }
 }
