@@ -15,7 +15,7 @@
 </style>
 
 <div class="container">
-  <h2>UserService Service Explorer</h2>
+  <h2>Service Explorer</h2>
   <div class="row">
     <div class="col-md-3">
       <ul id="j-methods" class="list-group">
@@ -42,6 +42,7 @@
   </div>
   <p>Generated at <span id="j-generated-at"></span></p>
 </div>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
@@ -199,6 +200,10 @@ $('#j-run-btn').click(function () {
   var methodName = $('#j-request-holder').attr('x-method-name');
   var requestStr = $('#j-request-editor').val();
   runMethod(methodName, requestStr);
+});
+
+$('#j-clear-btn').click(function () {
+  $('#j-response-log').empty();
 });
 
 </script>
