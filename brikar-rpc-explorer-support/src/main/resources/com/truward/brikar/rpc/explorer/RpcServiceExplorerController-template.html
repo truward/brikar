@@ -18,8 +18,7 @@
   <h2>UserService Service Explorer</h2>
   <div class="row">
     <div class="col-md-3">
-      <ul class="list-group">
-        <li class="list-group-item"><button class="j-method-btn btn btn-block">getUser</button></li>
+      <ul id="j-methods" class="list-group">
       </ul>
     </div>
     <div class="col-md-9">
@@ -58,6 +57,12 @@
 </li>
 </script>
 
+<script id="j-method-element-tpl" type="text/template">
+<li class="list-group-item">
+  <button class="j-method-btn btn btn-block"></button>
+</li>
+</script>
+
 <script type="text/javascript">
 
 var state = null;
@@ -69,7 +74,10 @@ if (state === null) {
   state = {
     methods: {
       "getUser": {
-        "templateRequest": "{}"
+        "templateRequest": '{"id": 1}'
+      },
+      "setUser": {
+        "templateRequest": '{"id": 1, "name": "test"}'
       }
     },
     serviceName: 'UserService',
@@ -106,23 +114,33 @@ function addLogEntry(logEntry) {
 $(document).ready(function () {
   responseLogEntryTemplate = $('#j-response-log-entry-tpl').text();
   $('#j-generated-at').text(new Date(state.generated));
+
+  // add buttons
+  var methodElementTemplate = $('#j-method-element-tpl').text();
+  var methods = $('#j-methods');
+  $.each(state.methods, function (methodName, _) {
+    var methodElement = $(methodElementTemplate);
+    $('.j-method-btn', methodElement).text(methodName);
+    methods.append(methodElement);
+  });
+
+  $('.j-method-btn').click(function () {
+    var methodName = $(this).text();
+    $('#j-method-name').text(methodName);
+
+    var methodInfo = state.methods[methodName];
+    if (methodInfo == null) {
+      console.error('Missing method info, methodName:', methodName);
+      return;
+    }
+
+    $('#j-request-editor').val(state.methods[methodName].templateRequest);
+    $('#j-request-holder').removeClass('hide');
+    $('#j-request-holder').attr('x-method-name', methodName);
+    toggleHint();
+  });
 });
 
-$('.j-method-btn').click(function () {
-  var methodName = $(this).text();
-  $('#j-method-name').text(methodName);
-
-  var methodInfo = state.methods[methodName];
-  if (methodInfo == null) {
-    console.error('Missing method info, methodName:', methodName);
-    return;
-  }
-
-  $('#j-request-editor').val(state.methods[methodName].templateRequest);
-  $('#j-request-holder').removeClass('hide');
-  $('#j-request-holder').attr('x-method-name', methodName);
-  toggleHint();
-});
 
 
 // Rest

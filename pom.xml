@@ -170,6 +170,14 @@
         <version>${protobuf.version}</version>
       </dependency>
 
+      <!-- Guava, comes as transitive dependency of protobuf-java-util, should be excluded -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>18.0</version>
+        <scope>provided</scope>
+      </dependency>
+
       <!-- FindBugs - JSR-305 for @Nonnull etc. -->
       <dependency>
         <groupId>com.google.code.findbugs</groupId>
