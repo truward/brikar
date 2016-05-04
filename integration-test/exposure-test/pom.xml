@@ -35,6 +35,18 @@
       <artifactId>brikar-error-response</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.truward.brikar</groupId>
+      <artifactId>brikar-rpc-explorer-support</artifactId>
+    </dependency>
+
+    <!-- Guava - useless here, but transitively introduced by protobuf-java-utils -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- Exposure Base -->
     <dependency>
       <groupId>com.truward.brikar</groupId>

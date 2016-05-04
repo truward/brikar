@@ -51,6 +51,9 @@ public final class ExposureServerLauncher {
       case EXPOSURE_WITH_SPRING_SECURITY:
         launcher.setSpringSecurityEnabled(true);
         break;
+      case RPC_SERVICE:
+        // do nothing
+        break;
       case STATIC_WEBSITE:
         launcher.setStaticHandlerEnabled(true);
         break;
@@ -69,6 +72,8 @@ public final class ExposureServerLauncher {
         return "classpath:/exposureService/";
       case EXPOSURE_WITH_SPRING_SECURITY:
         return "classpath:/exposureServiceSpringSec/";
+      case RPC_SERVICE:
+        return "classpath:/rpcService/";
       case STATIC_WEBSITE:
         return "classpath:/staticWebsite/";
       default:
