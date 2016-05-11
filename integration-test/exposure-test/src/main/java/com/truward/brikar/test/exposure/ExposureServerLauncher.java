@@ -55,6 +55,7 @@ public final class ExposureServerLauncher {
         // do nothing
         break;
       case STATIC_WEBSITE:
+      case STATIC_WEBSITE_CUSTOM_PATH:
         launcher.setStaticHandlerEnabled(true);
         break;
       default:
@@ -76,6 +77,8 @@ public final class ExposureServerLauncher {
         return "classpath:/rpcService/";
       case STATIC_WEBSITE:
         return "classpath:/staticWebsite/";
+      case STATIC_WEBSITE_CUSTOM_PATH:
+        return "classpath:/staticWebsiteCustomPath/";
       default:
         throw new IllegalArgumentException("Unknown launchMode=" + launchMode);
     }

@@ -18,14 +18,12 @@ import org.springframework.core.env.*;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import javax.annotation.Nonnull;
 import javax.servlet.DispatcherType;
-import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.*;
@@ -82,10 +80,15 @@ public class StandardLauncher implements AutoCloseable {
   public static final String SYS_PROP_SETTINGS_OVERRIDE = "brikar.settings.path";
 
   /**
+   * A path to static resources for resources, served by static servlet.
+   */
+  public static final String CONFIG_KEY_STATIC_PATH = "brikar.settings.staticPath";
+
+  /**
    * A path to static resources that will be used to override default locations for resources, served by static
    * servlet.
    */
-  public static final String OVERRIDE_STATIC_PATH = "brikar.dev.overrideStaticPath";
+  public static final String CONFIG_KEY_OVERRIDE_STATIC_PATH = "brikar.dev.overrideStaticPath";
 
   /**
    * Name of the file that should contain default property files.
@@ -95,8 +98,12 @@ public class StandardLauncher implements AutoCloseable {
   /**
    * A relative path, where launcher expect to find static resources, served by {@link ResourceHandler} if
    * {@link #staticHandlerEnabled} property has been set to true.
+   * <p>
+   * This value can be overridden by properties {@link #CONFIG_KEY_STATIC_PATH} and
+   * {@link #CONFIG_KEY_OVERRIDE_STATIC_PATH}.
+   * </p>
    */
-  public static final String STATIC_WEB_FOLDER = "web/static";
+  public static final String DEFAULT_STATIC_WEB_FOLDER = "web/static";
 
   @Nonnull
   public static List<String> getConfigurationPaths(@Nonnull String defaultDirPrefix) {
@@ -428,10 +435,14 @@ public class StandardLauncher implements AutoCloseable {
   protected ResourceHandler createStaticHandler() throws IOException {
     final ResourceHandler resourceHandler = new ResourceHandler();
 
-    final String overrideStaticPath = getPropertyResolver().getProperty(OVERRIDE_STATIC_PATH);
-    if (overrideStaticPath != null) {
-      getLogger().info("Using override path for static resources: {}", overrideStaticPath);
-      resourceHandler.setBaseResource(JettyResourceUtil.createResource(overrideStaticPath));
+    String staticPath = getPropertyResolver().getProperty(CONFIG_KEY_OVERRIDE_STATIC_PATH);
+    if (staticPath == null) {
+      staticPath = getPropertyResolver().getProperty(CONFIG_KEY_STATIC_PATH);
+    }
+
+    if (staticPath != null) {
+      getLogger().info("Using override path for static resources: {}", staticPath);
+      resourceHandler.setBaseResource(JettyResourceUtil.createResource(staticPath));
     } else {
       resourceHandler.setBaseResource(getDefaultStaticResource());
     }
@@ -441,7 +452,7 @@ public class StandardLauncher implements AutoCloseable {
 
   @Nonnull
   protected org.eclipse.jetty.util.resource.Resource getDefaultStaticResource() throws IOException {
-    return JettyResourceUtil.createResource(defaultDirPrefix + STATIC_WEB_FOLDER);
+    return JettyResourceUtil.createResource(defaultDirPrefix + DEFAULT_STATIC_WEB_FOLDER);
   }
 
   protected void setServerSettings(@Nonnull Server server) {
