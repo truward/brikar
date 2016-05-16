@@ -1,11 +1,6 @@
 package com.truward.brikar.test.exposure;
 
-import com.google.gson.Gson;
-import com.google.protobuf.Any;
-import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.UnknownFieldSet;
-import com.google.protobuf.util.JsonFormat;
 import com.truward.brikar.client.rest.support.StandardRestBinder;
 import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.error.model.ErrorModel;
@@ -26,7 +21,6 @@ import org.springframework.web.client.HttpServerErrorException;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -159,16 +153,8 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
         throw new AssertionError(e);
       }
     } else if (MediaType.APPLICATION_JSON.isCompatibleWith(actualContentType)) {
-      final JsonFormat.Parser parser = JsonFormat.parser();
-      try {
-        final ErrorModel.Error.Builder errorBuilder = ErrorModel.Error.newBuilder();
-        parser.merge(exception.getResponseBodyAsString(), errorBuilder);
-        final ErrorModel.Error error = errorBuilder.build();
-
-        assertEquals(ExposureRestController.ACCESS_DENIED, error.getMessage());
-      } catch (InvalidProtocolBufferException e) {
-        throw new AssertionError(e);
-      }
+      assertEquals("{\"message\":\"" + ExposureRestController.ACCESS_DENIED + "\"}",
+          exception.getResponseBodyAsString());
     } else {
       fail("Unexpected content type: " + actualContentType);
     }

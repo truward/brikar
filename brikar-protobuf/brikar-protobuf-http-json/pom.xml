@@ -23,14 +23,8 @@
     </dependency>
 
     <dependency>
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java-util</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <scope>provided</scope>
+      <groupId>com.truward.protobuf</groupId>
+      <artifactId>protobuf-jackson</artifactId>
     </dependency>
 
     <dependency>
