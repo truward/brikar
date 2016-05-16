@@ -57,7 +57,6 @@
   <modules>
     <module>brikar-rpc-rest</module>
     <module>brikar-rpc-explorer-support</module>
-    <module>brikar-persistence-util</module>
     <module>brikar-error-response</module>
     <module>brikar-common</module>
     <module>brikar-protobuf</module>
@@ -116,11 +115,6 @@
       <dependency>
         <groupId>com.truward.brikar</groupId>
         <artifactId>brikar-server</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.truward.brikar</groupId>
-        <artifactId>brikar-persistence-util</artifactId>
         <version>${project.version}</version>
       </dependency>
 
