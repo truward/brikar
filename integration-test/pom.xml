@@ -5,7 +5,7 @@
   <parent>
     <artifactId>brikar</artifactId>
     <groupId>com.truward.brikar</groupId>
-    <version>1.4.23-SNAPSHOT</version>
+    <version>1.4.24-SNAPSHOT</version>
   </parent>
 
   <groupId>com.truward.brikar.test</groupId>
@@ -20,7 +20,7 @@
   </modules>
 
   <properties>
-    <brikar.version>1.4.23-SNAPSHOT</brikar.version>
+    <brikar.version>1.4.24-SNAPSHOT</brikar.version>
     <!--
         - latest release:
         <brikar.version>LATEST</brikar.version>
