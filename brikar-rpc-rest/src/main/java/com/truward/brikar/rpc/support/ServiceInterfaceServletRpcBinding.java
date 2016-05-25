@@ -10,6 +10,7 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -55,7 +56,7 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
     }
 
     this.methodMap = getCheckedMethodMap(serviceInterface);
-    this.serviceName = serviceInterface.getSimpleName();
+    setServiceName(serviceInterface.getSimpleName());
   }
 
   public ServiceInterfaceServletRpcBinding(List<HttpMessageConverter<?>> messageConverters,
@@ -63,18 +64,24 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
     this(messageConverters, getInferredInteraceFromServiceProxy(serviceProxy), serviceProxy);
   }
 
+  public void setServiceName(@Nonnull String serviceName) {
+    this.serviceName = serviceName;
+  }
+
+  @Nonnull
   @Override
   public String getServiceName() {
     return serviceName;
   }
 
+  @Nonnull
   @Override
   public List<String> getExposedMethodNames() {
     return new ArrayList<>(methodMap.keySet());
   }
 
   @Override
-  public void process(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void process(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response) throws IOException {
     // check method - only POST methods are allowed
     if (!HttpMethod.POST.name().equals(request.getMethod())) {
       response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);

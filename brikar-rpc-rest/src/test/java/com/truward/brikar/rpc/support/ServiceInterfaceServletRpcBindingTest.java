@@ -133,6 +133,20 @@ public final class ServiceInterfaceServletRpcBindingTest {
         new DefaultService());
   }
 
+  @Test
+  public void shouldOverrideServiceName() {
+    // Given:
+    final String newServiceName = "OtherService";
+    final String oldServiceName = rpcBinding.getServiceName();
+
+    // When:
+    ((ServiceInterfaceServletRpcBinding) rpcBinding).setServiceName(newServiceName);
+
+    // Then:
+    assertEquals("DerivedService", oldServiceName);
+    assertEquals(newServiceName, rpcBinding.getServiceName());
+  }
+
   //
   // Private
   //
