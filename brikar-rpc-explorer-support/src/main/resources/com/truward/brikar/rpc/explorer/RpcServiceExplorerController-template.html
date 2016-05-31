@@ -156,7 +156,7 @@ function runMethod(method, requestString) {
   $.ajax({
     dataType: 'json',
     method: 'POST',
-    url: '/rest/' + state.serviceName + '?m=' + method,
+    url: '/rest/rpc/' + state.serviceName + '/' + method,
     data: requestString,
     contentType: 'application/json; charset=UTF-8',
 

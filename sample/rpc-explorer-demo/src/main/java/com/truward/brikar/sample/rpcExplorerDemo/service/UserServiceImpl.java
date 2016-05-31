@@ -1,6 +1,5 @@
 package com.truward.brikar.sample.rpcExplorerDemo.service;
 
-import com.google.protobuf.util.JsonFormat;
 import com.truward.brikar.sample.rpcExplorerDemo.model.UserModel;
 
 /**
@@ -14,10 +13,8 @@ public final class UserServiceImpl implements UserService {
   public UserModel.GetUserReply getUser(UserModel.GetUserRequest request) {
     final long userId = request.getUserId();
     if (userId <= 0) {
-      throw new IllegalArgumentException("Invalid userId=" + userId);
+      throw new IllegalArgumentException("userId=" + userId);
     }
-
-    JsonFormat k;
 
     final UserModel.GetUserReply.Builder replyBuilder = UserModel.GetUserReply.newBuilder();
     if (userId == 10L) {

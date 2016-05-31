@@ -55,9 +55,9 @@
   </issueManagement>
 
   <modules>
+    <module>brikar-error-response</module>
     <module>brikar-rpc-rest</module>
     <module>brikar-rpc-explorer-support</module>
-    <module>brikar-error-response</module>
     <module>brikar-common</module>
     <module>brikar-protobuf</module>
     <module>brikar-client</module>
@@ -92,6 +92,11 @@
 
     <dependencies>
       <!-- Project artifacts -->
+      <dependency>
+        <groupId>com.truward.brikar</groupId>
+        <artifactId>brikar-error-response</artifactId>
+        <version>${project.version}</version>
+      </dependency>
       <dependency>
         <groupId>com.truward.brikar.protobuf</groupId>
         <artifactId>brikar-protobuf-http-bin</artifactId>

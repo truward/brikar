@@ -1,5 +1,6 @@
 package com.truward.brikar.rpc.support;
 
+import com.truward.brikar.error.model.ErrorModel;
 import com.truward.brikar.rpc.ServletRpcBinding;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,13 +48,12 @@ public final class ServiceInterfaceServletRpcBindingTest {
   public void shouldBindGetFoo() throws Exception {
     // Given:
     final MockHttpServletRequest request = new MockHttpServletRequest("POST", "http://localhost:9001/Service");
-    request.setParameter("m", "getFoo");
     request.setContentType(MediaType.APPLICATION_JSON_VALUE);
     request.setContent(("Bar,test").getBytes(StandardCharsets.UTF_8));
     final MockHttpServletResponse response = new MockHttpServletResponse();
 
     // When:
-    rpcBinding.process(request, response);
+    rpcBinding.process("getFoo", request, response);
 
     // Then:
     final String last = defaultService.getLast();
@@ -67,7 +67,7 @@ public final class ServiceInterfaceServletRpcBindingTest {
     final MockHttpServletResponse response = new MockHttpServletResponse();
 
     // When:
-    rpcBinding.process(request, response);
+    rpcBinding.process("getFoo", request, response);
 
     // Then:
     assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, response.getStatus());
@@ -77,12 +77,11 @@ public final class ServiceInterfaceServletRpcBindingTest {
   public void shouldSendBadRequestCode() throws Exception {
     // Given:
     final MockHttpServletRequest request = new MockHttpServletRequest("POST", "http://localhost:9001/Service");
-    request.setParameter("m", "getFoo");
     request.setContent(("Bar,test").getBytes(StandardCharsets.UTF_8));
     final MockHttpServletResponse response = new MockHttpServletResponse();
 
     // When:
-    rpcBinding.process(request, response);
+    rpcBinding.process("getFoo", request, response);
 
     // Then:
     assertEquals(HttpServletResponse.SC_BAD_REQUEST, response.getStatus());
@@ -92,13 +91,12 @@ public final class ServiceInterfaceServletRpcBindingTest {
   public void shouldSendNotFoundCode() throws Exception {
     // Given:
     final MockHttpServletRequest request = new MockHttpServletRequest("POST", "http://localhost:9001/Service");
-    request.setParameter("m", "getFoo2");
     request.setContentType(MediaType.APPLICATION_JSON_VALUE);
     request.setContent(("Bar,test").getBytes(StandardCharsets.UTF_8));
     final MockHttpServletResponse response = new MockHttpServletResponse();
 
     // When:
-    rpcBinding.process(request, response);
+    rpcBinding.process("getFoo2", request, response);
 
     // Then:
     assertEquals(HttpServletResponse.SC_NOT_FOUND, response.getStatus());
@@ -108,13 +106,12 @@ public final class ServiceInterfaceServletRpcBindingTest {
   public void shouldSendInternalServerError() throws Exception {
     // Given:
     final MockHttpServletRequest request = new MockHttpServletRequest("POST", "http://localhost:9001/Service");
-    request.setParameter("m", "getBar");
     request.setContentType(MediaType.APPLICATION_JSON_VALUE);
     request.setContent(("Foo,test").getBytes(StandardCharsets.UTF_8));
     final MockHttpServletResponse response = new MockHttpServletResponse();
 
     // When:
-    rpcBinding.process(request, response);
+    rpcBinding.process("getBar", request, response);
 
     // Then:
     assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response.getStatus());
@@ -187,7 +184,7 @@ public final class ServiceInterfaceServletRpcBindingTest {
 
     @Override
     public Bar getBar(Foo foo) {
-      throw new UnsupportedOperationException("Not implemented");
+      throw new UnsupportedOperationException("getBar method is not implemented");
     }
 
     public String getLast() {
@@ -265,7 +262,7 @@ public final class ServiceInterfaceServletRpcBindingTest {
 
     @Override
     protected boolean supports(Class<?> clazz) {
-      return DomainObject.class.isAssignableFrom(clazz);
+      return DomainObject.class.isAssignableFrom(clazz) || ErrorModel.Error.class.isAssignableFrom(clazz);
     }
 
     @Override
@@ -284,6 +281,11 @@ public final class ServiceInterfaceServletRpcBindingTest {
 
     @Override
     protected void writeInternal(Object o, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+      if (o instanceof ErrorModel.Error) {
+        outputMessage.getBody().write(((ErrorModel.Error) o).getMessage().getBytes(StandardCharsets.UTF_8));
+        return;
+      }
+
       if (!(o instanceof DomainObject)) {
         throw new IOException("unsupported object type");
       }

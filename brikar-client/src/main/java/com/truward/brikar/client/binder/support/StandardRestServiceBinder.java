@@ -369,7 +369,11 @@ public class StandardRestServiceBinder implements RestServiceBinder {
     @Nonnull
     @Override
     public URI extract(@Nonnull Object[] arguments) {
-      return URI.create(baseUrl + "?m=" + methodName);
+      // suppressed to have StringBuilder with estimated length
+      //noinspection StringBufferReplaceableByString
+      final StringBuilder builder = new StringBuilder(1 + baseUrl.length() + methodName.length());
+      builder.append(baseUrl).append('/').append(methodName);
+      return URI.create(builder.toString());
     }
   }
 

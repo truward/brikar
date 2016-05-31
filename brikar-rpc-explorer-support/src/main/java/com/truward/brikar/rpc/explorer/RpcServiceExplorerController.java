@@ -10,13 +10,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Controller for RPC service.
@@ -41,6 +48,7 @@ public class RpcServiceExplorerController {
 
   private String template;
   private int templateInitializerIndex;
+  private boolean serviceExplorerEnabled;
 
   public RpcServiceExplorerController() {
     this.filePath = System.getProperty(TEMPLATE_FILE_PATH_PROPERTY);
@@ -59,6 +67,12 @@ public class RpcServiceExplorerController {
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
+
+    setServiceExplorerEnabled(true);
+  }
+
+  public void setServiceExplorerEnabled(boolean serviceExplorerEnabled) {
+    this.serviceExplorerEnabled = serviceExplorerEnabled;
   }
 
   public void setRpcBinding(ServletRpcBinding rpcBinding) {
@@ -91,19 +105,28 @@ public class RpcServiceExplorerController {
     this.rpcBindingMap = result;
   }
 
-  @RequestMapping(value = "rest/{serviceName}", method = RequestMethod.POST)
+  @RequestMapping(value = "rest/rpc/{serviceName}/**", method = RequestMethod.POST)
   public void invoke(@PathVariable("serviceName") String serviceName,
                      HttpServletRequest request,
-                     HttpServletResponse response) throws IOException, ServletException {
+                     HttpServletResponse response) throws IOException {
     final ServletRpcBinding rpcBinding = rpcBindingMap.get(serviceName);
     if (rpcBinding == null) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
 
+    final String urlMethodPath;
+    final String requestURI = request.getRequestURI();
+    final String template = "/rest/rpc/" + serviceName + "/";
+    if (requestURI.startsWith(template)) {
+      urlMethodPath = requestURI.substring(template.length());
+    } else {
+      urlMethodPath = null; // none
+    }
+
     boolean succeeded = false;
     try {
-      rpcBinding.process(request, response);
+      rpcBinding.process(urlMethodPath, request, response);
       succeeded = true;
     } finally {
       if (!succeeded) {
@@ -112,9 +135,14 @@ public class RpcServiceExplorerController {
     }
   }
 
-  @RequestMapping(value = "rest/{serviceName}/explorer", method = RequestMethod.GET)
+  @RequestMapping(value = "rest/explorer/{serviceName}", method = RequestMethod.GET)
   public void explorer(@PathVariable("serviceName") String serviceName,
                        HttpServletResponse response) throws IOException {
+    if (!serviceExplorerEnabled) {
+      response.sendError(HttpServletResponse.SC_NOT_FOUND);
+      return;
+    }
+
     final ServletRpcBinding rpcBinding = rpcBindingMap.get(serviceName);
     if (rpcBinding == null) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);

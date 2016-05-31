@@ -1,5 +1,6 @@
 package com.truward.brikar.rpc.support;
 
+import com.truward.brikar.error.model.ErrorModel;
 import com.truward.brikar.rpc.ServletRpcBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -25,8 +27,6 @@ import java.util.*;
  */
 public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
   private final Logger log = LoggerFactory.getLogger(getClass());
-
-  public static final String METHOD_PARAM_NAME = "m";
 
   private final List<HttpMessageConverter<?>> messageConverters;
   private final Object serviceProxy;
@@ -81,10 +81,19 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
   }
 
   @Override
-  public void process(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response) throws IOException {
+  public void process(@Nullable String urlMethodPath,
+                      @Nonnull HttpServletRequest request,
+                      @Nonnull HttpServletResponse response) throws IOException {
     // check method - only POST methods are allowed
     if (!HttpMethod.POST.name().equals(request.getMethod())) {
       response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+      return;
+    }
+
+    // get method name
+    final Method method = methodMap.get(urlMethodPath);
+    if (method == null) {
+      response.sendError(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
 
@@ -99,21 +108,14 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
     MediaType acceptType = getMediaType(request, "Accept");
     acceptType = (acceptType != null ? acceptType : contentType);
 
-    // get method name
-    final String methodName = request.getParameter(METHOD_PARAM_NAME);
-    final Method method = methodMap.get(methodName);
-    if (method == null) {
-      response.sendError(HttpServletResponse.SC_NOT_FOUND);
-      return;
-    }
-
     // invoke service method
     final Object arg1;
     try {
       arg1 = read(contentType, method.getParameterTypes()[0], new ServletServerHttpRequest(request));
     } catch (HttpMessageNotReadableException e) {
       log.debug("Can't read input message", e);
-      response.sendError(HttpServletResponse.SC_BAD_REQUEST); // send bad request
+      sendError(acceptType, response, HttpServletResponse.SC_BAD_REQUEST,
+          "Can't read input message");
       return;
     }
 
@@ -122,10 +124,11 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
       result = method.invoke(serviceProxy, arg1);
     } catch (IllegalAccessException e) {
       log.error("IllegalAccessException while invoking {}", method);
-      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      sendError(acceptType, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          "Internal error");
       return;
     } catch (InvocationTargetException e) {
-      handleInvocationException(response, method, e.getTargetException());
+      handleInvocationException(acceptType, response, method, e.getTargetException());
       return;
     }
 
@@ -138,15 +141,34 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
   // Protected
   //
 
-  protected void handleInvocationException(HttpServletResponse response, Method method, Throwable e) throws IOException {
+  protected void sendError(MediaType acceptType,
+                           HttpServletResponse response,
+                           int statusCode,
+                           String description) throws IOException {
+    response.setStatus(statusCode);
+    write(acceptType,
+        ErrorModel.Error.class,
+        ErrorModel.Error.newBuilder()
+            .setCode(statusCode)
+            .setMessage(description)
+            .build(),
+        new ServletServerHttpResponse(response));
+  }
+
+  protected void handleInvocationException(MediaType acceptType,
+                                           HttpServletResponse response,
+                                           Method method,
+                                           Throwable e) throws IOException {
     // TODO: error mapping
     if (e instanceof IllegalArgumentException) {
-      response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+      sendError(acceptType, response, HttpServletResponse.SC_BAD_REQUEST,
+          "Illegal Argument: " + e.getMessage());
       return;
     }
 
     log.error("InvocationTargetException while invoking {}", method, e);
-    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    sendError(acceptType, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+        "Internal Error: " + e.getMessage());
   }
 
   //

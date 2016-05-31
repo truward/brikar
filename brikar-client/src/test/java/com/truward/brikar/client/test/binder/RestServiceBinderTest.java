@@ -42,7 +42,7 @@ public class RestServiceBinderTest {
         new HttpEntity<>(aGotProfile), Void.TYPE))
         .thenReturn(new ResponseEntity<Void>(HttpStatus.CREATED));
 
-    when(restOperations.exchange(new URI("http://127.0.0.1?m=shuffleProfile"), HttpMethod.POST,
+    when(restOperations.exchange(new URI("http://127.0.0.1/shuffleProfile"), HttpMethod.POST,
         new HttpEntity<>(aGotProfile), ProfileModel.Profile.class))
         .thenReturn(new ResponseEntity<>(aFoundProfile, HttpStatus.OK));
 
