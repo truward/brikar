@@ -151,7 +151,11 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
   @Override
   public void close() {
     if (httpRequestFactory != null) {
-      httpRequestFactory.destroy();
+      try {
+        httpRequestFactory.destroy();
+      } catch (Exception e) {
+        log.error("Error while shutting down httpRequestFactory", e);
+      }
       httpRequestFactory = null;
     }
   }

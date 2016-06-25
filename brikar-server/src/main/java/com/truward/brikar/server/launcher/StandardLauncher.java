@@ -297,6 +297,7 @@ public class StandardLauncher implements AutoCloseable {
 
     contextHandler = new ServletContextHandler(servletContextOptions);
     contextHandler.setContextPath("/");
+    //contextHandler.setSessionHandler();
     initSpringContext();
 
     final HandlerCollection handlerList = new HandlerCollection();

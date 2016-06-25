@@ -66,15 +66,13 @@
 
   <properties>
     <!-- logging -->
-    <slf4j.version>1.7.7</slf4j.version>
+    <slf4j.version>1.7.21</slf4j.version>
     <commons-logging.version>1.1.1</commons-logging.version>
 
-    <jetty.version>8.1.10.v20130312</jetty.version>
+    <jetty.version>8.1.19.v20160209</jetty.version>
 
-    <spring.version>3.2.8.RELEASE</spring.version>
-    <spring-security.version>3.2.8.RELEASE</spring-security.version>
-
-    <apache.httpcomponents.version>4.4</apache.httpcomponents.version>
+    <spring.version>4.3.0.RELEASE</spring.version>
+    <spring-security.version>4.1.0.RELEASE</spring-security.version>
 
     <!--  compiler settings -->
     <maven.compiler.source>1.7</maven.compiler.source>
@@ -197,12 +195,12 @@
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpcore</artifactId>
-        <version>${apache.httpcomponents.version}</version>
+        <version>4.4.5</version>
       </dependency>
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
-        <version>${apache.httpcomponents.version}</version>
+        <version>4.4.1</version>
       </dependency>
 
       <!-- Spring -->
@@ -223,6 +221,11 @@
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
+        <artifactId>spring-aop</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
         <artifactId>spring-web</artifactId>
         <version>${spring.version}</version>
       </dependency>
@@ -239,29 +242,103 @@
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-web</artifactId>
         <version>${spring-security.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>aopalliance</artifactId>
+            <groupId>aopalliance</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-beans</artifactId>
+            <groupId>org.springframework</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-context</artifactId>
+            <groupId>org.springframework</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-core</artifactId>
+            <groupId>org.springframework</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-expression</artifactId>
+            <groupId>org.springframework</groupId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-config</artifactId>
         <version>${spring-security.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>aopalliance</artifactId>
+            <groupId>aopalliance</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-beans</artifactId>
+            <groupId>org.springframework</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-context</artifactId>
+            <groupId>org.springframework</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-core</artifactId>
+            <groupId>org.springframework</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-expression</artifactId>
+            <groupId>org.springframework</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-aop</artifactId>
+            <groupId>org.springframework</groupId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-core</artifactId>
         <version>${spring-security.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>aopalliance</artifactId>
+            <groupId>aopalliance</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-beans</artifactId>
+            <groupId>org.springframework</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-context</artifactId>
+            <groupId>org.springframework</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-core</artifactId>
+            <groupId>org.springframework</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-expression</artifactId>
+            <groupId>org.springframework</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-aop</artifactId>
+            <groupId>org.springframework</groupId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <!-- Servlet API -->
       <dependency>
         <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>2.5</version>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.1.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>javax.servlet.jsp</groupId>
         <artifactId>jsp-api</artifactId>
-        <version>2.1</version>
+        <version>2.2</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -281,13 +358,13 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.8.2</version>
+        <version>4.12</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-all</artifactId>
-        <version>1.9.0</version>
+        <version>1.10.19</version>
         <scope>test</scope>
       </dependency>
       <dependency>
