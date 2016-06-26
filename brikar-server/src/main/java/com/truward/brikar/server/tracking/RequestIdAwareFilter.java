@@ -55,7 +55,13 @@ public class RequestIdAwareFilter extends OncePerRequestFilter {
     if (log == null) {
       filterChain.doFilter(request, response);
     } else {
-      final String pathInfo = LogUtil.encodeString(request.getPathInfo());
+      String pathInfo = request.getPathInfo(); // can be null if request doesn't have path info
+      if (pathInfo != null) {
+        pathInfo = LogUtil.encodeString(pathInfo);
+      } else {
+        pathInfo = "";
+      }
+
       long time = System.currentTimeMillis();
       try {
         filterChain.doFilter(request, response);

@@ -1,4 +1,8 @@
 
+# 1.4.25 (Future)
+
+* Fix NPE in RequestIdAwareFilter
+
 # 1.4.24
 
 * Upgrading all the dependencies, including Spring and Jetty: both bumped to the latest available versions (as of June 25, 2016)
