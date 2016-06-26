@@ -1,5 +1,5 @@
 
-# 1.5.25 (Not Yet Released)
+# 1.5.25
 
 * (Major Breaking Change!) ``writeDelimitedTo`` and ``parseDelimitedFrom`` are now used to read and write protobuf
   messages from/to HTTP message bodies.
