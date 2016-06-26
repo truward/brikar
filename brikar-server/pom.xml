@@ -15,7 +15,6 @@
     <dependency>
       <artifactId>brikar-common</artifactId>
       <groupId>com.truward.brikar</groupId>
-      <version>${project.version}</version>
     </dependency>
 
     <!-- Jetty -->
