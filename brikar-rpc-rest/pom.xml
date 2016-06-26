@@ -4,7 +4,7 @@
   <parent>
     <artifactId>brikar</artifactId>
     <groupId>com.truward.brikar</groupId>
-    <version>1.5.25</version>
+    <version>1.5.26-SNAPSHOT</version>
   </parent>
 
   <artifactId>brikar-rpc-rest</artifactId>
