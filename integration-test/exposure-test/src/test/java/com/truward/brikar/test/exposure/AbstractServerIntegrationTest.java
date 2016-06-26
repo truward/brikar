@@ -20,6 +20,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
 import javax.annotation.Nonnull;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -100,6 +102,11 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
         .setPerson(normalGreetingText).build());
 
     assertTrue(response.getGreeting().contains(normalGreetingText));
+
+    final ExposureModel.HelloResponse emptyResponse = exposureService.greet(
+        ExposureModel.HelloRequest.newBuilder().build());
+    assertNotNull(emptyResponse);
+    assertEquals("", emptyResponse.getGreeting());
   }
 
   private void checkErrors(@Nonnull ExposureRestService exposureService) {
@@ -146,10 +153,10 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
     final MediaType actualContentType = MediaType.parseMediaType(contentTypeList.get(0));
     if (ProtobufHttpConstants.PROTOBUF_MEDIA_TYPE.isCompatibleWith(actualContentType)) {
       final ErrorModel.Error error;
-      try {
-        error = ErrorModel.Error.parseFrom(exception.getResponseBodyAsByteArray());
+      try (final ByteArrayInputStream bais = new ByteArrayInputStream(exception.getResponseBodyAsByteArray())) {
+        error = ErrorModel.Error.parseDelimitedFrom(bais);
         assertEquals(ExposureRestController.ACCESS_DENIED, error.getMessage());
-      } catch (InvalidProtocolBufferException e) {
+      } catch (IOException e) {
         throw new AssertionError(e);
       }
     } else if (MediaType.APPLICATION_JSON.isCompatibleWith(actualContentType)) {

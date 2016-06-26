@@ -44,8 +44,12 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<O
 
   @Override
   protected void writeInternal(Object o, HttpOutputMessage httpOutputMessage) throws IOException, HttpMessageNotWritableException {
+    // Use writeDelimited to avoid empty request/response bodies as Spring 4.x does not work with them,
+    // it's a real shame we have to do this, but there is simply no other choice without significant complication of
+    // the rest of the code. The reason why it is done here is because Spring became more strict about parsing
+    // request body (and response body as well) and what worked before simply doesn't work anymore.
     final Message message = (Message) o;
-    message.writeTo(httpOutputMessage.getBody());
+    message.writeDelimitedTo(httpOutputMessage.getBody());
   }
 
   //
@@ -61,7 +65,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<O
 
     // find method and put it to the map
     try {
-      final Method method = clazz.getMethod("parseFrom", InputStream.class);
+      final Method method = clazz.getMethod("parseDelimitedFrom", InputStream.class);
 
       // save to cache
       parseMethods.put(clazz, method);
@@ -69,7 +73,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<O
       // return
       return method;
     } catch (NoSuchMethodException e) {
-      throw new IllegalStateException("No method parseFrom for class=" + clazz);
+      throw new IllegalStateException("No method parseDelimitedFrom for class=" + clazz);
     }
   }
 }

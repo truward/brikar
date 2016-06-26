@@ -1,7 +1,14 @@
 
-# 1.4.25 (Future)
+# 1.5.25 (Not Yet Released)
 
+* (Major Breaking Change!) ``writeDelimitedTo`` and ``parseDelimitedFrom`` are now used to read and write protobuf
+  messages from/to HTTP message bodies.
+  Unfortunately this breaks compatibility on the message level, so applications built using this library simply won't be
+  compatible with the previous ones on protocol level. However, everything will still be working fine if you use JSON.
+  See also comments in ``ProtobufHttpMessageConverter`` to find out more about motivation behind this change.
+  Long story short: what was possible in Spring 3 is no longer possible in Spring 4. And yeah, it really sucks!
 * Fix NPE in RequestIdAwareFilter
+* Disabling extra header protection for REST API in ``default-service-security.xml``.
 
 # 1.4.24
 

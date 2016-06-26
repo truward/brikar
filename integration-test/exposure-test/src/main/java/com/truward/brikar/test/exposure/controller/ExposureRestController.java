@@ -32,6 +32,10 @@ public final class ExposureRestController extends AbstractRestController impleme
 
   @Override
   public ExposureModel.HelloResponse greet(@RequestBody ExposureModel.HelloRequest request) {
+    if (request.getPerson().isEmpty()) {
+      return ExposureModel.HelloResponse.newBuilder().build(); // empty greeting
+    }
+
     final String person = request.getPerson();
 
     if (person.equals("admin")) {
