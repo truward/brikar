@@ -1,4 +1,9 @@
 
+# 1.5.26
+
+* Migrating to [protobuf 3.0.0](http://mvnrepository.com/artifact/com.google.protobuf/protobuf-java)
+* Migrating to [protobuf-jackson 1.0.2](http://mvnrepository.com/artifact/com.truward.protobuf/protobuf-jackson)
+
 # 1.5.25
 
 * (Major Breaking Change!) ``writeDelimitedTo`` and ``parseDelimitedFrom`` are now used to read and write protobuf
