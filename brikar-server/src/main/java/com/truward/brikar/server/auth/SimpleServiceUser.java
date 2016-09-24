@@ -1,7 +1,5 @@
 package com.truward.brikar.server.auth;
 
-import org.springframework.util.Assert;
-
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +21,7 @@ public final class SimpleServiceUser {
   private final String password;
   private final List<String> roles;
 
-  public SimpleServiceUser(@Nonnull  String username, @Nonnull String password, @Nonnull List<String> roles) {
+  public SimpleServiceUser(@Nonnull String username, @Nonnull String password, @Nonnull List<String> roles) {
     this.username = Objects.requireNonNull(username, "username");
     this.password = Objects.requireNonNull(password, "password");
 
@@ -31,7 +29,7 @@ public final class SimpleServiceUser {
     this.roles = unmodifiableList(asList(roles.toArray(new String[roles.size()])));
   }
 
-  public SimpleServiceUser(@Nonnull  String username, @Nonnull String password) {
+  public SimpleServiceUser(@Nonnull String username, @Nonnull String password) {
     this(username, password, DEFAULT_ROLES);
   }
 

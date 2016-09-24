@@ -4,6 +4,7 @@ import com.truward.brikar.common.log.lapse.Lapse;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Common constants for logging.
@@ -66,6 +67,35 @@ public final class LogUtil {
    * See also {@link com.truward.brikar.common.tracking.TrackingHttpHeaderNames#ORIGINATING_REQUEST_ID}.
    */
   public static final String ORIGINATING_REQUEST_ID = "oid";
+
+  /**
+   * Maximum size of request ID.
+   */
+  public static final int MAX_REQUEST_ID_LENGTH = 256;
+
+  /**
+   * Validates, that passed request ID is valid. This function is used to prevent the potential attacker to send
+   * garbage request IDs into the service.
+   * If passed request ID is invalid, it should be discarded.
+   *
+   * @param requestId Request ID to validate
+   * @return True, if passed request ID is valid, false otherwise.
+   */
+  public static boolean isValidRequestId(@Nullable String requestId) {
+    if (requestId == null || requestId.isEmpty() || requestId.length() > MAX_REQUEST_ID_LENGTH) {
+      return false;
+    }
+
+    // verify, that each character is within the allowed bounds
+    for (int i = 0; i < requestId.length(); ++i) {
+      final char ch = requestId.charAt(i);
+      if (ch <= 32 || ch >= 127) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 
   //
   // Parameters in logging statements.

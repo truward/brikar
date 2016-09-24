@@ -77,6 +77,27 @@ Add jar dependency in your pom.xml:
 
 See also samples in ``sample`` folder. The structure of samples is identical to the one descibed above.
 
+## Configuration
+
+Brikar makes some assumptions on how application needs to be configured. All the configuration is put into the property
+files which are then passed to the application. All the properties are then read from that property files.
+
+Some of those properties are standard, such as port number, stop delay, path to static resources, etc.
+
+Sample configuration:
+
+```
+# Tells to use 9090 port
+brikar.settings.port=9090
+
+# Tells to wait 2500 milliseconds on shutdown, allowing pending requests to be completed
+brikar.settings.gracefulShutdownMillis=2500
+```
+
+An application can start using this property file. Assuming, that path to sample configuration file above is ``/opt/hello.properties`` and
+service is assembled as jar and put into the current folder under the name ``service.jar``,
+it can be started using configuration file given above as ``java -jar service.jar -Dbrikar.settings.path=file:/opt/hello.properties``.
+
 ## Logging and Metrics
 
 Brikar comes with pre-configured logging (slf4j+logback). See also ``default-service-logback.xml``.

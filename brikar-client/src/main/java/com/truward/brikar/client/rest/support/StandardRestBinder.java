@@ -260,9 +260,16 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
     public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
       final long timeDelta = System.currentTimeMillis() - statsHolder.startTime;
 
-      // get request ID
+      // get and validate request ID
       final Header header = response.getLastHeader(TrackingHttpHeaderNames.REQUEST_ID);
-      final String responseRequestId = (header != null ? header.getValue() : LogUtil.UNKNOWN_VALUE);
+      String responseRequestId = LogUtil.UNKNOWN_VALUE;
+      if (header != null) {
+        final String val = header.getValue();
+        if (LogUtil.isValidRequestId(val)) {
+          responseRequestId = val;
+        }
+      }
+
       final int code = response.getStatusLine().getStatusCode();
       final String uri = LogUtil.encodeString(statsHolder.uri);
 
