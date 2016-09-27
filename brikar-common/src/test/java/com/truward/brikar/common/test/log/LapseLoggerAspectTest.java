@@ -28,7 +28,7 @@ public final class LapseLoggerAspectTest {
   @Resource(name = "test.real.calcService") CalcService realCalcService;
   @Resource(name = "test.real.calcService2") CalcService realCalcService2;
   @Resource TestLoggerProvider loggerProvider;
-
+  private final String sep = System.lineSeparator();
 
   @Before
   public void initMocks() {
@@ -53,7 +53,7 @@ public final class LapseLoggerAspectTest {
     // Then:
     assertEquals(3, result);
     final String logContent = loggerProvider.getRawLogContents();
-    assertTrue(logContent.contains("@metric op=CalcService.plus, tDelta=200\n"));
+    assertTrue(logContent.contains("@metric op=CalcService.plus, tDelta=200" + sep));
   }
 
   @Test
@@ -74,7 +74,7 @@ public final class LapseLoggerAspectTest {
 
     // Then:
     final String logContent = loggerProvider.getRawLogContents();
-    assertTrue(logContent.contains("@metric op=CalcService.plus, tDelta=1, failed=true\n"));
+    assertTrue(logContent.contains("@metric op=CalcService.plus, tDelta=1, failed=true" + sep));
   }
 
   @Test
