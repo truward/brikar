@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 /**
  * @author Alexander Shabanov
  */
-public interface RestBinder {
+public interface RestClientBuilderFactory {
 
   @Nonnull
   <T> RestClientBuilder<T> newClient(@Nonnull Class<T> serviceClass);

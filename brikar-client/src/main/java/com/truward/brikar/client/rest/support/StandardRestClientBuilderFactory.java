@@ -2,10 +2,10 @@ package com.truward.brikar.client.rest.support;
 
 import com.truward.brikar.client.binder.RestServiceBinder;
 import com.truward.brikar.client.binder.RestServiceBinderFactory;
-import com.truward.brikar.client.rest.RestBinder;
+import com.truward.brikar.client.interceptor.RequestLogAwareHttpRequestInterceptor;
+import com.truward.brikar.client.interceptor.RequestLogAwareHttpResponseInterceptor;
+import com.truward.brikar.client.rest.RestClientBuilderFactory;
 import com.truward.brikar.client.rest.RestClientBuilder;
-import com.truward.brikar.common.log.LogUtil;
-import com.truward.brikar.common.tracking.TrackingHttpHeaderNames;
 import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -14,10 +14,8 @@ import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -27,18 +25,17 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Default implementation of {@link RestBinder}, adapted for spring framework.
+ * Default implementation of {@link RestClientBuilderFactory}, adapted for spring framework.
  *
  * @author Alexander Shabanov
  */
-public class StandardRestBinder implements RestBinder, InitializingBean, DisposableBean, AutoCloseable {
+public class StandardRestClientBuilderFactory implements RestClientBuilderFactory, InitializingBean, DisposableBean, AutoCloseable {
   /**
    * Default connection ttl setting. Should be less than server we're going to use.
    * Since this class is intended to be used mostly for interacting with brikar services, this TTL
@@ -52,7 +49,7 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
   public static final long DEFAULT_CONNECTION_TTL = 60000L;
 
   /**
-   * Default value for total maxumum connections.
+   * Default value for total maximum connections.
    */
   public static final int DEFAULT_MAX_CONN_TOTAL = 15;
 
@@ -66,8 +63,8 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
   private int maxConnTotal;
   private HttpRequestRetryHandler retryHandler;
 
-  public StandardRestBinder(@Nonnull List<HttpMessageConverter<?>> messageConverters,
-                            @Nonnull RestServiceBinderFactory restServiceBinderFactory) {
+  public StandardRestClientBuilderFactory(@Nonnull List<HttpMessageConverter<?>> messageConverters,
+                                          @Nonnull RestServiceBinderFactory restServiceBinderFactory) {
     this.messageConverters = messageConverters;
     setRestServiceBinderFactory(restServiceBinderFactory);
     setConnectionTtlMillis(DEFAULT_CONNECTION_TTL);
@@ -75,11 +72,11 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
     setRetryHandler(null);
   }
 
-  public StandardRestBinder(@Nonnull List<HttpMessageConverter<?>> messageConverters) {
+  public StandardRestClientBuilderFactory(@Nonnull List<HttpMessageConverter<?>> messageConverters) {
     this(messageConverters, RestServiceBinderFactory.DEFAULT);
   }
 
-  public StandardRestBinder(@Nonnull HttpMessageConverter<?>... messageConverters) {
+  public StandardRestClientBuilderFactory(@Nonnull HttpMessageConverter<?>... messageConverters) {
     this(Arrays.asList(messageConverters));
   }
 
@@ -194,9 +191,8 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
   }
 
   protected void initRequestIdOperations(@Nonnull HttpClientBuilder builder) {
-    final RequestIdStatsHolder statsHolder = new RequestIdStatsHolder();
-    builder.addInterceptorLast(new RequestIdAwareHttpRequestInterceptor(statsHolder));
-    builder.addInterceptorLast(new RequestIdAwareHttpResponseInterceptor(statsHolder));
+    builder.addInterceptorLast(new RequestLogAwareHttpRequestInterceptor());
+    builder.addInterceptorLast(new RequestLogAwareHttpResponseInterceptor(log));
   }
 
   protected void initDefaultHttpClientBuilder(@Nonnull HttpClientBuilder builder) {
@@ -213,73 +209,6 @@ public class StandardRestBinder implements RestBinder, InitializingBean, Disposa
   //
   // Private
   //
-
-  protected static final class RequestIdStatsHolder {
-    long startTime;
-    String uri;
-    String method;
-
-    void setRequestLine(RequestLine requestLine) {
-      this.method = requestLine.getMethod();
-      this.uri = requestLine.getUri();
-      this.startTime = System.currentTimeMillis();
-    }
-  }
-
-  protected static final class RequestIdAwareHttpRequestInterceptor implements HttpRequestInterceptor {
-    private final RequestIdStatsHolder statsHolder;
-
-    public RequestIdAwareHttpRequestInterceptor(RequestIdStatsHolder statsHolder) {
-      this.statsHolder = statsHolder;
-    }
-
-    @Override
-    public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
-      final String originatingRequestId = MDC.get(LogUtil.ORIGINATING_REQUEST_ID);
-      if (originatingRequestId != null) {
-        request.setHeader(TrackingHttpHeaderNames.ORIGINATING_REQUEST_ID, originatingRequestId);
-      }
-      statsHolder.setRequestLine(request.getRequestLine());
-    }
-  }
-
-  protected final class RequestIdAwareHttpResponseInterceptor implements HttpResponseInterceptor {
-    /**
-     * Layout: operation={}, timeDelta={}, method={}, responseCode={}, responseRid={}
-     */
-    private static final String LOG_FMT = LogUtil.LAPSE_HEADING + ", " +
-        LogUtil.VERB + "={}, " + LogUtil.RESPONSE_CODE + "={}, " + LogUtil.RESPONSE_REQUEST_ID + "={}";
-
-    private final RequestIdStatsHolder statsHolder;
-
-    public RequestIdAwareHttpResponseInterceptor(RequestIdStatsHolder statsHolder) {
-      this.statsHolder = statsHolder;
-    }
-
-    @Override
-    public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
-      final long timeDelta = System.currentTimeMillis() - statsHolder.startTime;
-
-      // get and validate request ID
-      final Header header = response.getLastHeader(TrackingHttpHeaderNames.REQUEST_ID);
-      String responseRequestId = LogUtil.UNKNOWN_VALUE;
-      if (header != null) {
-        final String val = header.getValue();
-        if (LogUtil.isValidRequestId(val)) {
-          responseRequestId = val;
-        }
-      }
-
-      final int code = response.getStatusLine().getStatusCode();
-      final String uri = LogUtil.encodeString(statsHolder.uri);
-
-      if (code >= 200 && code < 300) {
-        log.info(LOG_FMT, uri, timeDelta, statsHolder.method, code, responseRequestId);
-      } else {
-        log.warn(LOG_FMT, uri, timeDelta, statsHolder.method, code, responseRequestId);
-      }
-    }
-  }
 
   private static final class InternalRestClientBuilder<T> implements RestClientBuilder<T> {
     private String username;

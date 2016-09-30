@@ -1,6 +1,6 @@
 package com.truward.brikar.sample.zoo.client;
 
-import com.truward.brikar.client.rest.support.StandardRestBinder;
+import com.truward.brikar.client.rest.support.StandardRestClientBuilderFactory;
 import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
 import com.truward.brikar.sample.zoo.model.ZooModel;
 import com.truward.brikar.sample.zoo.model.ZooRestService;
@@ -13,7 +13,7 @@ import java.net.URI;
 public final class ZooClient {
 
   public static void main(String[] args) {
-    try (final StandardRestBinder restBinder = new StandardRestBinder(new ProtobufHttpMessageConverter())) {
+    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new ProtobufHttpMessageConverter())) {
       restBinder.afterPropertiesSet();
 
       final ZooRestService service = restBinder.newClient(ZooRestService.class)

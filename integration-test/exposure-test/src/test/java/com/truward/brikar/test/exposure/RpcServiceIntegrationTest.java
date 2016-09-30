@@ -1,6 +1,6 @@
 package com.truward.brikar.test.exposure;
 
-import com.truward.brikar.client.rest.support.StandardRestBinder;
+import com.truward.brikar.client.rest.support.StandardRestClientBuilderFactory;
 import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
 import com.truward.brikar.test.exposure.model.ExposureModel;
 import com.truward.brikar.test.exposure.rpc.RpcService;
@@ -25,7 +25,7 @@ public final class RpcServiceIntegrationTest extends ServerIntegrationTestBase {
 
   @Test
   public void shouldExecuteSayHello() {
-    try (final StandardRestBinder restBinder = new StandardRestBinder(new ProtobufHttpMessageConverter())) {
+    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new ProtobufHttpMessageConverter())) {
       restBinder.afterPropertiesSet();
 
       final RpcService rpcService = newClient(restBinder, RpcService.class, "/rest/rpc/RpcService");

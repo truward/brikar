@@ -65,7 +65,7 @@ public final class JettyResourceUtilTest {
 
   @Test(expected = IOException.class)
   public void shouldNotCreateFileResourceUsingRelativePath() throws IOException {
-    JettyResourceUtil.createResource("test/sample");
+    JettyResourceUtil.createResource("test" + File.pathSeparator + "sample");
   }
 
   @Test(expected = IOException.class)

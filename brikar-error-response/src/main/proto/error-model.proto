@@ -5,8 +5,28 @@ package truward.brikar.error.model;
 option java_package = "com.truward.brikar.error.model";
 option java_outer_classname = "ErrorModel";
 
+message Parameter {
+  // extra parameter name
+  string name = 1;
+
+  // associated parameter values
+  string strValue = 2;
+  int32 intValue = 3;
+  int64 longValue = 4;
+  bytes bytesValue = 5;
+}
+
 message Error {
-  int32 code = 1;
-  string message = 2;
+
+  // associated error message
+  string message = 1;
+
+  // custom error code, optional
+  int32 code = 2;
+
+  // root cause, optional
   Error cause = 3;
+
+  // associated error parameters, optional
+  repeated Parameter parameters = 4;
 }

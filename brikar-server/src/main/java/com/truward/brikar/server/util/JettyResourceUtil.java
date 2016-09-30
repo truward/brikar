@@ -5,6 +5,10 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * @author Alexander Shabanov
@@ -21,6 +25,15 @@ public final class JettyResourceUtil {
       return Resource.newResource(new File(resourcePath));
     }
 
-    throw new IOException("Unknown protocol in resourcePath=" + resourcePath);
+    try {
+      if (Files.exists(Paths.get(resourcePath))) {
+        return Resource.newResource(new File(resourcePath));
+      }
+
+      // path seem to be valid but nothing exists there
+      throw new IOException("Missing file at resourcePath=" + resourcePath);
+    } catch (InvalidPathException e) {
+      throw new IOException("Invalid path or unknown protocol in resourcePath=" + resourcePath, e);
+    }
   }
 }

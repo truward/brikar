@@ -2,9 +2,9 @@ package com.truward.brikar.test.exposure;
 
 import com.truward.brikar.client.binder.RestServiceBinder;
 import com.truward.brikar.client.binder.RestServiceBinderFactory;
-import com.truward.brikar.client.rest.RestBinder;
+import com.truward.brikar.client.rest.RestClientBuilderFactory;
 import com.truward.brikar.client.rest.RestClientBuilder;
-import com.truward.brikar.client.rest.support.StandardRestBinder;
+import com.truward.brikar.client.rest.support.StandardRestClientBuilderFactory;
 import com.truward.brikar.common.healthcheck.HealthCheckRestService;
 import com.truward.brikar.server.auth.SimpleServiceUser;
 import com.truward.brikar.server.launcher.StandardLauncher;
@@ -99,7 +99,7 @@ public abstract class ServerIntegrationTestBase {
     LOG.info("Server started");
 
     // protocol buffers message converter
-    try (final StandardRestBinder restBinder = new StandardRestBinder(new StringHttpMessageConverter())) {
+    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new StringHttpMessageConverter())) {
       restBinder.afterPropertiesSet();
       waitUntilServerStarted(newClient(restBinder, HealthCheckRestService.class, "/rest", user));
     }
@@ -107,7 +107,7 @@ public abstract class ServerIntegrationTestBase {
   }
 
   @Nonnull
-  protected static <T> T newClient(@Nonnull RestBinder binder, @Nonnull Class<T> clientClass, @Nonnull String relPath,
+  protected static <T> T newClient(@Nonnull RestClientBuilderFactory binder, @Nonnull Class<T> clientClass, @Nonnull String relPath,
                                    @Nullable SimpleServiceUser user) {
     final RestClientBuilder<T> clientBuilder = binder.newClient(clientClass).setUri(getServerUrl(relPath));
     if (user != null) {
@@ -117,7 +117,7 @@ public abstract class ServerIntegrationTestBase {
   }
 
   @Nonnull
-  protected <T> T newClient(@Nonnull RestBinder binder, @Nonnull Class<T> clientClass, @Nonnull String relPath) {
+  protected <T> T newClient(@Nonnull RestClientBuilderFactory binder, @Nonnull Class<T> clientClass, @Nonnull String relPath) {
     return newClient(binder, clientClass, relPath, getUser());
   }
 
@@ -152,7 +152,7 @@ public abstract class ServerIntegrationTestBase {
   }
 
   protected void withCustomRestBinder(@Nonnull final String url, @Nonnull TextRetrievalTestScenario scenario) {
-    try (final StandardRestBinder restBinder = new StandardRestBinder(new StringHttpMessageConverter())) {
+    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new StringHttpMessageConverter())) {
       class RetrievalServiceImpl implements RetrievalService {
         final RestOperations restOperations;
 

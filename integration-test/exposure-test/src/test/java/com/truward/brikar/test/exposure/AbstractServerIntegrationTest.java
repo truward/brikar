@@ -1,7 +1,6 @@
 package com.truward.brikar.test.exposure;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.truward.brikar.client.rest.support.StandardRestBinder;
+import com.truward.brikar.client.rest.support.StandardRestClientBuilderFactory;
 import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.error.model.ErrorModel;
 import com.truward.brikar.protobuf.http.ProtobufHttpConstants;
@@ -37,7 +36,7 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
 
   @Test
   public void shouldUseServicesUsingProtobufProtocol() {
-    try (final StandardRestBinder restBinder = new StandardRestBinder(new ProtobufHttpMessageConverter())) {
+    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new ProtobufHttpMessageConverter())) {
       restBinder.afterPropertiesSet();
 
       final ExposureRestService exposureService = newClient(restBinder, ExposureRestService.class, "/rest/test");
@@ -51,7 +50,7 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
   public void shouldUseServicesUsingJsonProtocol() {
     // Set originating request ID for manual verification in logs
     MDC.put(LogUtil.ORIGINATING_REQUEST_ID, "IntegTest-shouldUseServicesUsingJsonProtocol");
-    try (final StandardRestBinder restBinder = new StandardRestBinder(new ProtobufJsonHttpMessageConverter())) {
+    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new ProtobufJsonHttpMessageConverter())) {
       restBinder.afterPropertiesSet();
 
       final ExposureRestService exposureService = newClient(restBinder, ExposureRestService.class, "/rest/test");
@@ -74,7 +73,7 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
 
   @Test
   public void shouldGetAccessDenied() {
-    try (final StandardRestBinder restBinder = new StandardRestBinder(new ProtobufHttpMessageConverter())) {
+    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new ProtobufHttpMessageConverter())) {
       restBinder.afterPropertiesSet();
 
       final SimpleServiceUser user = getUser();

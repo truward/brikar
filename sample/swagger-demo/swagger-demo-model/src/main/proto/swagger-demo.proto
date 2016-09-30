@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package truward.brikar.sample.zoo;
+
+option java_package = "com.truward.brikar.sample.swaggerdemo.model";
+option java_outer_classname = "GreetingModel";
+
+message Greeting {
+  required int64 id = 1;
+  required string text = 2;
+}

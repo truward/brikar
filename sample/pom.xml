@@ -20,6 +20,7 @@
     <module>zoo</module>
     <module>todo</module>
     <module>rpc-explorer-demo</module>
+    <module>swagger-demo</module>
   </modules>
 
   <properties>

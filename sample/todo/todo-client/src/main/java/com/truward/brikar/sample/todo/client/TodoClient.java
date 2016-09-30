@@ -1,6 +1,6 @@
 package com.truward.brikar.sample.todo.client;
 
-import com.truward.brikar.client.rest.support.StandardRestBinder;
+import com.truward.brikar.client.rest.support.StandardRestClientBuilderFactory;
 import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
 import com.truward.brikar.sample.todo.model.TodoModel;
 import com.truward.brikar.sample.todo.model.TodoQueryService;
@@ -19,7 +19,7 @@ import java.util.Date;
 public final class TodoClient {
 
   public static void main(String[] args) throws IOException {
-    try (final StandardRestBinder restBinder = new StandardRestBinder(new ProtobufHttpMessageConverter())) {
+    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new ProtobufHttpMessageConverter())) {
       restBinder.afterPropertiesSet();
 
       final TodoRestService service = restBinder.newClient(TodoRestService.class)

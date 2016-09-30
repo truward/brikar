@@ -1,4 +1,16 @@
 
+# 1.6.27 (PLANNED)
+
+* (Major Breaking Change!) Refactoring in brikar-client:
+  RestBinder becomes RestClientBuilderFactory; support classes split into multiple ones;
+  Also inner entities used in previous RestBinder implementation now available as public classes
+* Extending standard error code with extra parameters
+* Fixing the bug in client request log interceptor
+* Fixing build under Windows
+* Fixing the bug in JettyResourceUtil and making it more generic
+* Adding Swagger example
+* Cosmetic fixes
+
 # 1.5.26
 
 * Migrating to [protobuf 3.0.0](http://mvnrepository.com/artifact/com.google.protobuf/protobuf-java)

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/rest")
 public class SimpleHealthCheckRestController extends AbstractRestController implements HealthCheckRestService {
 
+
   @Override
   public final String checkHealth() {
     return doCheckHealth();
