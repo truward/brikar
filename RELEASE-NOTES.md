@@ -1,5 +1,9 @@
 
-# 1.6.27 (PLANNED)
+# 1.6.28
+
+(PLANNED)
+
+# 1.6.27
 
 * (Major Breaking Change!) Refactoring in brikar-client:
   RestBinder becomes RestClientBuilderFactory; support classes split into multiple ones;
