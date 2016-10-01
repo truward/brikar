@@ -1,6 +1,6 @@
 package com.truward.brikar.test.exposure;
 
-import com.truward.brikar.client.rest.support.StandardRestClientBuilderFactory;
+import com.truward.brikar.client.rest.RestOperationsFactory;
 import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.error.model.ErrorModel;
 import com.truward.brikar.protobuf.http.ProtobufHttpConstants;
@@ -36,10 +36,8 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
 
   @Test
   public void shouldUseServicesUsingProtobufProtocol() {
-    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new ProtobufHttpMessageConverter())) {
-      restBinder.afterPropertiesSet();
-
-      final ExposureRestService exposureService = newClient(restBinder, ExposureRestService.class, "/rest/test");
+    try (final RestOperationsFactory rof = new RestOperationsFactory(new ProtobufHttpMessageConverter())) {
+      final ExposureRestService exposureService = newClient(ExposureRestService.class, rof, "/rest/test");
 
       checkNormalResponse(exposureService);
       checkErrors(exposureService);
@@ -50,10 +48,8 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
   public void shouldUseServicesUsingJsonProtocol() {
     // Set originating request ID for manual verification in logs
     MDC.put(LogUtil.ORIGINATING_REQUEST_ID, "IntegTest-shouldUseServicesUsingJsonProtocol");
-    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new ProtobufJsonHttpMessageConverter())) {
-      restBinder.afterPropertiesSet();
-
-      final ExposureRestService exposureService = newClient(restBinder, ExposureRestService.class, "/rest/test");
+    try (final RestOperationsFactory rof = new RestOperationsFactory(new ProtobufJsonHttpMessageConverter())) {
+      final ExposureRestService exposureService = newClient(ExposureRestService.class, rof, "/rest/test");
 
       checkNormalResponse(exposureService);
       checkErrors(exposureService);
@@ -73,14 +69,12 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
 
   @Test
   public void shouldGetAccessDenied() {
-    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new ProtobufHttpMessageConverter())) {
-      restBinder.afterPropertiesSet();
-
+    try (final RestOperationsFactory rof = new RestOperationsFactory(new ProtobufHttpMessageConverter())) {
       final SimpleServiceUser user = getUser();
       assertNotNull(user);
 
-      final ExposureRestService exposureService = newClient(restBinder, ExposureRestService.class, "/rest/test",
-          new SimpleServiceUser(user.getUsername(), user.getPassword() + "1"));
+      final ExposureRestService exposureService = newClient(ExposureRestService.class, rof,
+          new SimpleServiceUser(user.getUsername(), user.getPassword() + "1"), getServerUrl("/rest/test"));
 
       try {
         exposureService.greet(ExposureModel.HelloRequest.newBuilder()
@@ -159,7 +153,7 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
         throw new AssertionError(e);
       }
     } else if (MediaType.APPLICATION_JSON.isCompatibleWith(actualContentType)) {
-      assertEquals("{\"message\":\"" + ExposureRestController.ACCESS_DENIED + "\"}",
+      assertEquals("{\"message\":\"" + ExposureRestController.ACCESS_DENIED + "\",\"parameters\":[]}",
           exception.getResponseBodyAsString());
     } else {
       fail("Unexpected content type: " + actualContentType);

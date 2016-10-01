@@ -1,6 +1,6 @@
-package com.truward.brikar.client.binder.support;
+package com.truward.brikar.client.rest.support;
 
-import com.truward.brikar.client.binder.RestServiceBinder;
+import com.truward.brikar.client.rest.RestServiceBinder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +44,14 @@ public class StandardRestServiceBinder implements RestServiceBinder {
     final Object o = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
         classes, new MethodMapBasedInvocationHandler(handlerMap));
     return restServiceClass.cast(o);
+  }
+
+  @Override
+  @Nonnull
+  public <T> T createClient(@Nonnull URI serviceBaseUrl,
+                     @Nonnull Class<T> restServiceClass,
+                     @Nonnull Class<?> ... extraClasses) {
+    return createClient(serviceBaseUrl.toString(), restServiceClass, extraClasses);
   }
 
   //

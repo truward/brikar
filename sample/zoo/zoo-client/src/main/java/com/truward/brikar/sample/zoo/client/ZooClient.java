@@ -1,11 +1,14 @@
 package com.truward.brikar.sample.zoo.client;
 
-import com.truward.brikar.client.rest.support.StandardRestClientBuilderFactory;
+import com.truward.brikar.client.rest.RestOperationsFactory;
+import com.truward.brikar.client.rest.ServiceClientCredentials;
+import com.truward.brikar.client.rest.support.StandardRestServiceBinder;
 import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
 import com.truward.brikar.sample.zoo.model.ZooModel;
 import com.truward.brikar.sample.zoo.model.ZooRestService;
 
 import java.net.URI;
+import java.util.Collections;
 
 /**
  * @author Alexander Shabanov
@@ -13,13 +16,13 @@ import java.net.URI;
 public final class ZooClient {
 
   public static void main(String[] args) {
-    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new ProtobufHttpMessageConverter())) {
-      restBinder.afterPropertiesSet();
+    try (final RestOperationsFactory rof = new RestOperationsFactory(new ProtobufHttpMessageConverter())) {
+      final URI uri = URI.create("http://127.0.0.1:8080/rest/zoo");
+      rof.setCredentials(Collections.singletonList(new ServiceClientCredentials(uri,
+          "testonly", "test")));
 
-      final ZooRestService service = restBinder.newClient(ZooRestService.class)
-          .setUsername("testonly").setPassword("test")
-          .setUri(URI.create("http://127.0.0.1:8080/rest/zoo"))
-          .build();
+      final ZooRestService service = new StandardRestServiceBinder(rof.getRestOperations())
+          .createClient(uri, ZooRestService.class);
 
       final ZooModel.Animal animal = service.getAnimal(1L);
       System.out.println("animal = " + animal);

@@ -1,6 +1,7 @@
 package com.truward.brikar.sample.calc.client;
 
-import com.truward.brikar.client.rest.support.StandardRestClientBuilderFactory;
+import com.truward.brikar.client.rest.RestOperationsFactory;
+import com.truward.brikar.client.rest.support.StandardRestServiceBinder;
 import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
 import com.truward.brikar.sample.calc.model.CalcModel;
 import com.truward.brikar.sample.calc.model.CalcRestService;
@@ -13,13 +14,9 @@ import java.net.URI;
 public final class CalcClient {
 
   public static void main(String[] args) {
-    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new ProtobufHttpMessageConverter())) {
-      restBinder.afterPropertiesSet();
-
-      // Creating a client so that all the methods will be usable against the particular endpoint
-      final CalcRestService calcRestService = restBinder.newClient(CalcRestService.class)
-          .setUri(URI.create("http://127.0.0.1:8080/rest/calc"))
-          .build();
+    try (final RestOperationsFactory rof = new RestOperationsFactory(new ProtobufHttpMessageConverter())) {
+      final CalcRestService calcRestService = new StandardRestServiceBinder(rof.getRestOperations())
+          .createClient(URI.create("http://127.0.0.1:8080/rest/calc"), CalcRestService.class);
 
       final CalcModel.GetVariables variables = calcRestService.getAllVariables();
       System.out.println("variables = " + variables);

@@ -1,6 +1,6 @@
-package com.truward.brikar.client.binder;
+package com.truward.brikar.client.rest;
 
-import com.truward.brikar.client.binder.support.StandardRestServiceBinder;
+import com.truward.brikar.client.rest.support.StandardRestServiceBinder;
 import org.springframework.web.client.RestOperations;
 
 import javax.annotation.Nonnull;

@@ -1,6 +1,9 @@
 package com.truward.brikar.sample.todo.client;
 
-import com.truward.brikar.client.rest.support.StandardRestClientBuilderFactory;
+import com.truward.brikar.client.rest.RestOperationsFactory;
+import com.truward.brikar.client.rest.RestServiceBinder;
+import com.truward.brikar.client.rest.ServiceClientCredentials;
+import com.truward.brikar.client.rest.support.StandardRestServiceBinder;
 import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
 import com.truward.brikar.sample.todo.model.TodoModel;
 import com.truward.brikar.sample.todo.model.TodoQueryService;
@@ -11,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 
 /**
@@ -19,18 +23,14 @@ import java.util.Date;
 public final class TodoClient {
 
   public static void main(String[] args) throws IOException {
-    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new ProtobufHttpMessageConverter())) {
-      restBinder.afterPropertiesSet();
+    try (final RestOperationsFactory rof = new RestOperationsFactory(new ProtobufHttpMessageConverter())) {
+      final URI uri = URI.create("http://127.0.0.1:8080/rest/todo");
+      rof.setCredentials(Collections.singletonList(new ServiceClientCredentials(uri,
+          "todoServiceUser", "todoPassword")));
 
-      final TodoRestService service = restBinder.newClient(TodoRestService.class)
-          .setUsername("todoServiceUser").setPassword("todoPassword")
-          .setUri(URI.create("http://127.0.0.1:8080/rest/todo"))
-          .build();
-
-      final TodoQueryService queryService = restBinder.newClient(TodoQueryService.class)
-          .setUsername("todoServiceUser").setPassword("todoPassword")
-          .setUri(URI.create("http://127.0.0.1:8080/rest/todo"))
-          .build();
+      final RestServiceBinder binder = new StandardRestServiceBinder(rof.getRestOperations());
+      final TodoRestService service = binder.createClient(uri, TodoRestService.class);
+      final TodoQueryService queryService = binder.createClient(uri, TodoQueryService.class);
 
       if (args.length > 0 && "--repl".equals(args[0])) {
         try (final BufferedReader r = new BufferedReader(new InputStreamReader(System.in))) {

@@ -4,6 +4,7 @@
 * (Major Breaking Change!) Refactoring in brikar-client:
   RestBinder becomes RestClientBuilderFactory; support classes split into multiple ones;
   Also inner entities used in previous RestBinder implementation now available as public classes
+* Using 'BrikarRestClient' as a logger name for client HTTP calls
 * Extending standard error code with extra parameters
 * Fixing the bug in client request log interceptor
 * Fixing build under Windows

@@ -1,6 +1,6 @@
 package com.truward.brikar.test.exposure;
 
-import com.truward.brikar.client.rest.support.StandardRestClientBuilderFactory;
+import com.truward.brikar.client.rest.RestOperationsFactory;
 import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
 import com.truward.brikar.test.exposure.model.ExposureModel;
 import com.truward.brikar.test.exposure.rpc.RpcService;
@@ -9,9 +9,7 @@ import org.junit.Test;
 
 import javax.annotation.Nonnull;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Alexander Shabanov
@@ -25,10 +23,8 @@ public final class RpcServiceIntegrationTest extends ServerIntegrationTestBase {
 
   @Test
   public void shouldExecuteSayHello() {
-    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new ProtobufHttpMessageConverter())) {
-      restBinder.afterPropertiesSet();
-
-      final RpcService rpcService = newClient(restBinder, RpcService.class, "/rest/rpc/RpcService");
+    try (final RestOperationsFactory rof = new RestOperationsFactory(new ProtobufHttpMessageConverter())) {
+      final RpcService rpcService = newClient(RpcService.class, rof, "/rest/rpc/RpcService");
 
       final ExposureModel.HelloResponse response = rpcService.sayHello(ExposureModel.HelloRequest.newBuilder()
           .setPerson("Alice").build());

@@ -1,7 +1,7 @@
 package com.truward.brikar.client.test.binder;
 
-import com.truward.brikar.client.binder.RestServiceBinder;
-import com.truward.brikar.client.binder.support.StandardRestServiceBinder;
+import com.truward.brikar.client.rest.RestServiceBinder;
+import com.truward.brikar.client.rest.support.StandardRestServiceBinder;
 import com.truward.brikar.protobuf.test.ProfileModel;
 import org.junit.Test;
 import org.springframework.http.HttpEntity;

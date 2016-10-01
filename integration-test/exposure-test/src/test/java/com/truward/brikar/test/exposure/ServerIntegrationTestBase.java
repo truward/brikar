@@ -1,10 +1,8 @@
 package com.truward.brikar.test.exposure;
 
-import com.truward.brikar.client.binder.RestServiceBinder;
-import com.truward.brikar.client.binder.RestServiceBinderFactory;
-import com.truward.brikar.client.rest.RestClientBuilderFactory;
-import com.truward.brikar.client.rest.RestClientBuilder;
-import com.truward.brikar.client.rest.support.StandardRestClientBuilderFactory;
+import com.truward.brikar.client.rest.RestOperationsFactory;
+import com.truward.brikar.client.rest.ServiceClientCredentials;
+import com.truward.brikar.client.rest.support.StandardRestServiceBinder;
 import com.truward.brikar.common.healthcheck.HealthCheckRestService;
 import com.truward.brikar.server.auth.SimpleServiceUser;
 import com.truward.brikar.server.launcher.StandardLauncher;
@@ -99,26 +97,40 @@ public abstract class ServerIntegrationTestBase {
     LOG.info("Server started");
 
     // protocol buffers message converter
-    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new StringHttpMessageConverter())) {
-      restBinder.afterPropertiesSet();
-      waitUntilServerStarted(newClient(restBinder, HealthCheckRestService.class, "/rest", user));
+    try (final RestOperationsFactory rof = new RestOperationsFactory(new StringHttpMessageConverter())) {
+      final HealthCheckRestService healthCheckRestService = newClient(HealthCheckRestService.class,
+          rof, user, getServerUrl("/rest"));
+      waitUntilServerStarted(healthCheckRestService);
     }
+
     LOG.info("Server initialized");
   }
 
   @Nonnull
-  protected static <T> T newClient(@Nonnull RestClientBuilderFactory binder, @Nonnull Class<T> clientClass, @Nonnull String relPath,
-                                   @Nullable SimpleServiceUser user) {
-    final RestClientBuilder<T> clientBuilder = binder.newClient(clientClass).setUri(getServerUrl(relPath));
-    if (user != null) {
-      clientBuilder.setUsername(user.getUsername()).setPassword(user.getPassword());
-    }
-    return clientBuilder.build();
+  protected static <T> T newClient(@Nonnull Class<T> serviceClass,
+                                   @Nonnull RestOperationsFactory restOperationsFactory,
+                                   @Nullable SimpleServiceUser user,
+                                   @Nonnull URI uri) {
+    final RestOperations restOperations = setupAndGetRestOperations(restOperationsFactory, user, uri);
+    return new StandardRestServiceBinder(restOperations).createClient(uri, serviceClass);
+  }
+
+  protected <T> T newClient(@Nonnull Class<T> serviceClass,
+                            @Nonnull RestOperationsFactory restOperationsFactory,
+                            @Nonnull String relativePath) {
+    return newClient(serviceClass, restOperationsFactory, getUser(), getServerUrl(relativePath));
   }
 
   @Nonnull
-  protected <T> T newClient(@Nonnull RestClientBuilderFactory binder, @Nonnull Class<T> clientClass, @Nonnull String relPath) {
-    return newClient(binder, clientClass, relPath, getUser());
+  private static RestOperations setupAndGetRestOperations(@Nonnull RestOperationsFactory factory,
+                                                          @Nullable SimpleServiceUser user,
+                                                          @Nonnull URI uri) {
+    if (user != null) {
+      factory.setCredentials(Collections.singletonList(new ServiceClientCredentials(uri,
+          user.getUsername(), user.getPassword())));
+    }
+
+    return factory.getRestOperations();
   }
 
   @Nullable
@@ -126,12 +138,14 @@ public abstract class ServerIntegrationTestBase {
     return null;
   }
 
+  //protected
+
   @Nonnull
   protected static URI getServerUrl(String relPath) {
     return URI.create("http://127.0.0.1:" + PORT_NUMBER + relPath);
   }
 
-  protected static void waitUntilServerStarted(@Nonnull HealthCheckRestService healthCheckService) {
+  private static void waitUntilServerStarted(@Nonnull HealthCheckRestService healthCheckService) {
     for (int i = 0; i < 100; ++i) {
       try {
         Thread.sleep(100);
@@ -152,40 +166,17 @@ public abstract class ServerIntegrationTestBase {
   }
 
   protected void withCustomRestBinder(@Nonnull final String url, @Nonnull TextRetrievalTestScenario scenario) {
-    try (final StandardRestClientBuilderFactory restBinder = new StandardRestClientBuilderFactory(new StringHttpMessageConverter())) {
-      class RetrievalServiceImpl implements RetrievalService {
-        final RestOperations restOperations;
+    try (final RestOperationsFactory rof = new RestOperationsFactory(new StringHttpMessageConverter())) {
+      final RestOperations restOperations = setupAndGetRestOperations(rof, getUser(),
+          getServerUrl("/"));
 
-        public RetrievalServiceImpl(@Nonnull RestOperations restOperations) {
-          this.restOperations = restOperations;
-        }
-
+      scenario.execute(new RetrievalService() {
         @Nonnull
         @Override
         public String getResource() {
           return restOperations.getForObject(getServerUrl(url), String.class);
         }
-      }
-
-      restBinder.setRestServiceBinderFactory(new RestServiceBinderFactory() {
-        @Nonnull
-        @Override
-        public RestServiceBinder create(@Nonnull final RestOperations restOperations) {
-          return new RestServiceBinder() {
-            @Nonnull
-            @Override
-            public <T> T createClient(@Nonnull String serviceBaseUrl, @Nonnull Class<T> restServiceClass, @Nonnull Class<?>... extraClasses) {
-              assertEquals(RetrievalServiceImpl.class, restServiceClass);
-              return restServiceClass.cast(new RetrievalServiceImpl(restOperations));
-            }
-          };
-        }
       });
-      restBinder.afterPropertiesSet();
-
-      final RetrievalServiceImpl retrievalService = newClient(restBinder, RetrievalServiceImpl.class, "/", getUser());
-
-      scenario.execute(retrievalService);
     }
   }
 
