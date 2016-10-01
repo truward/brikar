@@ -1,4 +1,8 @@
 
+# Demo
+
+Launch application, open ``http://127.0.0.1:8080/g/swagger-ui.html``
+
 # Sample Call
 
 ```

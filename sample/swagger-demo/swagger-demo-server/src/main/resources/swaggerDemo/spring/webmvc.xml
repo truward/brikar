@@ -10,6 +10,12 @@
   <!-- Controllers -->
   <bean class="com.truward.brikar.sample.swaggerdemo.controller.GreetingsController" autowire="constructor"/>
 
+  <!-- Exposes swagger -->
+  <bean class="springfox.documentation.swagger2.configuration.Swagger2DocumentationConfiguration"/>
+
+  <mvc:resources location="classpath:/META-INF/resources/" mapping="swagger-ui.html"/>
+  <mvc:resources location="classpath:/META-INF/resources/webjars/" mapping="/webjars/**"/>
+
   <!-- Annotation driven support for MVC controllers -->
   <mvc:annotation-driven>
     <!-- custom marshallers -->
