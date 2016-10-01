@@ -4,7 +4,7 @@
   <parent>
     <artifactId>brikar</artifactId>
     <groupId>com.truward.brikar</groupId>
-    <version>1.5.27-SNAPSHOT</version>
+    <version>1.6.27</version>
   </parent>
 
   <artifactId>brikar-error-response</artifactId>
