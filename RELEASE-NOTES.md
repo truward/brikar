@@ -3,6 +3,8 @@
 
 (PLANNED)
 
+* (TODO) Clarity: DO NOT setting oid==rid - figure out and set oid as rid in the client interceptor
+
 # 1.6.27
 
 * (Major Breaking Change!) Refactoring in brikar-client:
