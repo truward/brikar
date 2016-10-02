@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <import resource="classpath:/spring/default-service-base.xml"/>
+
+  <!-- Message converters -->
+  <bean id="gossipService.converters.protobuf"
+        class="com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter" />
+  <bean id="gossipService.converters.json"
+        class="com.truward.brikar.protobuf.http.json.ProtobufJsonHttpMessageConverter" />
+
+  <!-- Rest operations factory -->
+  <bean id="gossipService.restOperationsFactory" class="com.truward.brikar.client.rest.RestOperationsFactory">
+    <constructor-arg>
+      <util:list>
+        <ref bean="gossipService.converters.protobuf"/>
+      </util:list>
+    </constructor-arg>
+    <property name="credentials">
+      <util:list>
+        <!--<bean class="com.truward.brikar.client.rest.ServiceClientCredentials">-->
+          <!--<constructor-arg value="${gossipService.remote.gossipService.uri}"/>-->
+          <!--<constructor-arg value="${gossipService.remote.gossipService.username}"/>-->
+          <!--<constructor-arg value="${gossipService.remote.gossipService.password}"/>-->
+        <!--</bean>-->
+      </util:list>
+    </property>
+  </bean>
+
+  <!-- Rest client -->
+  <bean id="gossipService.restClient"
+        factory-bean="gossipService.restOperationsFactory"
+        factory-method="getRestOperations"/>
+</beans>

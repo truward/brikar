@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+  <import resource="classpath:/spring/default-webmvc-base.xml"/>
+
+  <context:annotation-config/>
+  <context:property-placeholder/>
+
+  <!-- Controllers -->
+  <bean class="com.truward.brikar.test.gossip.controller.GossipRestController">
+    <property name="gossipToken" value="${gossipService.gossipToken}"/>
+    <property name="gossipChainMode" value="${gossipService.gossipChainMode}"/>
+    <property name="gossipUri" value="${gossipService.remote.gossipService.uri}"/>
+    <property name="restClient" ref="gossipService.restClient"/>
+  </bean>
+
+  <!-- Annotation driven support for MVC controllers -->
+  <mvc:annotation-driven>
+    <mvc:message-converters>
+      <ref bean="gossipService.converters.protobuf"/>
+      <ref bean="gossipService.converters.json"/>
+    </mvc:message-converters>
+  </mvc:annotation-driven>
+</beans>

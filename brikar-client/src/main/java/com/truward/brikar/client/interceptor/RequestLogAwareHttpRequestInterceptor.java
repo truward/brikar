@@ -27,7 +27,13 @@ public final class RequestLogAwareHttpRequestInterceptor implements HttpRequestI
   public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
     final long startTime = System.currentTimeMillis();
 
-    final String originatingRequestId = MDC.get(LogUtil.ORIGINATING_REQUEST_ID);
+    String originatingRequestId = MDC.get(LogUtil.ORIGINATING_REQUEST_ID);
+    if (originatingRequestId == null) {
+      // use request ID as originating request ID if originating request ID is missing
+      originatingRequestId = MDC.get(LogUtil.REQUEST_ID);
+    }
+
+    // set originating request ID for the outgoing request
     if (originatingRequestId != null) {
       request.setHeader(TrackingHttpHeaderNames.ORIGINATING_REQUEST_ID, originatingRequestId);
     }

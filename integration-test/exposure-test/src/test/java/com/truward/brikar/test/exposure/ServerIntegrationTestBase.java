@@ -6,6 +6,7 @@ import com.truward.brikar.client.rest.support.StandardRestServiceBinder;
 import com.truward.brikar.common.healthcheck.HealthCheckRestService;
 import com.truward.brikar.server.auth.SimpleServiceUser;
 import com.truward.brikar.server.launcher.StandardLauncher;
+import com.truward.brikar.test.util.TestServerUtil;
 import org.eclipse.jetty.server.Server;
 import org.junit.AfterClass;
 import org.slf4j.Logger;
@@ -42,7 +43,7 @@ public abstract class ServerIntegrationTestBase {
   }
 
   private static Thread THREAD;
-  private static int PORT_NUMBER = 18000 + ThreadLocalRandom.current().nextInt(1000);
+  private static int PORT_NUMBER = TestServerUtil.getAvailablePort();
   private static Server SERVER;
 
   @AfterClass

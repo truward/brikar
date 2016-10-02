@@ -3,7 +3,7 @@
 
 (PLANNED)
 
-* (TODO) Clarity: DO NOT setting oid==rid - figure out and set oid as rid in the client interceptor
+* Do not set OID if it is missing; also using RID as OID in brikar-client
 
 # 1.6.27
 

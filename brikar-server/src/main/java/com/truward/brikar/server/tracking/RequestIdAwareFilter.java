@@ -37,17 +37,14 @@ public class RequestIdAwareFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-    // get originating request id and current request id
-    final String requestId = IdUtil.getRandomId();
+    // get originating request ID and propagate it to the logging context
     String originatingRequestId = request.getHeader(TrackingHttpHeaderNames.ORIGINATING_REQUEST_ID);
-    if (!LogUtil.isValidRequestId(originatingRequestId)) {
-      // reuse request ID if originating request ID has not been passed before
-      originatingRequestId = requestId;
+    if (LogUtil.isValidRequestId(originatingRequestId)) {
+      MDC.put(LogUtil.ORIGINATING_REQUEST_ID, originatingRequestId);
     }
-    // propagating originating request ID
-    MDC.put(LogUtil.ORIGINATING_REQUEST_ID, originatingRequestId);
 
-    // propagate both request ID
+    // Create random request ID, associated with the given request and propagate it to the logging context
+    final String requestId = IdUtil.getRandomId();
     MDC.put(LogUtil.REQUEST_ID, requestId);
 
     // set headers containing request ID, originating request ID is not needed
