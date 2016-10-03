@@ -59,7 +59,7 @@ public final class GossipRestController {
         }
 
         final StringValue chainGossip = restClient.getForObject(UriComponentsBuilder.fromUri(gossipUri)
-            .queryParam(ABOUT_PARAM)
+            .queryParam(ABOUT_PARAM, gossipValue)
             .build()
             .toUri(), StringValue.class);
 

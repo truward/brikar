@@ -7,6 +7,7 @@ import com.truward.brikar.maintenance.BrikarProcess;
 import com.truward.brikar.maintenance.log.LogParser;
 import com.truward.brikar.maintenance.log.message.LogMessage;
 import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
+import com.truward.brikar.server.launcher.StandardLauncher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,8 +18,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestOperations;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -26,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -37,30 +37,54 @@ import static org.junit.Assert.assertTrue;
  */
 public final class GossipServerIntegrationTest {
 
+  // Gossip chain: gossipServer1 calls gossipServer2
   private BrikarProcess gossipServer1;
+  private BrikarProcess gossipServer2;
+
   private List<BrikarProcess> gossipServers = new ArrayList<>();
   private RestOperationsFactory restOperationsFactory;
   private RestOperations restClient;
 
   @Before
   public void init() {
-    // TODO: remove - use standard logger instead
-    System.setProperty("logback.configurationFile", "default-service-logback.xml");
+    // Initialize default logger
+    StandardLauncher.ensureLoggersConfigured();
 
-    gossipServer1 = BrikarProcess.newBuilder()
+    // prepare end of the gossip chain
+    gossipServer2 = BrikarProcess.newBuilder()
         .addTempLogger()
         .addTempConfiguration(new HashMap<String, String>() {
           {
-            put("gossipService.gossipToken", "A");
+            put("gossipService.gossipToken", "B");
           }
         })
         .setMainClass(GossipLauncher.class)
         .start();
 
+    // prepare start of the gossip chain
+    gossipServer1 = BrikarProcess.newBuilder()
+        .addTempLogger()
+        .addTempConfiguration(new HashMap<String, String>() {
+          {
+            put("gossipService.gossipToken", "A");
+
+            put("gossipService.gossipChainMode", "NEXT");
+
+            // tells gossip server 1 to talk with gossip server 2
+            put("gossipService.remote.gossipService.uri",
+                String.format("http://127.0.0.1:%d/rest/gossip", gossipServer2.getPort()));
+          }
+        })
+        .setMainClass(GossipLauncher.class)
+        .start();
+
+
     // wait until all servers launched
     gossipServer1.waitUntilLaunched(null);
+    gossipServer2.waitUntilLaunched(null);
 
     gossipServers.add(gossipServer1);
+    gossipServers.add(gossipServer2);
 
     restOperationsFactory = new RestOperationsFactory(new ProtobufHttpMessageConverter());
     restClient = restOperationsFactory.getRestOperations();
@@ -99,13 +123,23 @@ public final class GossipServerIntegrationTest {
     final String requestId = gossipValue.getHeaders().get(TrackingHttpHeaderNames.REQUEST_ID).get(0);
     assertTrue(StringUtils.hasLength(requestId));
 
-    assertTrue(gossipValue.getBody().getValue().contains(startGossip));
+    final String gossip = gossipValue.getBody().getValue();
+    assertEquals("Gossip is malformed or missing required gossip tokens", "B-A-" + startGossip, gossip);
 
     final String tempLog = gossipServer1.getTempLogBaseName();
     assertTrue(!tempLog.isEmpty());
 
-    // parse log lines
-    final File activeTempLog1 = gossipServer1.getActiveTempLog();
+    assertLogContainsOriginatingRequestId(gossipServer1, originatingRequestId);
+    assertLogContainsOriginatingRequestId(gossipServer2, originatingRequestId);
+  }
+
+  //
+  // Private
+  //
+
+  private static void assertLogContainsOriginatingRequestId(BrikarProcess serverProcess,
+                                                            String originatingRequestId) throws IOException {
+    final File activeTempLog1 = serverProcess.getActiveTempLog();
     assertNotNull("activeTempLog1 should not be null", activeTempLog1);
     final List<LogMessage> logLines = new LogParser().parse(activeTempLog1);
 
@@ -118,6 +152,6 @@ public final class GossipServerIntegrationTest {
       }
     }
 
-    assertTrue("Found orinating request ID", foundOriginatingRequestId);
+    assertTrue("Found originating request ID", foundOriginatingRequestId);
   }
 }

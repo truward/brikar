@@ -1,9 +1,10 @@
 
-# 1.6.28
+# 1.6.28 (PLANNED)
 
-(PLANNED)
-
-* Do not set OID if it is missing; also using RID as OID in brikar-client
+* OID is not set if it is missing;
+  brikar-client made smart enough to use RID as OID if OID is missing in the logger context.
+* Added brikar-maintenance, helper library for performing testing or maintenance operations with brikar services.
+* Added automated integration tests that verify log format and propagation of originating request IDs.
 
 # 1.6.27
 

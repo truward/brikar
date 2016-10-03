@@ -22,7 +22,7 @@ public class LogParser {
 
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
       for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-        final LogMessage newMessage = logMessageProcessor.parse(reader.readLine());
+        final LogMessage newMessage = logMessageProcessor.parse(line);
         final LogMessage oldMessage = messages.isEmpty() ? NullLogMessage.INSTANCE : messages.get(messages.size() - 1);
 
         if (newMessage.isNull()) {
