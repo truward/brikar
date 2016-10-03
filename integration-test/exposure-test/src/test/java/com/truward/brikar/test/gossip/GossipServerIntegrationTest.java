@@ -25,9 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Integration tests for request ID/originating request ID propagation.
@@ -141,17 +139,20 @@ public final class GossipServerIntegrationTest {
                                                             String originatingRequestId) throws IOException {
     final File activeTempLog1 = serverProcess.getActiveTempLog();
     assertNotNull("activeTempLog1 should not be null", activeTempLog1);
-    final List<LogMessage> logLines = new LogParser().parse(activeTempLog1);
+    final List<LogMessage> logMessages = new LogParser().parse(activeTempLog1);
 
     boolean foundOriginatingRequestId = false;
-    for (final LogMessage logMessage : logLines) {
+    final StringBuilder logLines = new StringBuilder(4000);
+    for (final LogMessage logMessage : logMessages) {
       for (final String line : logMessage.getLines()) {
+        logLines.append("\t> ").append(line).append(System.lineSeparator());
         if (line.contains(originatingRequestId)) {
           foundOriginatingRequestId = true;
         }
       }
     }
 
-    assertTrue("Found originating request ID", foundOriginatingRequestId);
+    assertTrue("Oringinating request ID has not been found in the logs:" + logLines.toString(),
+        foundOriginatingRequestId);
   }
 }

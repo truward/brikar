@@ -1,5 +1,10 @@
 
-# 1.6.28 (PLANNED)
+# 1.6.29 (PLANNED)
+
+* Do not set OID from the MDC if it was provided in the headers,
+  so headers take precedence over MDC, not the other way around.
+
+# 1.6.28
 
 * OID is not set if it is missing;
   brikar-client made smart enough to use RID as OID if OID is missing in the logger context.

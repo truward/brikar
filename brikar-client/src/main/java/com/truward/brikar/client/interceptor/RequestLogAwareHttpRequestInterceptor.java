@@ -2,10 +2,7 @@ package com.truward.brikar.client.interceptor;
 
 import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.common.tracking.TrackingHttpHeaderNames;
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.RequestLine;
+import org.apache.http.*;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.MDC;
 
@@ -25,7 +22,23 @@ public final class RequestLogAwareHttpRequestInterceptor implements HttpRequestI
 
   @Override
   public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
-    final long startTime = System.currentTimeMillis();
+    setOriginatingRequestId(request);
+
+    final RequestLine requestLine = request.getRequestLine();
+    context.setAttribute(ATTR_START_TIME, System.currentTimeMillis());
+    context.setAttribute(ATTR_URI, requestLine.getUri());
+    context.setAttribute(ATTR_METHOD, requestLine.getMethod());
+  }
+
+  //
+  // Private
+  //
+
+  private static void setOriginatingRequestId(HttpRequest request) {
+    final Header[] curOidHeaders = request.getHeaders(TrackingHttpHeaderNames.ORIGINATING_REQUEST_ID);
+    if (curOidHeaders != null && curOidHeaders.length > 0) {
+      return;
+    }
 
     String originatingRequestId = MDC.get(LogUtil.ORIGINATING_REQUEST_ID);
     if (originatingRequestId == null) {
@@ -37,10 +50,5 @@ public final class RequestLogAwareHttpRequestInterceptor implements HttpRequestI
     if (originatingRequestId != null) {
       request.setHeader(TrackingHttpHeaderNames.ORIGINATING_REQUEST_ID, originatingRequestId);
     }
-
-    final RequestLine requestLine = request.getRequestLine();
-    context.setAttribute(ATTR_START_TIME, startTime);
-    context.setAttribute(ATTR_URI, requestLine.getUri());
-    context.setAttribute(ATTR_METHOD, requestLine.getMethod());
   }
 }
