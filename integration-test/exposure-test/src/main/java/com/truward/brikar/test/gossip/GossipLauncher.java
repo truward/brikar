@@ -18,6 +18,12 @@ import com.truward.brikar.server.launcher.StandardLauncher;
 public final class GossipLauncher {
 
   public static void main(String[] args) throws Exception {
-    new StandardLauncher("classpath:/gossipService/").start().close();
+    launch("classpath:/gossipService/");
+  }
+
+  public static void launch(String configPath) throws Exception {
+    try (final StandardLauncher launcher  = new StandardLauncher(configPath)) {
+      launcher.start();
+    }
   }
 }

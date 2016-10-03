@@ -68,6 +68,11 @@
         <artifactId>brikar-rpc-explorer-support</artifactId>
         <version>${brikar.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.truward.brikar</groupId>
+        <artifactId>brikar-maintenance</artifactId>
+        <version>${brikar.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 </project>

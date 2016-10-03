@@ -1,18 +1,15 @@
 package com.truward.brikar.test.exposure;
 
 import com.truward.brikar.client.rest.RestOperationsFactory;
-import com.truward.brikar.client.rest.ServiceClientCredentials;
-import com.truward.brikar.client.rest.support.StandardRestServiceBinder;
-import com.truward.brikar.common.healthcheck.HealthCheckRestService;
+import com.truward.brikar.maintenance.LaunchUtil;
+import com.truward.brikar.maintenance.ServerApiUtil;
 import com.truward.brikar.server.auth.SimpleServiceUser;
 import com.truward.brikar.server.launcher.StandardLauncher;
-import com.truward.brikar.test.util.TestServerUtil;
 import org.eclipse.jetty.server.Server;
 import org.junit.AfterClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestOperations;
 
 import javax.annotation.Nonnull;
@@ -23,10 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.concurrent.ThreadLocalRandom;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author Alexander Shabanov
@@ -43,7 +36,7 @@ public abstract class ServerIntegrationTestBase {
   }
 
   private static Thread THREAD;
-  private static int PORT_NUMBER = TestServerUtil.getAvailablePort();
+  private static int PORT_NUMBER = LaunchUtil.getAvailablePort();
   private static Server SERVER;
 
   @AfterClass
@@ -97,41 +90,14 @@ public abstract class ServerIntegrationTestBase {
     THREAD.start();
     LOG.info("Server started");
 
-    // protocol buffers message converter
-    try (final RestOperationsFactory rof = new RestOperationsFactory(new StringHttpMessageConverter())) {
-      final HealthCheckRestService healthCheckRestService = newClient(HealthCheckRestService.class,
-          rof, user, getServerUrl("/rest"));
-      waitUntilServerStarted(healthCheckRestService);
-    }
-
+    ServerApiUtil.waitUntilStarted(user, getServerUrl("/rest"));
     LOG.info("Server initialized");
-  }
-
-  @Nonnull
-  protected static <T> T newClient(@Nonnull Class<T> serviceClass,
-                                   @Nonnull RestOperationsFactory restOperationsFactory,
-                                   @Nullable SimpleServiceUser user,
-                                   @Nonnull URI uri) {
-    final RestOperations restOperations = setupAndGetRestOperations(restOperationsFactory, user, uri);
-    return new StandardRestServiceBinder(restOperations).createClient(uri, serviceClass);
   }
 
   protected <T> T newClient(@Nonnull Class<T> serviceClass,
                             @Nonnull RestOperationsFactory restOperationsFactory,
                             @Nonnull String relativePath) {
-    return newClient(serviceClass, restOperationsFactory, getUser(), getServerUrl(relativePath));
-  }
-
-  @Nonnull
-  private static RestOperations setupAndGetRestOperations(@Nonnull RestOperationsFactory factory,
-                                                          @Nullable SimpleServiceUser user,
-                                                          @Nonnull URI uri) {
-    if (user != null) {
-      factory.setCredentials(Collections.singletonList(new ServiceClientCredentials(uri,
-          user.getUsername(), user.getPassword())));
-    }
-
-    return factory.getRestOperations();
+    return ServerApiUtil.newClient(serviceClass, restOperationsFactory, getUser(), getServerUrl(relativePath));
   }
 
   @Nullable
@@ -146,29 +112,9 @@ public abstract class ServerIntegrationTestBase {
     return URI.create("http://127.0.0.1:" + PORT_NUMBER + relPath);
   }
 
-  private static void waitUntilServerStarted(@Nonnull HealthCheckRestService healthCheckService) {
-    for (int i = 0; i < 100; ++i) {
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {
-        Thread.interrupted();
-      }
-
-      try {
-        final String result = healthCheckService.checkHealth();
-        assertEquals(HealthCheckRestService.OK, result);
-        return;
-      } catch (ResourceAccessException ignored) {
-        // do nothing - server is starting
-      }
-    }
-
-    fail("Server initialization failed");
-  }
-
   protected void withCustomRestBinder(@Nonnull final String url, @Nonnull TextRetrievalTestScenario scenario) {
     try (final RestOperationsFactory rof = new RestOperationsFactory(new StringHttpMessageConverter())) {
-      final RestOperations restOperations = setupAndGetRestOperations(rof, getUser(),
+      final RestOperations restOperations = ServerApiUtil.setupAndGetRestOperations(rof, getUser(),
           getServerUrl("/"));
 
       scenario.execute(new RetrievalService() {

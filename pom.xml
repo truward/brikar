@@ -62,6 +62,7 @@
     <module>brikar-protobuf</module>
     <module>brikar-client</module>
     <module>brikar-server</module>
+    <module>brikar-maintenance</module>
   </modules>
 
   <properties>
@@ -118,6 +119,11 @@
       <dependency>
         <groupId>com.truward.brikar</groupId>
         <artifactId>brikar-server</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.truward.brikar</groupId>
+        <artifactId>brikar-maintenance</artifactId>
         <version>${project.version}</version>
       </dependency>
 

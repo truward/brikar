@@ -1,0 +1,35 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>brikar</artifactId>
+    <groupId>com.truward.brikar</groupId>
+    <version>1.6.28-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>brikar-maintenance</artifactId>
+
+  <name>Brikar Maintenance</name>
+  <description>Helper utilities for maintenance or testing of Brikar services</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Brikar -->
+    <dependency>
+      <groupId>com.truward.brikar</groupId>
+      <artifactId>brikar-server</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.truward.brikar</groupId>
+      <artifactId>brikar-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+</project>
+

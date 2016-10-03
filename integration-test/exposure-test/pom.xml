@@ -10,7 +10,7 @@
 
   <artifactId>exposure-test</artifactId>
 
-  <name>Integration Test - Exposure</name>
+  <name>Brikar Integration Test - Exposure</name>
 
   <dependencies>
     <!-- Logging -->
@@ -74,6 +74,11 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.truward.brikar</groupId>
+      <artifactId>brikar-maintenance</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

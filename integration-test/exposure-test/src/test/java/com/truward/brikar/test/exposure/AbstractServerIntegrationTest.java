@@ -3,6 +3,7 @@ package com.truward.brikar.test.exposure;
 import com.truward.brikar.client.rest.RestOperationsFactory;
 import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.error.model.ErrorModel;
+import com.truward.brikar.maintenance.ServerApiUtil;
 import com.truward.brikar.protobuf.http.ProtobufHttpConstants;
 import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
 import com.truward.brikar.protobuf.http.json.ProtobufJsonHttpMessageConverter;
@@ -73,7 +74,7 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
       final SimpleServiceUser user = getUser();
       assertNotNull(user);
 
-      final ExposureRestService exposureService = newClient(ExposureRestService.class, rof,
+      final ExposureRestService exposureService = ServerApiUtil.newClient(ExposureRestService.class, rof,
           new SimpleServiceUser(user.getUsername(), user.getPassword() + "1"), getServerUrl("/rest/test"));
 
       try {
