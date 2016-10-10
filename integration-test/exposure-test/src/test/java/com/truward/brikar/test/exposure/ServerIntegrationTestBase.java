@@ -69,7 +69,9 @@ public abstract class ServerIntegrationTestBase {
               StandardLauncher.CONFIG_KEY_SHUTDOWN_DELAY + "=100\n" +
               "\n";
 
-          final File tmpFile = File.createTempFile("brikarIntegrationTest", "properties");
+          // write temp config file
+          final File tmpFile = File.createTempFile("brikarIntegrationTest", ".properties");
+          tmpFile.deleteOnExit();
           Files.write(Paths.get(tmpFile.toURI()), props.getBytes(StandardCharsets.UTF_8));
 
           ExposureServerLauncher.main(
