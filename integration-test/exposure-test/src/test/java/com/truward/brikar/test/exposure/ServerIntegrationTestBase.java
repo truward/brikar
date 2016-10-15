@@ -3,8 +3,8 @@ package com.truward.brikar.test.exposure;
 import com.truward.brikar.client.rest.RestOperationsFactory;
 import com.truward.brikar.maintenance.LaunchUtil;
 import com.truward.brikar.maintenance.ServerApiUtil;
+import com.truward.brikar.maintenance.TempConfiguration;
 import com.truward.brikar.server.auth.SimpleServiceUser;
-import com.truward.brikar.server.launcher.StandardLauncher;
 import org.eclipse.jetty.server.Server;
 import org.junit.AfterClass;
 import org.slf4j.Logger;
@@ -14,11 +14,7 @@ import org.springframework.web.client.RestOperations;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.File;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Collections;
 
 /**
@@ -65,17 +61,12 @@ public abstract class ServerIntegrationTestBase {
       @Override
       public void run() {
         try {
-          final String props = StandardLauncher.CONFIG_KEY_PORT + "=" + PORT_NUMBER + "\n" +
-              StandardLauncher.CONFIG_KEY_SHUTDOWN_DELAY + "=100\n" +
-              "\n";
-
-          // write temp config file
-          final File tmpFile = File.createTempFile("brikarIntegrationTest", ".properties");
-          tmpFile.deleteOnExit();
-          Files.write(Paths.get(tmpFile.toURI()), props.getBytes(StandardCharsets.UTF_8));
+          final TempConfiguration tempConfiguration = new TempConfiguration()
+              .setPort(PORT_NUMBER)
+              .setShutdownDelay(100L);
 
           ExposureServerLauncher.main(
-              Collections.singletonList("file:" + tmpFile.getPath()),
+              Collections.singletonList(tempConfiguration.writeToTempFile().toExternalForm()),
               new ServerAware() {
                 @Override
                 public void setServer(@Nonnull Server server) {

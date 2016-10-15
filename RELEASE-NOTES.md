@@ -3,6 +3,8 @@
 
 * Do not set OID from the MDC if it was provided in the headers,
   so headers take precedence over MDC, not the other way around.
+* Introducing TempConfiguration in brikar-maintenance:
+  utility class that can write temporary configuration file for brikar server
 
 # 1.6.28
 
