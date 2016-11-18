@@ -1,14 +1,17 @@
 package com.truward.brikar.test.exposure;
 
 import com.truward.brikar.client.rest.RestOperationsFactory;
+import com.truward.brikar.common.tracking.TrackingHttpHeaderNames;
 import com.truward.brikar.maintenance.LaunchUtil;
 import com.truward.brikar.maintenance.ServerApiUtil;
 import com.truward.brikar.maintenance.TempConfiguration;
 import com.truward.brikar.server.auth.SimpleServiceUser;
 import org.eclipse.jetty.server.Server;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestOperations;
 
@@ -34,6 +37,11 @@ public abstract class ServerIntegrationTestBase {
   private static Thread THREAD;
   private static int PORT_NUMBER = LaunchUtil.getAvailablePort();
   private static Server SERVER;
+
+  @After
+  public void resetMdcRequestId() {
+    MDC.remove(TrackingHttpHeaderNames.REQUEST_ID);
+  }
 
   @AfterClass
   public static void stopServer() {
@@ -83,7 +91,7 @@ public abstract class ServerIntegrationTestBase {
     THREAD.start();
     LOG.info("Server started");
 
-    ServerApiUtil.waitUntilStarted(user, getServerUrl("/rest"));
+    ServerApiUtil.waitUntilStarted(user, getServerUrl("/api"));
     LOG.info("Server initialized");
   }
 

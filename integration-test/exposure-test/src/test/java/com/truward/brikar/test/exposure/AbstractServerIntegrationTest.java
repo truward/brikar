@@ -38,7 +38,7 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
   @Test
   public void shouldUseServicesUsingProtobufProtocol() {
     try (final RestOperationsFactory rof = new RestOperationsFactory(new ProtobufHttpMessageConverter())) {
-      final ExposureRestService exposureService = newClient(ExposureRestService.class, rof, "/rest/test");
+      final ExposureRestService exposureService = newClient(ExposureRestService.class, rof, "/api/test");
 
       checkNormalResponse(exposureService);
       checkErrors(exposureService);
@@ -48,9 +48,9 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
   @Test
   public void shouldUseServicesUsingJsonProtocol() {
     // Set originating request ID for manual verification in logs
-    MDC.put(LogUtil.ORIGINATING_REQUEST_ID, "IntegTest-shouldUseServicesUsingJsonProtocol");
+    MDC.put(LogUtil.REQUEST_ID, "IntegTest-shouldUseServicesUsingJsonProtocol");
     try (final RestOperationsFactory rof = new RestOperationsFactory(new ProtobufJsonHttpMessageConverter())) {
-      final ExposureRestService exposureService = newClient(ExposureRestService.class, rof, "/rest/test");
+      final ExposureRestService exposureService = newClient(ExposureRestService.class, rof, "/api/test");
 
       checkNormalResponse(exposureService);
       checkErrors(exposureService);
@@ -75,7 +75,7 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
       assertNotNull(user);
 
       final ExposureRestService exposureService = ServerApiUtil.newClient(ExposureRestService.class, rof,
-          new SimpleServiceUser(user.getUsername(), user.getPassword() + "1"), getServerUrl("/rest/test"));
+          new SimpleServiceUser(user.getUsername(), user.getPassword() + "1"), getServerUrl("/api/test"));
 
       try {
         exposureService.greet(ExposureModel.HelloRequest.newBuilder()

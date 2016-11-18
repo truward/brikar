@@ -35,20 +35,17 @@ public final class RequestLogAwareHttpRequestInterceptor implements HttpRequestI
   //
 
   private static void setOriginatingRequestId(HttpRequest request) {
-    final Header[] curOidHeaders = request.getHeaders(TrackingHttpHeaderNames.ORIGINATING_REQUEST_ID);
-    if (curOidHeaders != null && curOidHeaders.length > 0) {
+    final Header[] existingRequestIdHeaders = request.getHeaders(TrackingHttpHeaderNames.REQUEST_ID);
+    if (existingRequestIdHeaders.length > 0) {
       return;
     }
 
-    String originatingRequestId = MDC.get(LogUtil.ORIGINATING_REQUEST_ID);
-    if (originatingRequestId == null) {
-      // use request ID as originating request ID if originating request ID is missing
-      originatingRequestId = MDC.get(LogUtil.REQUEST_ID);
-    }
+    final String sourceRequestId = MDC.get(LogUtil.REQUEST_ID);
 
     // set originating request ID for the outgoing request
-    if (originatingRequestId != null) {
-      request.setHeader(TrackingHttpHeaderNames.ORIGINATING_REQUEST_ID, originatingRequestId);
+    if (sourceRequestId != null) {
+      final String nestedRequestId = TrackingHttpHeaderNames.getNestedRequestId(sourceRequestId);
+      request.setHeader(TrackingHttpHeaderNames.REQUEST_ID, nestedRequestId);
     }
   }
 }

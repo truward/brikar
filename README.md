@@ -115,11 +115,11 @@ Examples of request-response-related metrics (both client and server):
 
 ```
 2015-07-28 06:34:05,942 INFO c.t.b.s.t.RequestIdAwareFilter rid=26lrh002OXW/bE, oid=JsonProtocol [qtp1556534733-21] @metric op=/test/exposure/greet, tDelta=9
-2015-07-28 06:34:05,942 INFO BrikarRestClient oid=JsonProtocol [main] @metric op=/rest/test/exposure/greet, tDelta=11, method=POST, responseCode=200, responseRid=26lrh002OXW/bE
+2015-07-28 06:34:05,942 INFO BrikarRestClient oid=JsonProtocol [main] @metric op=/api/test/exposure/greet, tDelta=11, method=POST, responseCode=200, responseRid=26lrh002OXW/bE
 2015-07-28 06:34:05,946 INFO c.t.b.s.t.RequestIdAwareFilter rid=n0lz0o0JFHolU7, oid=JsonProtocol [qtp1556534733-15] @metric op=/test/exposure/greet, tDelta=2
-2015-07-28 06:34:05,946 WARN BrikarRestClient oid=JsonProtocol [main] @metric op=/rest/test/exposure/greet, tDelta=3, method=POST, responseCode=400, responseRid=n0lz0o0JFHolU7
+2015-07-28 06:34:05,946 WARN BrikarRestClient oid=JsonProtocol [main] @metric op=/api/test/exposure/greet, tDelta=3, method=POST, responseCode=400, responseRid=n0lz0o0JFHolU7
 2015-07-28 06:34:05,951 INFO c.t.b.s.t.RequestIdAwareFilter rid=FQnDh+T9A2zPKY, oid=JsonProtocol [qtp1556534733-21] @metric op=/test/exposure/greet, tDelta=2
-2015-07-28 06:34:05,952 WARN BrikarRestClient oid=JsonProtocol [main] @metric op=/rest/test/exposure/greet, tDelta=5, method=POST, responseCode=400, responseRid=FQnDh+T9A2zPKY
+2015-07-28 06:34:05,952 WARN BrikarRestClient oid=JsonProtocol [main] @metric op=/api/test/exposure/greet, tDelta=5, method=POST, responseCode=400, responseRid=FQnDh+T9A2zPKY
 ```
 
 Each line contains specifically formatted metric entry.

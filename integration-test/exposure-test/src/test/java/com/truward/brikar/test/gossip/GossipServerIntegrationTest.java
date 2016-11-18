@@ -11,6 +11,7 @@ import com.truward.brikar.server.launcher.StandardLauncher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.MDC;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -70,7 +71,7 @@ public final class GossipServerIntegrationTest {
 
             // tells gossip server 1 to talk with gossip server 2
             put("gossipService.remote.gossipService.uri",
-                String.format("http://127.0.0.1:%d/rest/gossip", gossipServer2.getPort()));
+                String.format("http://127.0.0.1:%d/api/gossip", gossipServer2.getPort()));
           }
         })
         .setMainClass(GossipLauncher.class)
@@ -103,15 +104,17 @@ public final class GossipServerIntegrationTest {
 
   @Test
   public void shouldPropagateOriginatingId() throws IOException {
+    MDC.remove(TrackingHttpHeaderNames.REQUEST_ID);
+
     final String startGossip = "GossipTime" + System.currentTimeMillis();
 
     // create custom headers with originating request ID
     final HttpHeaders headers = new HttpHeaders();
     final String originatingRequestId = "Gossiper" + ThreadLocalRandom.current().nextInt(100000);
-    headers.set(TrackingHttpHeaderNames.ORIGINATING_REQUEST_ID, originatingRequestId);
+    headers.set(TrackingHttpHeaderNames.REQUEST_ID, originatingRequestId);
 
     final HttpEntity<StringValue> gossipValue = restClient.exchange(
-        URI.create(String.format("http://127.0.0.1:%d/rest/gossip?about=%s", gossipServer1.getPort(), startGossip)),
+        URI.create(String.format("http://127.0.0.1:%d/api/gossip?about=%s", gossipServer1.getPort(), startGossip)),
         HttpMethod.GET,
         new HttpEntity<>(headers),
         StringValue.class

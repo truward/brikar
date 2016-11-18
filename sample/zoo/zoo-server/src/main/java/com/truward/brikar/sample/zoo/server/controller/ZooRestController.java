@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author Alexander Shabanov
  */
 @Controller
-@RequestMapping("/rest/zoo")
+@RequestMapping("/api/zoo")
 public final class ZooRestController implements ZooRestService {
 
   @Override

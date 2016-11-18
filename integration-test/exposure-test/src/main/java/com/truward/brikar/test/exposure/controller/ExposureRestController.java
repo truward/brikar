@@ -6,8 +6,10 @@ import com.truward.brikar.test.exposure.model.ExposureModel;
 import com.truward.brikar.test.exposure.service.ExposureRestService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Nonnull;
 
@@ -15,7 +17,7 @@ import javax.annotation.Nonnull;
  * @author Alexander Shabanov
  */
 @Controller
-@RequestMapping("/rest/test")
+@RequestMapping("/api/test")
 public final class ExposureRestController extends AbstractRestController implements ExposureRestService {
   public static final String WRONG_NAME = "Wrong person name";
   public static final String UNSUPPORTED_NAME = "Unsupported name";
@@ -56,6 +58,15 @@ public final class ExposureRestController extends AbstractRestController impleme
 
     return ExposureModel.HelloResponse.newBuilder()
         .setGreeting("Hello, " + person)
+        .build();
+  }
+
+  @Override
+  public ExposureModel.HelloResponse getGreeting(@PathVariable("user") String user,
+                                                 @PathVariable("type") String type,
+                                                 @RequestParam("mode") String mode) {
+    return ExposureModel.HelloResponse.newBuilder()
+        .setGreeting("Hello, " + user + " of type " + type + " in mode " + mode)
         .build();
   }
 }

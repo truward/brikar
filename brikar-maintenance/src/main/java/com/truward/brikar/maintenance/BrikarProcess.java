@@ -68,7 +68,7 @@ public final class BrikarProcess implements AutoCloseable {
       throw new IllegalStateException("Port is unknown, can't start");
     }
 
-    ServerApiUtil.waitUntilStarted(user, URI.create(String.format("http://127.0.0.1:%d/rest", getPort())));
+    ServerApiUtil.waitUntilStarted(user, URI.create(String.format("http://127.0.0.1:%d/api", getPort())));
   }
 
   @Override

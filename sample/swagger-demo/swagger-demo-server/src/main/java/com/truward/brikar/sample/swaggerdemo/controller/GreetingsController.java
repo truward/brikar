@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Api(value = "Greetingz", description = "Greetings Controller")
 @Controller
-@RequestMapping("/rest/v1/greetings")
+@RequestMapping("/api/v1/greetings")
 public final class GreetingsController {
 
   @RequestMapping("/greeting/{id}")

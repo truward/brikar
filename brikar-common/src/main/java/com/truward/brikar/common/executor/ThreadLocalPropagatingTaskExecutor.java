@@ -1,7 +1,6 @@
 package com.truward.brikar.common.executor;
 
 import org.springframework.core.task.AsyncTaskExecutor;
-import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +21,7 @@ public final class ThreadLocalPropagatingTaskExecutor implements AsyncTaskExecut
   private final List<ThreadParametersBinder> threadParametersBinders;
 
   public ThreadLocalPropagatingTaskExecutor(AsyncTaskExecutor delegate,
-                                            List<ThreadParametersBinder> threadParametersBinders) {
+                                            List<? extends ThreadParametersBinder> threadParametersBinders) {
     this.delegate = Objects.requireNonNull(delegate, "delegate") ;
     this.threadParametersBinders = Collections.unmodifiableList(new ArrayList<>(Objects
         .requireNonNull(threadParametersBinders, "threadParameterBinders")));
@@ -56,7 +55,7 @@ public final class ThreadLocalPropagatingTaskExecutor implements AsyncTaskExecut
     private final List<ThreadParametersBinder> binders;
     private final Object[] binderParameters;
 
-    public DelegatedInvokerHelper(List<ThreadParametersBinder> binders) {
+    DelegatedInvokerHelper(List<ThreadParametersBinder> binders) {
       this.binders = binders;
       this.binderParameters = new Object[binders.size()];
       for (int i = 0; i < binders.size(); ++i) {
@@ -64,13 +63,13 @@ public final class ThreadLocalPropagatingTaskExecutor implements AsyncTaskExecut
       }
     }
 
-    protected void bindAttributes() {
+    void bindAttributes() {
       for (int i = 0; i < binders.size(); ++i) {
         this.binders.get(i).setLocalObject(this.binderParameters[i]);
       }
     }
 
-    protected void unbindAttributes() {
+    void unbindAttributes() {
       // TODO: check for current thread?
       for (int i = 0; i < binders.size(); ++i) {
         this.binders.get(i).unsetLocalObject(this.binderParameters[i]);
@@ -81,7 +80,7 @@ public final class ThreadLocalPropagatingTaskExecutor implements AsyncTaskExecut
   private static final class DelegatedRunnable extends DelegatedInvokerHelper implements Runnable {
     private final Runnable delegate;
 
-    public DelegatedRunnable(Runnable delegate, List<ThreadParametersBinder> binders) {
+    DelegatedRunnable(Runnable delegate, List<ThreadParametersBinder> binders) {
       super(binders);
       this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
@@ -100,7 +99,7 @@ public final class ThreadLocalPropagatingTaskExecutor implements AsyncTaskExecut
   private static final class DelegatedCallable<T> extends DelegatedInvokerHelper implements Callable<T> {
     private final Callable<T> delegate;
 
-    public DelegatedCallable(Callable<T> delegate, List<ThreadParametersBinder> binders) {
+    DelegatedCallable(Callable<T> delegate, List<ThreadParametersBinder> binders) {
       super(binders);
       this.delegate = Objects.requireNonNull(delegate, "delegate");
     }

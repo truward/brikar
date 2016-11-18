@@ -23,10 +23,10 @@ import java.io.IOException;
  */
 public class RequestIdAwareFilter extends OncePerRequestFilter {
   /**
-   * Log Format: operation, method, timeDelta
+   * Log Format: operation, method, timeDelta, responseCode, url
    */
   private static final String OK_LOG_FORMAT = LogUtil.METRIC_HEADING + ", " + LogUtil.VERB + "={}, " +
-      LogUtil.TIME_DELTA + "={}, " + LogUtil.RESPONSE_CODE + "={}";
+      LogUtil.TIME_DELTA + "={}, " + LogUtil.RESPONSE_CODE + "={}, " + LogUtil.URL + "={}";
 
   private final Logger log;
 
@@ -36,19 +36,23 @@ public class RequestIdAwareFilter extends OncePerRequestFilter {
   }
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+  protected void doFilterInternal(HttpServletRequest request,
+                                  HttpServletResponse response,
+                                  FilterChain filterChain) throws ServletException, IOException {
     // get originating request ID and propagate it to the logging context
-    String originatingRequestId = request.getHeader(TrackingHttpHeaderNames.ORIGINATING_REQUEST_ID);
-    if (LogUtil.isValidRequestId(originatingRequestId)) {
-      MDC.put(LogUtil.ORIGINATING_REQUEST_ID, originatingRequestId);
+    String originatingRequestId = request.getHeader(TrackingHttpHeaderNames.REQUEST_ID);
+    if (!LogUtil.isValidRequestId(originatingRequestId)) {
+      originatingRequestId = null;
     }
 
-    // Create random request ID, associated with the given request and propagate it to the logging context
-    final String requestId = IdUtil.getRandomId();
-    MDC.put(LogUtil.REQUEST_ID, requestId);
+    if (originatingRequestId == null) {
+      originatingRequestId = IdUtil.getRandomId();
+    }
 
-    // set headers containing request ID, originating request ID is not needed
-    response.setHeader(TrackingHttpHeaderNames.REQUEST_ID, requestId);
+    MDC.put(LogUtil.REQUEST_ID, originatingRequestId);
+
+    // set headers containing request ID
+    response.setHeader(TrackingHttpHeaderNames.REQUEST_ID, originatingRequestId);
 
     // process request
     if (log == null) {
@@ -66,14 +70,16 @@ public class RequestIdAwareFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
       } finally {
         time = System.currentTimeMillis() - time;
-        log.info(OK_LOG_FORMAT, pathInfo, request.getMethod(), time, response.getStatus());
+        // This code gets URL pattern associated with the method that handled request
+        final Object urlPattern = request
+            .getAttribute("org.springframework.web.servlet.HandlerMapping.bestMatchingPattern");
+        final String operation = urlPattern != null ? urlPattern.toString() : pathInfo;
+
+        log.info(OK_LOG_FORMAT, operation, request.getMethod(), time, response.getStatus(), pathInfo);
       }
     }
 
     // remove MDC variables
-    if (originatingRequestId != null) {
-      MDC.remove(LogUtil.ORIGINATING_REQUEST_ID);
-    }
     MDC.remove(LogUtil.REQUEST_ID);
   }
 }

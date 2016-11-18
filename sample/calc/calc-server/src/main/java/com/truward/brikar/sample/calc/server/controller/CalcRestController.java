@@ -14,7 +14,7 @@ import java.util.Map;
  * @author Alexander Shabanov
  */
 @Controller
-@RequestMapping("/rest/calc")
+@RequestMapping("/api/calc")
 public final class CalcRestController implements CalcRestService {
 
   private final Map<String, Integer> variables = new HashMap<>();

@@ -1,10 +1,13 @@
 
-# 1.6.29 (PLANNED)
+# 1.7.29 (PLANNED)
 
-* Do not set OID from the MDC if it was provided in the headers,
-  so headers take precedence over MDC, not the other way around.
+* OID and RID headers dropped in favor of single Request-ID header which is introduced for the same purpose.
+* Introducing "nesting" for new request IDs that would make building cross-service request graphs trivial.
 * Introducing TempConfiguration in brikar-maintenance:
-  utility class that can write temporary configuration file for brikar server
+  utility class that can write temporary configuration file for brikar server.
+* RequestIdAwareFilter now logs URL pattern as operation name instead of full operation to allow tools
+  to build metrics for RESTful operations.
+* Changing default '/rest' prefix to '/api'.
 
 # 1.6.28
 

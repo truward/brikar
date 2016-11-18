@@ -21,7 +21,7 @@ Sample (local server assumed to be up and running at port 8080):
 JSON:
 
 ```
-curl -H 'Accept: application/json; charset=UTF-8' 127.0.0.1:8080/rest/calc/variable -v -s | python -mjson.tool
+curl -H 'Accept: application/json; charset=UTF-8' 127.0.0.1:8080/api/calc/variable -v -s | python -mjson.tool
 {
     "vars": [
         {
@@ -35,7 +35,7 @@ curl -H 'Accept: application/json; charset=UTF-8' 127.0.0.1:8080/rest/calc/varia
 Protobuf:
 
 ```
-curl 127.0.0.1:8080/rest/calc/variable -s | protoc --decode_raw --proto_path=$PROJ/brikar/sample/calc/calc-model/src/main/resources/
+curl 127.0.0.1:8080/api/calc/variable -s | protoc --decode_raw --proto_path=$PROJ/brikar/sample/calc/calc-model/src/main/resources/
 1 {
   1: "over"
   2: 9000
@@ -45,7 +45,7 @@ curl 127.0.0.1:8080/rest/calc/variable -s | protoc --decode_raw --proto_path=$PR
 Another sample (dumps output as binary):
 
 ```
-curl 127.0.0.1:8080/rest/calc/variable -s -vv | hexdump
+curl 127.0.0.1:8080/api/calc/variable -s -vv | hexdump
 ```
 
 This should produce output like that:
@@ -59,7 +59,7 @@ This should produce output like that:
 * Curl_addHandleToPipeline: length: 1
 * - Conn 0 (0x7f80f400d000) send_pipe: 1, recv_pipe: 0
 * Connected to 127.0.0.1 (127.0.0.1) port 8080 (#0)
-> GET /rest/calc/variable HTTP/1.1
+> GET /api/calc/variable HTTP/1.1
 > User-Agent: curl/7.30.0
 > Host: 127.0.0.1:8080
 > Accept: */*
@@ -77,5 +77,5 @@ This should produce output like that:
 Stress testing sample:
 
 ```
-ab -n 1000 -c 20 http://<<IP>>:<<PORT>>/rest/calc/variable
+ab -n 1000 -c 20 http://<<IP>>:<<PORT>>/api/calc/variable
 ```

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author Alexander Shabanov
  */
 @Controller
-@RequestMapping("/rest")
+@RequestMapping("/api")
 public class SimpleHealthCheckRestController extends AbstractRestController implements HealthCheckRestService {
 
 

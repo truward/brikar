@@ -24,7 +24,7 @@ public final class TodoClient {
 
   public static void main(String[] args) throws IOException {
     try (final RestOperationsFactory rof = new RestOperationsFactory(new ProtobufHttpMessageConverter())) {
-      final URI uri = URI.create("http://127.0.0.1:8080/rest/todo");
+      final URI uri = URI.create("http://127.0.0.1:8080/api/todo");
       rof.setCredentials(Collections.singletonList(new ServiceClientCredentials(uri,
           "todoServiceUser", "todoPassword")));
 

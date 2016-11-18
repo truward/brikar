@@ -2,7 +2,6 @@ package com.truward.brikar.common.test.executor;
 
 import com.truward.brikar.common.executor.StandardThreadParametersBinder;
 import com.truward.brikar.common.executor.ThreadLocalPropagatingTaskExecutor;
-import com.truward.brikar.common.executor.ThreadParametersBinder;
 import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.common.test.util.TestLoggerProvider;
 import org.junit.After;
@@ -13,7 +12,7 @@ import org.slf4j.MDC;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -36,9 +35,7 @@ public final class StandardThreadParametersBinderTest {
 
     this.taskExecutor = new ThreadLocalPropagatingTaskExecutor(
         new SimpleAsyncTaskExecutor("StandardThreadParametersBinderTest-thread"),
-        Arrays.<ThreadParametersBinder>asList(
-            StandardThreadParametersBinder.ORIGINATING_REQUEST_ID,
-            StandardThreadParametersBinder.REQUEST_ID));
+        Collections.singletonList(StandardThreadParametersBinder.REQUEST_ID));
 
     MDC.clear(); // clear all parameters
   }
@@ -51,12 +48,10 @@ public final class StandardThreadParametersBinderTest {
   @Test
   public void shouldRecordStandardParameters() throws Exception {
     // Given:
-    final String originatingRequestId = UUID.randomUUID().toString();
     final String requestId = UUID.randomUUID().toString();
     final Logger log = loggerProvider.getLogger();
 
     // When:
-    MDC.put(LogUtil.ORIGINATING_REQUEST_ID, originatingRequestId);
     MDC.put(LogUtil.REQUEST_ID, requestId);
     final Future<Integer> future = taskExecutor.submit(new Callable<Integer>() {
       @Override
@@ -70,7 +65,6 @@ public final class StandardThreadParametersBinderTest {
     assertEquals(Integer.valueOf(1), future.get());
     final String rawContents = loggerProvider.getRawLogContents();
     assertTrue(rawContents.contains("@metric op=ReturnOne, cnt=1"));
-    assertTrue(rawContents.contains(originatingRequestId));
     assertTrue(rawContents.contains(requestId));
   }
 }

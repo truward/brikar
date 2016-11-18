@@ -5,12 +5,11 @@ import com.truward.brikar.server.launcher.StandardLauncher;
 /**
  * Launcher for gossip service.
  * <p>
- * This service is used to test OID propagation.
- * See also {@link com.truward.brikar.common.log.LogUtil#ORIGINATING_REQUEST_ID}.
+ * This service is used to test request ID propagation.
  * </p>
  * <p>
- * Once launched with default setting, hit <code>http://127.0.0.1:8080/rest/gossip?about=something</code>, e.g.
- * <pre>curl http://127.0.0.1:8080/rest/gossip?about=something</pre> to see sample response.
+ * Once launched with default setting, hit <code>http://127.0.0.1:8080/api/gossip?about=something</code>, e.g.
+ * <pre>curl http://127.0.0.1:8080/api/gossip?about=something</pre> to see sample response.
  * </p>
  *
  * @author Alexander Shabanov

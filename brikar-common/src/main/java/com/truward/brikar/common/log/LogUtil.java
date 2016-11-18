@@ -49,29 +49,14 @@ public final class LogUtil {
    * </p>
    *
    * See also {@link org.slf4j.MDC}.
-   * See also {@link #ORIGINATING_REQUEST_ID}.
    * See also {@link com.truward.brikar.common.tracking.TrackingHttpHeaderNames#REQUEST_ID}.
    */
   public static final String REQUEST_ID = "rid";
 
   /**
-   * A name, under which an originating request ID is known as one of the logger attributes.
-   * <p>
-   * Originating Request ID is an identifier that identifies first service request (usually customer's web request),
-   * which eventually resulted in particular service request. All service requests related to handling originating
-   * service request should have the same value in originating request id.
-   * </p>
-   *
-   * See also {@link org.slf4j.MDC}.
-   * See also {@link #REQUEST_ID}.
-   * See also {@link com.truward.brikar.common.tracking.TrackingHttpHeaderNames#ORIGINATING_REQUEST_ID}.
-   */
-  public static final String ORIGINATING_REQUEST_ID = "oid";
-
-  /**
    * Maximum size of request ID.
    */
-  public static final int MAX_REQUEST_ID_LENGTH = 256;
+  public static final int MAX_REQUEST_ID_LENGTH = 4096;
 
   /**
    * Validates, that passed request ID is valid. This function is used to prevent the potential attacker to send
@@ -122,6 +107,11 @@ public final class LogUtil {
    * Http Response Code (integer), e.g. 200 - 'OK', 404 - 'Not Found', etc.
    */
   public static final String RESPONSE_CODE = "responseCode";
+
+  /**
+   * Http URL, e.g. /something/like/that
+   */
+  public static final String URL = "url";
 
   /**
    * Request ID, that contains in the service call response.

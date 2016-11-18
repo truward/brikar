@@ -24,7 +24,7 @@ public final class RpcServiceIntegrationTest extends ServerIntegrationTestBase {
   @Test
   public void shouldExecuteSayHello() {
     try (final RestOperationsFactory rof = new RestOperationsFactory(new ProtobufHttpMessageConverter())) {
-      final RpcService rpcService = newClient(RpcService.class, rof, "/rest/rpc/RpcService");
+      final RpcService rpcService = newClient(RpcService.class, rof, "/api/rpc/RpcService");
 
       final ExposureModel.HelloResponse response = rpcService.sayHello(ExposureModel.HelloRequest.newBuilder()
           .setPerson("Alice").build());
@@ -36,7 +36,7 @@ public final class RpcServiceIntegrationTest extends ServerIntegrationTestBase {
 
   @Test
   public void shouldGetExplorerPage() {
-    withCustomRestBinder("/rest/explorer/RpcService", new TextRetrievalTestScenario() {
+    withCustomRestBinder("/api/explorer/RpcService", new TextRetrievalTestScenario() {
       @Override
       public void execute(@Nonnull RetrievalService retrievalService) {
         final String contents = retrievalService.getResource();

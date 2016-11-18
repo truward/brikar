@@ -398,7 +398,7 @@ public class StandardLauncher implements AutoCloseable {
 
   protected void initServlets(@Nonnull ServletContextHandler contextHandler) {
     final ServletHolder dispatcherServlet = contextHandler.addServlet(DispatcherServlet.class,
-        "/g/*,/rest/*,/j_spring_security_check");
+        "/g/*,/api/*,/j_spring_security_check");
     dispatcherServlet.setInitParameter("contextConfigLocation", getDispatcherServletConfigLocations());
 
     if (simpleSecurityEnabled) {

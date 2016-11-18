@@ -105,7 +105,7 @@ public class RpcServiceExplorerController {
     this.rpcBindingMap = result;
   }
 
-  @RequestMapping(value = "rest/rpc/{serviceName}/**", method = RequestMethod.POST)
+  @RequestMapping(value = "api/rpc/{serviceName}/**", method = RequestMethod.POST)
   public void invoke(@PathVariable("serviceName") String serviceName,
                      HttpServletRequest request,
                      HttpServletResponse response) throws IOException {
@@ -117,7 +117,7 @@ public class RpcServiceExplorerController {
 
     final String urlMethodPath;
     final String requestURI = request.getRequestURI();
-    final String template = "/rest/rpc/" + serviceName + "/";
+    final String template = "/api/rpc/" + serviceName + "/";
     if (requestURI.startsWith(template)) {
       urlMethodPath = requestURI.substring(template.length());
     } else {
@@ -135,7 +135,7 @@ public class RpcServiceExplorerController {
     }
   }
 
-  @RequestMapping(value = "rest/explorer/{serviceName}", method = RequestMethod.GET)
+  @RequestMapping(value = "api/explorer/{serviceName}", method = RequestMethod.GET)
   public void explorer(@PathVariable("serviceName") String serviceName,
                        HttpServletResponse response) throws IOException {
     if (!serviceExplorerEnabled) {

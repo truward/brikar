@@ -19,7 +19,7 @@ import java.util.Objects;
  * @author Alexander Shabanov
  */
 @Controller
-@RequestMapping("/rest")
+@RequestMapping("/api")
 public final class GossipRestController {
   public static final String ABOUT_PARAM = "about";
 

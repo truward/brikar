@@ -22,7 +22,7 @@ CLI Args:
 TODO Sample.
 
 ```
-curl -u todoServiceUser:todoPassword -H 'Accept: application/json' http://127.0.0.1:8080/rest/todo/items -s | python -mjson.tool
+curl -u todoServiceUser:todoPassword -H 'Accept: application/json' http://127.0.0.1:8080/api/todo/items -s | python -mjson.tool
 ```
 
 Results in:
@@ -58,5 +58,5 @@ mvn exec:java -Dexec.args="--port 9050 --config file:///tmp/todo.propties"
 Then invoke test API:
 
 ```
-curl -u demo-todo-user:Par12341wqwe -H 'Accept: application/json' http://127.0.0.1:9050/rest/todo/items -s | python -mjson.tool
+curl -u demo-todo-user:Par12341wqwe -H 'Accept: application/json' http://127.0.0.1:9050/api/todo/items -s | python -mjson.tool
 ```

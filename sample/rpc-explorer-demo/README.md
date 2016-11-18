@@ -2,7 +2,7 @@
 # How to Launch
 
 1. Run ``mvn exec:java``
-1. Open ``http://127.0.0.1:8080/rest/dev/explore/UserService`` in the browser
+1. Open ``http://127.0.0.1:8080/api/dev/explore/UserService`` in the browser
 1. (Alternatively) Test using curl (below).
 
 # How to test using curl
@@ -10,7 +10,7 @@
 Execute:
 
 ```
-curl -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/json;charset=UTF-8' http://127.0.0.1:8080/rest/rpc/UserService/getUser -d '{"userId": 10}'
+curl -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/json;charset=UTF-8' http://127.0.0.1:8080/api/rpc/UserService/getUser -d '{"userId": 10}'
 ```
 
 Sample Response:
@@ -22,7 +22,7 @@ Sample Response:
 Binary data retrieval can be illustrated as follows:
 
 ```
-$ curl -s -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/x-protobuf' http://127.0.0.1:8080/rest/rpc/UserService/getUser -d '{"userId": 10}' | hexdump
+$ curl -s -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/x-protobuf' http://127.0.0.1:8080/api/rpc/UserService/getUser -d '{"userId": 10}' | hexdump
 0000000 0a 19 08 0a 12 0b 53 61 6d 70 6c 65 20 55 73 65
 0000010 72 1a 08 50 61 73 73 77 6f 72 64
 000001b
@@ -31,7 +31,7 @@ $ curl -s -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: 
 Error response illustration:
 
 ```
-$ curl -s -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/json;charset=UTF-8' http://127.0.0.1:8080/rest/rpc/UserService/getUser -d '{}' | python -mjson.tool
+$ curl -s -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/json;charset=UTF-8' http://127.0.0.1:8080/api/rpc/UserService/getUser -d '{}' | python -mjson.tool
 {
     "code": 400,
     "message": "Illegal Argument: userId=0"

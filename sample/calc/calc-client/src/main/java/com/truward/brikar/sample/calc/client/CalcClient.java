@@ -16,7 +16,7 @@ public final class CalcClient {
   public static void main(String[] args) {
     try (final RestOperationsFactory rof = new RestOperationsFactory(new ProtobufHttpMessageConverter())) {
       final CalcRestService calcRestService = new StandardRestServiceBinder(rof.getRestOperations())
-          .createClient(URI.create("http://127.0.0.1:8080/rest/calc"), CalcRestService.class);
+          .createClient(URI.create("http://127.0.0.1:8080/api/calc"), CalcRestService.class);
 
       final CalcModel.GetVariables variables = calcRestService.getAllVariables();
       System.out.println("variables = " + variables);
