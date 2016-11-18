@@ -9,7 +9,10 @@
   instead of full operation to allow tools. So, for example, for HTTP request like 'GET /user/1/order/2' the
   following pattern might be recorded in request logs: 'GET_/user/{userId}/order/{orderId}'
   to build metrics for RESTful operations.
+* Aliasing logger in RequestIdAwareFilter as 'BrikarRestLogger' for consistency with REST client.
 * Changing default '/rest' prefix to '/api'.
+* Migrating to protobuf 3.1.0
+* Cosmetic fixes
 
 # 1.6.28
 

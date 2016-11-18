@@ -54,7 +54,7 @@
   -->
 
   <!-- Special configuration for RequestID filter to capture incoming requests -->
-  <logger name="com.truward.brikar.server.tracking.RequestIdAwareFilter" level="${requestLogLevel}" additivity="false">
+  <logger name="BrikarRequestLogger" level="${requestLogLevel}" additivity="false">
     <appender-ref ref="${rootLogId}" />
   </logger>
 
