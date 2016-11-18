@@ -5,7 +5,9 @@
 * Introducing "nesting" for new request IDs that would make building cross-service request graphs trivial.
 * Introducing TempConfiguration in brikar-maintenance:
   utility class that can write temporary configuration file for brikar server.
-* RequestIdAwareFilter now logs URL pattern as operation name instead of full operation to allow tools
+* RequestIdAwareFilter now logs combination of HTTP method + URL pattern as operation name
+  instead of full operation to allow tools. So, for example, for HTTP request like 'GET /user/1/order/2' the
+  following pattern might be recorded in request logs: 'GET_/user/{userId}/order/{orderId}'
   to build metrics for RESTful operations.
 * Changing default '/rest' prefix to '/api'.
 

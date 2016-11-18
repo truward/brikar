@@ -71,11 +71,15 @@ public class RequestIdAwareFilter extends OncePerRequestFilter {
       } finally {
         time = System.currentTimeMillis() - time;
         // This code gets URL pattern associated with the method that handled request
-        final Object urlPattern = request
-            .getAttribute("org.springframework.web.servlet.HandlerMapping.bestMatchingPattern");
-        final String operation = urlPattern != null ? urlPattern.toString() : pathInfo;
+        Object urlPattern = request.getAttribute("org.springframework.web.servlet.HandlerMapping.bestMatchingPattern");
+        final String urlOperation = urlPattern != null ? urlPattern.toString() : pathInfo;
 
-        log.info(OK_LOG_FORMAT, operation, request.getMethod(), time, response.getStatus(), pathInfo);
+        final int operationSizeEstimate = request.getMethod().length() + 1 + urlOperation.length();
+        @SuppressWarnings("StringBufferReplaceableByString")
+        final StringBuilder operation = new StringBuilder(operationSizeEstimate);
+        operation.append(request.getMethod()).append('_').append(urlOperation);
+
+        log.info(OK_LOG_FORMAT, operation.toString(), request.getMethod(), time, response.getStatus(), pathInfo);
       }
     }
 
