@@ -1,5 +1,9 @@
 
-# 1.7.29 (PLANNED)
+# 1.7.30 (PLANNED)
+
+(TBD)
+
+# 1.7.29
 
 * OID and RID headers dropped in favor of single Request-ID header which is introduced for the same purpose.
 * Introducing "nesting" for new request IDs that would make building cross-service request graphs trivial.
