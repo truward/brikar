@@ -12,6 +12,10 @@
 
   <name>Brikar Sample Zoo Server</name>
 
+  <properties>
+    <launcher.mainClass>com.truward.brikar.sample.zoo.server.ZooLauncher</launcher.mainClass>
+  </properties>
+
   <dependencies>
     <!-- Logging -->
     <dependency>
@@ -68,5 +72,18 @@
       <artifactId>spring-test</artifactId>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Execution from the command line - mvn exec:java starts the server -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>${launcher.mainClass}</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
 
