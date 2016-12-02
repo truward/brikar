@@ -1,6 +1,9 @@
 
-# 1.7.30 (PLANNED)
+# 1.8.30 (PLANNED)
 
+* Adoping OneAPI error response as described in '7.10.2' chapter in [REST API Guidelines](https://github.com/Microsoft/api-guidelines/blob/master/Guidelines.md)
+  * Also adding brikar-error-response-parser module with helper class for parsing error response from spring web client's HttpStatusCodeException
+* Making Java 8 as a requirement (primarily to enable use of mixins)
 * @metric renamed to @metric1 to allow future extensions.
 * Request ID to Request Vector renaming:
   * RequestIdAwareFilter renamed to RequestVectorAwareFilter

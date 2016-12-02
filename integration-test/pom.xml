@@ -65,6 +65,11 @@
       </dependency>
       <dependency>
         <groupId>com.truward.brikar</groupId>
+        <artifactId>brikar-error-response-parser</artifactId>
+        <version>${brikar.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.truward.brikar</groupId>
         <artifactId>brikar-rpc-explorer-support</artifactId>
         <version>${brikar.version}</version>
       </dependency>

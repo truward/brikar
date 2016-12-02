@@ -1,7 +1,7 @@
 package com.truward.brikar.server.controller.healthcheck;
 
 import com.truward.brikar.common.healthcheck.HealthCheckRestService;
-import com.truward.brikar.server.controller.AbstractRestController;
+import com.truward.brikar.server.controller.DefaultRestExceptionHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/api")
-public class SimpleHealthCheckRestController extends AbstractRestController implements HealthCheckRestService {
+public class SimpleHealthCheckRestController implements HealthCheckRestService, DefaultRestExceptionHandler {
 
 
   @Override

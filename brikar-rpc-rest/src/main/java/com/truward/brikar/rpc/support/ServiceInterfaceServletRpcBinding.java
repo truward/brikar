@@ -147,10 +147,12 @@ public class ServiceInterfaceServletRpcBinding implements ServletRpcBinding {
                            String description) throws IOException {
     response.setStatus(statusCode);
     write(acceptType,
-        ErrorModel.Error.class,
-        ErrorModel.Error.newBuilder()
-            .setCode(statusCode)
-            .setMessage(description)
+        ErrorModel.ErrorResponseV1.class,
+        ErrorModel.ErrorResponseV1.newBuilder()
+            .setError(ErrorModel.ErrorV1.newBuilder()
+                .setCode(HttpStatus.valueOf(statusCode).name())
+                .setMessage(description)
+                .build())
             .build(),
         new ServletServerHttpResponse(response));
   }

@@ -1,15 +1,16 @@
 package com.truward.brikar.test.exposure.controller;
 
-import com.truward.brikar.error.helper.ExceptionResponseUtil;
-import com.truward.brikar.server.controller.AbstractRestController;
+import com.truward.brikar.error.HttpRestErrorException;
+import com.truward.brikar.error.RestErrors;
+import com.truward.brikar.error.StandardRestErrorCode;
+import com.truward.brikar.error.model.ErrorModel;
+import com.truward.brikar.server.controller.DefaultRestExceptionHandler;
 import com.truward.brikar.test.exposure.model.ExposureModel;
 import com.truward.brikar.test.exposure.service.ExposureRestService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nonnull;
 
@@ -18,18 +19,14 @@ import javax.annotation.Nonnull;
  */
 @Controller
 @RequestMapping("/api/test")
-public final class ExposureRestController extends AbstractRestController implements ExposureRestService {
-  public static final String WRONG_NAME = "Wrong person name";
-  public static final String UNSUPPORTED_NAME = "Unsupported name";
-  public static final String ACCESS_DENIED = "No access for admin";
+public final class ExposureRestController implements ExposureRestService, DefaultRestExceptionHandler {
+  public static final String ACCESS_DENIED = "No access for non-admin";
 
-  @Override
-  protected Object getResponseObjectFromException(@Nonnull Throwable e) {
-    // special treatment for AccessDeniedException
-    if (e instanceof AccessDeniedException) {
-      return ExceptionResponseUtil.shallowConvert(e);
-    }
-    return super.getResponseObjectFromException(e);
+  @ExceptionHandler(AccessDeniedException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  @ResponseBody
+  public ErrorModel.ErrorResponseV1 accessDeniedException(AccessDeniedException e) {
+    return RestErrors.response(e, "Access Denied", StandardRestErrorCode.ACCESS_DENIED);
   }
 
   @Override
@@ -45,15 +42,18 @@ public final class ExposureRestController extends AbstractRestController impleme
     }
 
     if (person.equals("R2D2")) {
-      throw new IllegalArgumentException(WRONG_NAME);
+      throw new IllegalArgumentException("name");
     }
 
     if (person.equals("Darth Vader")) {
-      throw new UnsupportedOperationException(UNSUPPORTED_NAME);
+      throw new UnsupportedOperationException("name");
     }
 
     if (person.equals("Chewbacca")) {
-      throw new IllegalStateException();
+      throw new HttpRestErrorException(HttpStatus.I_AM_A_TEAPOT.value(), ErrorModel.ErrorV1.newBuilder()
+          .setCode("TeapotIsNotAChewbacca")
+          .setMessage("I am a teapot")
+          .build());
     }
 
     return ExposureModel.HelloResponse.newBuilder()

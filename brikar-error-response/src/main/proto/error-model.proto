@@ -1,3 +1,10 @@
+//
+// This proto defines common error response.
+// The structure for this object and semantics of its field is adopted from the Microsoft REST API
+// guidelines as described in '7.10.2 Error condition responses' in
+// https://github.com/Microsoft/api-guidelines/blob/master/Guidelines.md
+//
+
 syntax = "proto3";
 
 package truward.brikar.error.model;
@@ -5,28 +12,49 @@ package truward.brikar.error.model;
 option java_package = "com.truward.brikar.error.model";
 option java_outer_classname = "ErrorModel";
 
-message Parameter {
-  // extra parameter name
-  string name = 1;
+message ErrorResponseV1 {
 
-  // associated parameter values
+  // holds information about an error
+  ErrorV1 error = 1;
+}
+
+message ErrorValueV1 {
+
+  bytes bytesValue = 1;
   string strValue = 2;
   int32 intValue = 3;
   int64 longValue = 4;
-  bytes bytesValue = 5;
+  bool boolValue = 5;
 }
 
-message Error {
+message ErrorV1 {
 
-  // associated error message
-  string message = 1;
+  // required, custom error code from the predefined enumeration, for example 'BadRequest' or 'CreditCardExpired'
+  string code = 1;
 
-  // custom error code, optional
-  int32 code = 2;
+  // required, associated human readable error message, for example 'Payment failed, credit card ending with 1234 is expired'
+  string message = 2;
 
-  // root cause, optional
-  Error cause = 3;
+  // optional, represents target of an error, for example 'CreditCard'
+  string target = 3;
+
+  // optional array of specific details that led to this error
+  repeated ErrorV1 details = 4;
 
   // associated error parameters, optional
-  repeated Parameter parameters = 4;
+  InnerErrorV1 innerError = 5;
+
+  // optional target value, associated with this error
+  ErrorValueV1 targetValue = 6;
 }
+
+message InnerErrorV1 {
+
+  // required, custom error code from the predefined enumeration, for example 'BadRequest' or 'CreditCardExpired'
+  string code = 1;
+
+  // associated error parameters, optional
+  InnerErrorV1 innerError = 2;
+}
+
+
