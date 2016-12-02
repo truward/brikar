@@ -3,7 +3,7 @@ package com.truward.brikar.server.launcher;
 import com.truward.brikar.server.auth.SimpleAuthenticatorUtil;
 import com.truward.brikar.server.auth.SimpleServiceUser;
 import com.truward.brikar.server.context.StandardWebApplicationContextInitializer;
-import com.truward.brikar.server.tracking.RequestIdAwareFilter;
+import com.truward.brikar.server.tracking.RequestVectorAwareFilter;
 import com.truward.brikar.server.util.JettyResourceUtil;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -151,7 +151,7 @@ public class StandardLauncher implements AutoCloseable {
   private AutoCloseable propertySourceCloseableRegistration;
   private ServletContextHandler contextHandler;
   private boolean simpleSecurityEnabled;
-  private boolean requestIdOperationsEnabled;
+  private boolean requestVectorOperationsEnabled;
   private String authPropertiesPrefix = "auth";
   private boolean springSecurityEnabled;
   private boolean staticHandlerEnabled;
@@ -197,7 +197,7 @@ public class StandardLauncher implements AutoCloseable {
     mutablePropertySources.addFirst(propertySource);
     this.propertyResolver = new PropertySourcesPropertyResolver(mutablePropertySources);
 
-    setRequestIdOperationsEnabled(true);
+    setRequestVectorOperationsEnabled(true);
     setSessionsEnabled(false);
     setContextSecurityEnabled(false);
   }
@@ -240,8 +240,8 @@ public class StandardLauncher implements AutoCloseable {
   }
 
   @Nonnull
-  public StandardLauncher setRequestIdOperationsEnabled(boolean enabled) {
-    this.requestIdOperationsEnabled = enabled;
+  public StandardLauncher setRequestVectorOperationsEnabled(boolean enabled) {
+    this.requestVectorOperationsEnabled = enabled;
     return this;
   }
 
@@ -359,7 +359,7 @@ public class StandardLauncher implements AutoCloseable {
   /**
    * This method initializes servlet filters.
    * <p>
-   * Default implementation adds RequestId filter by default.
+   * Default implementation adds request vector filter by default.
    * </p>
    * <p>
    * Overrides of this method can also do things like enforcing UTF-8 encoding.
@@ -379,8 +379,8 @@ public class StandardLauncher implements AutoCloseable {
       initSpringSecurity(contextHandler);
     }
 
-    if (requestIdOperationsEnabled) {
-      initRequestIdOperations(contextHandler);
+    if (requestVectorOperationsEnabled) {
+      initRequestVectorOperations(contextHandler);
     }
   }
 
@@ -390,9 +390,9 @@ public class StandardLauncher implements AutoCloseable {
     contextHandler.addFilter(holder, "/*", EnumSet.allOf(DispatcherType.class));
   }
 
-  protected void initRequestIdOperations(@Nonnull ServletContextHandler contextHandler) {
-    final FilterHolder holder = new FilterHolder(RequestIdAwareFilter.class);
-    holder.setName("requestIdAwareFilter");
+  protected void initRequestVectorOperations(@Nonnull ServletContextHandler contextHandler) {
+    final FilterHolder holder = new FilterHolder(RequestVectorAwareFilter.class);
+    holder.setName("requestVectorAware");
     contextHandler.addFilter(holder, "/*", EnumSet.allOf(DispatcherType.class));
   }
 

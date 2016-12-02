@@ -103,15 +103,15 @@ public final class GossipServerIntegrationTest {
   }
 
   @Test
-  public void shouldPropagateOriginatingId() throws IOException {
-    MDC.remove(TrackingHttpHeaderNames.REQUEST_ID);
+  public void shouldPropagateOriginatingVector() throws IOException {
+    MDC.remove(TrackingHttpHeaderNames.REQUEST_VECTOR);
 
     final String startGossip = "GossipTime" + System.currentTimeMillis();
 
     // create custom headers with originating request ID
     final HttpHeaders headers = new HttpHeaders();
-    final String originatingRequestId = "Gossiper" + ThreadLocalRandom.current().nextInt(100000);
-    headers.set(TrackingHttpHeaderNames.REQUEST_ID, originatingRequestId);
+    final String originatingRequestVector = "Gossiper" + ThreadLocalRandom.current().nextInt(100000);
+    headers.set(TrackingHttpHeaderNames.REQUEST_VECTOR, originatingRequestVector);
 
     final HttpEntity<StringValue> gossipValue = restClient.exchange(
         URI.create(String.format("http://127.0.0.1:%d/api/gossip?about=%s", gossipServer1.getPort(), startGossip)),
@@ -120,9 +120,9 @@ public final class GossipServerIntegrationTest {
         StringValue.class
     );
 
-    assertTrue(gossipValue.getHeaders().containsKey(TrackingHttpHeaderNames.REQUEST_ID));
-    final String requestId = gossipValue.getHeaders().get(TrackingHttpHeaderNames.REQUEST_ID).get(0);
-    assertTrue(StringUtils.hasLength(requestId));
+    assertTrue(gossipValue.getHeaders().containsKey(TrackingHttpHeaderNames.REQUEST_VECTOR));
+    final String requestVector = gossipValue.getHeaders().get(TrackingHttpHeaderNames.REQUEST_VECTOR).get(0);
+    assertTrue(StringUtils.hasLength(requestVector));
 
     final String gossip = gossipValue.getBody().getValue();
     assertEquals("Gossip is malformed or missing required gossip tokens", "B-A-" + startGossip, gossip);
@@ -130,32 +130,32 @@ public final class GossipServerIntegrationTest {
     final String tempLog = gossipServer1.getTempLogBaseName();
     assertTrue(!tempLog.isEmpty());
 
-    assertLogContainsOriginatingRequestId(gossipServer1, originatingRequestId);
-    assertLogContainsOriginatingRequestId(gossipServer2, originatingRequestId);
+    assertLogContainsOriginatingRequestVector(gossipServer1, originatingRequestVector);
+    assertLogContainsOriginatingRequestVector(gossipServer2, originatingRequestVector);
   }
 
   //
   // Private
   //
 
-  private static void assertLogContainsOriginatingRequestId(BrikarProcess serverProcess,
-                                                            String originatingRequestId) throws IOException {
+  private static void assertLogContainsOriginatingRequestVector(
+      BrikarProcess serverProcess, String originatingRequestVector) throws IOException {
     final File activeTempLog1 = serverProcess.getActiveTempLog();
     assertNotNull("activeTempLog1 should not be null", activeTempLog1);
     final List<LogMessage> logMessages = new LogParser().parse(activeTempLog1);
 
-    boolean foundOriginatingRequestId = false;
+    boolean foundOriginatingRequestVector = false;
     final StringBuilder logLines = new StringBuilder(4000);
     for (final LogMessage logMessage : logMessages) {
       for (final String line : logMessage.getLines()) {
         logLines.append("\t> ").append(line).append(System.lineSeparator());
-        if (line.contains(originatingRequestId)) {
-          foundOriginatingRequestId = true;
+        if (line.contains(originatingRequestVector)) {
+          foundOriginatingRequestVector = true;
         }
       }
     }
 
-    assertTrue("Oringinating request ID has not been found in the logs:" + logLines.toString(),
-        foundOriginatingRequestId);
+    assertTrue("Oringinating request vector has not been found in the logs:" + logLines.toString(),
+        foundOriginatingRequestVector);
   }
 }

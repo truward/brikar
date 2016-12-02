@@ -10,10 +10,10 @@ import org.slf4j.MDC;
  */
 public enum StandardThreadParametersBinder implements ThreadParametersBinder {
 
-  REQUEST_ID {
+  REQUEST_VECTOR {
     @Override
     public Object getLocalObject() {
-      return MDC.get(LogUtil.REQUEST_ID);
+      return MDC.get(LogUtil.REQUEST_VECTOR);
     }
 
     @Override
@@ -22,7 +22,7 @@ public enum StandardThreadParametersBinder implements ThreadParametersBinder {
         return;
       }
 
-      MDC.put(LogUtil.REQUEST_ID, tag.toString());
+      MDC.put(LogUtil.REQUEST_VECTOR, tag.toString());
     }
 
     @Override
@@ -31,7 +31,7 @@ public enum StandardThreadParametersBinder implements ThreadParametersBinder {
         return;
       }
 
-      MDC.remove(LogUtil.REQUEST_ID);
+      MDC.remove(LogUtil.REQUEST_VECTOR);
     }
   }
 }

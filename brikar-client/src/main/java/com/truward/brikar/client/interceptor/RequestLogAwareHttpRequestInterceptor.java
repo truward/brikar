@@ -22,7 +22,7 @@ public final class RequestLogAwareHttpRequestInterceptor implements HttpRequestI
 
   @Override
   public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
-    setOriginatingRequestId(request);
+    setOriginatingRequestVector(request);
 
     final RequestLine requestLine = request.getRequestLine();
     context.setAttribute(ATTR_START_TIME, System.currentTimeMillis());
@@ -34,18 +34,18 @@ public final class RequestLogAwareHttpRequestInterceptor implements HttpRequestI
   // Private
   //
 
-  private static void setOriginatingRequestId(HttpRequest request) {
-    final Header[] existingRequestIdHeaders = request.getHeaders(TrackingHttpHeaderNames.REQUEST_ID);
-    if (existingRequestIdHeaders.length > 0) {
+  private static void setOriginatingRequestVector(HttpRequest request) {
+    final Header[] existingRequestVectorHeaders = request.getHeaders(TrackingHttpHeaderNames.REQUEST_VECTOR);
+    if (existingRequestVectorHeaders.length > 0) {
       return;
     }
 
-    final String sourceRequestId = MDC.get(LogUtil.REQUEST_ID);
+    final String sourceRequestVector = MDC.get(LogUtil.REQUEST_VECTOR);
 
     // set originating request ID for the outgoing request
-    if (sourceRequestId != null) {
-      final String nestedRequestId = TrackingHttpHeaderNames.getNestedRequestId(sourceRequestId);
-      request.setHeader(TrackingHttpHeaderNames.REQUEST_ID, nestedRequestId);
+    if (sourceRequestVector != null) {
+      final String nestedRequestVector = TrackingHttpHeaderNames.getNestedRequestVector(sourceRequestVector);
+      request.setHeader(TrackingHttpHeaderNames.REQUEST_VECTOR, nestedRequestVector);
     }
   }
 }

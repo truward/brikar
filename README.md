@@ -114,10 +114,10 @@ match an exposed REST API URL.
 Examples of request-response-related metrics (both client and server):
 
 ```
-2016-11-18 08:20:45,368 INFO BrikarRequestLogger rid=O1jah9BuYnSbiV [qtp728162039-20] @metric op=POST_/api/test/exposure/greet, verb=POST, tDelta=1, responseCode=200, url=/test/exposure/greet
-2016-11-18 08:20:45,369 INFO BrikarRestClient  [main] @metric op=/api/test/exposure/greet, tDelta=4, verb=POST, responseCode=200, responseRid=O1jah9BuYnSbiV
-2016-11-18 08:20:45,377 INFO BrikarRequestLogger rid=7qjJwmY7W/kxf4 [qtp728162039-19] @metric op=POST_/api/test/exposure/greet, verb=POST, tDelta=7, responseCode=400, url=/test/exposure/greet
-2016-11-18 08:20:45,377 WARN BrikarRestClient  [main] @metric op=/api/test/exposure/greet, tDelta=8, verb=POST, responseCode=400, responseRid=7qjJwmY7W/kxf4
+2016-11-18 08:20:45,368 INFO BrikarRequestLogger rid=O1jah9BuYnSbiV [qtp728162039-20] @metric1 op=POST_/api/test/exposure/greet, verb=POST, tDelta=1, responseCode=200, url=/test/exposure/greet
+2016-11-18 08:20:45,369 INFO BrikarRestClient  [main] @metric1 op=/api/test/exposure/greet, tDelta=4, verb=POST, responseCode=200, responseRid=O1jah9BuYnSbiV
+2016-11-18 08:20:45,377 INFO BrikarRequestLogger rid=7qjJwmY7W/kxf4 [qtp728162039-19] @metric1 op=POST_/api/test/exposure/greet, verb=POST, tDelta=7, responseCode=400, url=/test/exposure/greet
+2016-11-18 08:20:45,377 WARN BrikarRestClient  [main] @metric1 op=/api/test/exposure/greet, tDelta=8, verb=POST, responseCode=400, responseRid=7qjJwmY7W/kxf4
 ```
 
 Each line contains specifically formatted metric entry.

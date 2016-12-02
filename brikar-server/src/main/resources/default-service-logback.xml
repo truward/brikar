@@ -53,7 +53,7 @@
     Finer-grained configuration
   -->
 
-  <!-- Special configuration for RequestID filter to capture incoming requests -->
+  <!-- Special configuration for request vector filter to capture incoming requests -->
   <logger name="BrikarRequestLogger" level="${requestLogLevel}" additivity="false">
     <appender-ref ref="${rootLogId}" />
   </logger>

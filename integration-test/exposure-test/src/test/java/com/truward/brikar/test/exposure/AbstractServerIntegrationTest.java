@@ -48,7 +48,7 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
   @Test
   public void shouldUseServicesUsingJsonProtocol() {
     // Set originating request ID for manual verification in logs
-    MDC.put(LogUtil.REQUEST_ID, "IntegTest-shouldUseServicesUsingJsonProtocol");
+    MDC.put(LogUtil.REQUEST_VECTOR, "IntegTest-shouldUseServicesUsingJsonProtocol");
     try (final RestOperationsFactory rof = new RestOperationsFactory(new ProtobufJsonHttpMessageConverter())) {
       final ExposureRestService exposureService = newClient(ExposureRestService.class, rof, "/api/test");
 

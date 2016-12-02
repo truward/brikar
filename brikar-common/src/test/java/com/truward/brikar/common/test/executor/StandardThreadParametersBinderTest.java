@@ -35,7 +35,7 @@ public final class StandardThreadParametersBinderTest {
 
     this.taskExecutor = new ThreadLocalPropagatingTaskExecutor(
         new SimpleAsyncTaskExecutor("StandardThreadParametersBinderTest-thread"),
-        Collections.singletonList(StandardThreadParametersBinder.REQUEST_ID));
+        Collections.singletonList(StandardThreadParametersBinder.REQUEST_VECTOR));
 
     MDC.clear(); // clear all parameters
   }
@@ -48,11 +48,11 @@ public final class StandardThreadParametersBinderTest {
   @Test
   public void shouldRecordStandardParameters() throws Exception {
     // Given:
-    final String requestId = UUID.randomUUID().toString();
+    final String requestVector = UUID.randomUUID().toString();
     final Logger log = loggerProvider.getLogger();
 
     // When:
-    MDC.put(LogUtil.REQUEST_ID, requestId);
+    MDC.put(LogUtil.REQUEST_VECTOR, requestVector);
     final Future<Integer> future = taskExecutor.submit(new Callable<Integer>() {
       @Override
       public Integer call() throws Exception {
@@ -64,7 +64,7 @@ public final class StandardThreadParametersBinderTest {
     // Then:
     assertEquals(Integer.valueOf(1), future.get());
     final String rawContents = loggerProvider.getRawLogContents();
-    assertTrue(rawContents.contains("@metric op=ReturnOne, cnt=1"));
-    assertTrue(rawContents.contains(requestId));
+    assertTrue(rawContents.contains("@metric1 op=ReturnOne, cnt=1"));
+    assertTrue(rawContents.contains(requestVector));
   }
 }

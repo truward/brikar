@@ -39,8 +39,8 @@ public abstract class ServerIntegrationTestBase {
   private static Server SERVER;
 
   @After
-  public void resetMdcRequestId() {
-    MDC.remove(TrackingHttpHeaderNames.REQUEST_ID);
+  public void resetMdcRequestVector() {
+    MDC.remove(TrackingHttpHeaderNames.REQUEST_VECTOR);
   }
 
   @AfterClass

@@ -40,7 +40,7 @@ public final class LapseLoggerAspectTest {
 
 
   @Test
-  public void shouldLogRegulaEntry() {
+  public void shouldLogMetricEntry() {
     // Given:
     when(timeSource.currentTime())
         .thenReturn(1000L) // 1st time
@@ -53,7 +53,7 @@ public final class LapseLoggerAspectTest {
     // Then:
     assertEquals(3, result);
     final String logContent = loggerProvider.getRawLogContents();
-    assertTrue(logContent.contains("@metric op=CalcService.plus, tDelta=200" + sep));
+    assertTrue(logContent.contains("@metric1 op=CalcService.plus, tDelta=200" + sep));
   }
 
   @Test
@@ -74,7 +74,7 @@ public final class LapseLoggerAspectTest {
 
     // Then:
     final String logContent = loggerProvider.getRawLogContents();
-    assertTrue(logContent.contains("@metric op=CalcService.plus, tDelta=1, failed=true" + sep));
+    assertTrue(logContent.contains("@metric1 op=CalcService.plus, tDelta=1, failed=true" + sep));
   }
 
   @Test

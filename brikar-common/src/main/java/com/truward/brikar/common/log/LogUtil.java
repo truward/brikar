@@ -31,9 +31,9 @@ import javax.annotation.Nullable;
  * <br>
  * Example of metric entries:
  * <ul>
- *   <li><code>@metric op=MeasureUsedToFreeMemRatio, cnt=32</code> - it may mean, that an operation to measure a ratio
+ *   <li><code>@metric1 op=MeasureUsedToFreeMemRatio, cnt=32</code> - it may mean, that an operation to measure a ratio
  *   of used to free memory has been attempted and its result is 32%</li>
- *   <li><code>@metric op=UserService.getUserById, tDelta=125</code> - it may mean, that operation to get user by
+ *   <li><code>@metric1 op=UserService.getUserById, tDelta=125</code> - it may mean, that operation to get user by
  *   ID has been executed and it took 125 milliseconds to complete</li>
  * </ul>
  *
@@ -43,37 +43,38 @@ public final class LogUtil {
   private LogUtil() {}
 
   /**
-   * A name, under which a request ID is known as one of the logger attributes.
+   * A name, under which a request vector is known as one of the logger attributes.
    * <p>
-   * Request ID is an identifer that uniquely identifies particular service request.
+   * Request vector is an identifer that uniquely identifies particular service request, where did it come from,
+   * as well as its place in the bigger inter-service call graph.
    * </p>
    *
    * See also {@link org.slf4j.MDC}.
-   * See also {@link com.truward.brikar.common.tracking.TrackingHttpHeaderNames#REQUEST_ID}.
+   * See also {@link com.truward.brikar.common.tracking.TrackingHttpHeaderNames#REQUEST_VECTOR}.
    */
-  public static final String REQUEST_ID = "rid";
+  public static final String REQUEST_VECTOR = "RV";
 
   /**
-   * Maximum size of request ID.
+   * Maximum size of request vector.
    */
-  public static final int MAX_REQUEST_ID_LENGTH = 4096;
+  public static final int MAX_REQUEST_VECTOR_LENGTH = 4096;
 
   /**
-   * Validates, that passed request ID is valid. This function is used to prevent the potential attacker to send
-   * garbage request IDs into the service.
-   * If passed request ID is invalid, it should be discarded.
+   * Validates, that passed request vector is valid. This function is used to prevent the potential attacker to send
+   * garbage request vectors into the service.
+   * If passed request vector is invalid, it should be discarded.
    *
-   * @param requestId Request ID to validate
-   * @return True, if passed request ID is valid, false otherwise.
+   * @param requestVector Request vector to validate
+   * @return True, if passed request vector is valid, false otherwise.
    */
-  public static boolean isValidRequestId(@Nullable String requestId) {
-    if (requestId == null || requestId.isEmpty() || requestId.length() > MAX_REQUEST_ID_LENGTH) {
+  public static boolean isValidRequestVector(@Nullable String requestVector) {
+    if (requestVector == null || requestVector.isEmpty() || requestVector.length() > MAX_REQUEST_VECTOR_LENGTH) {
       return false;
     }
 
     // verify, that each character is within the allowed bounds
-    for (int i = 0; i < requestId.length(); ++i) {
-      final char ch = requestId.charAt(i);
+    for (int i = 0; i < requestVector.length(); ++i) {
+      final char ch = requestVector.charAt(i);
       if (ch <= 32 || ch >= 127) {
         return false;
       }
@@ -89,8 +90,10 @@ public final class LogUtil {
   /**
    * Preceding keyword, which presence indicates that a special entry will be coded afterwards.
    * There should be one and only one metric entry per logging statement.
+   *
+   * One identifies record version for possible future extension with the new fields.
    */
-  public static final String METRIC_ENTRY = "@metric";
+  public static final String METRIC_ENTRY = "@metric1";
 
   /**
    * A name, under which an operation should be known.
@@ -114,9 +117,9 @@ public final class LogUtil {
   public static final String URL = "url";
 
   /**
-   * Request ID, that contains in the service call response.
+   * Request vector, that contains in the service call response.
    */
-  public static final String RESPONSE_REQUEST_ID = "responseRid";
+  public static final String RESPONSE_REQUEST_VECTOR = "responseRV";
 
   /**
    * A name, under which an integer count of something, related to the operation should be known.

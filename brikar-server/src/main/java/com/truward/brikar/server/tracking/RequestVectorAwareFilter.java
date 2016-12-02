@@ -24,7 +24,7 @@ import java.io.IOException;
  *
  * @author Alexander Shabanov
  */
-public class RequestIdAwareFilter extends OncePerRequestFilter {
+public class RequestVectorAwareFilter extends OncePerRequestFilter {
   /**
    * Log Format: operation, method, timeDelta, responseCode, url
    */
@@ -38,19 +38,19 @@ public class RequestIdAwareFilter extends OncePerRequestFilter {
                                   HttpServletResponse response,
                                   FilterChain filterChain) throws ServletException, IOException {
     // get originating request ID and propagate it to the logging context
-    String originatingRequestId = request.getHeader(TrackingHttpHeaderNames.REQUEST_ID);
-    if (!LogUtil.isValidRequestId(originatingRequestId)) {
-      originatingRequestId = null;
+    String originatingRequestVector = request.getHeader(TrackingHttpHeaderNames.REQUEST_VECTOR);
+    if (!LogUtil.isValidRequestVector(originatingRequestVector)) {
+      originatingRequestVector = null;
     }
 
-    if (originatingRequestId == null) {
-      originatingRequestId = IdUtil.getRandomId();
+    if (originatingRequestVector == null) {
+      originatingRequestVector = IdUtil.getRandomId();
     }
 
-    MDC.put(LogUtil.REQUEST_ID, originatingRequestId);
+    MDC.put(LogUtil.REQUEST_VECTOR, originatingRequestVector);
 
     // set headers containing request ID
-    response.setHeader(TrackingHttpHeaderNames.REQUEST_ID, originatingRequestId);
+    response.setHeader(TrackingHttpHeaderNames.REQUEST_VECTOR, originatingRequestVector);
 
     // process request
     if (log.isTraceEnabled()) {
@@ -82,6 +82,6 @@ public class RequestIdAwareFilter extends OncePerRequestFilter {
     }
 
     // remove MDC variables
-    MDC.remove(LogUtil.REQUEST_ID);
+    MDC.remove(LogUtil.REQUEST_VECTOR);
   }
 }

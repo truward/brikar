@@ -21,7 +21,7 @@ public final class RequestLogAwareHttpResponseInterceptor implements HttpRespons
    * Layout: operation={}, timeDelta={}, method={}, responseCode={}, responseRid={}
    */
   private static final String LOG_FMT = LogUtil.LAPSE_HEADING + ", " +
-      LogUtil.VERB + "={}, " + LogUtil.RESPONSE_CODE + "={}, " + LogUtil.RESPONSE_REQUEST_ID + "={}";
+      LogUtil.VERB + "={}, " + LogUtil.RESPONSE_CODE + "={}, " + LogUtil.RESPONSE_REQUEST_VECTOR + "={}";
 
   private final Logger log;
 
@@ -43,21 +43,21 @@ public final class RequestLogAwareHttpResponseInterceptor implements HttpRespons
     }
 
     // get and validate request ID
-    final Header header = response.getLastHeader(TrackingHttpHeaderNames.REQUEST_ID);
-    String responseRequestId = LogUtil.UNKNOWN_VALUE;
+    final Header header = response.getLastHeader(TrackingHttpHeaderNames.REQUEST_VECTOR);
+    String responseRequestVector = LogUtil.UNKNOWN_VALUE;
     if (header != null) {
       final String val = header.getValue();
-      if (LogUtil.isValidRequestId(val)) {
-        responseRequestId = val;
+      if (LogUtil.isValidRequestVector(val)) {
+        responseRequestVector = val;
       }
     }
 
     final int code = response.getStatusLine().getStatusCode();
 
     if (code >= 200 && code < 300) {
-      log.info(LOG_FMT, uri, timeDelta, method, code, responseRequestId);
+      log.info(LOG_FMT, uri, timeDelta, method, code, responseRequestVector);
     } else {
-      log.warn(LOG_FMT, uri, timeDelta, method, code, responseRequestId);
+      log.warn(LOG_FMT, uri, timeDelta, method, code, responseRequestVector);
     }
   }
 }

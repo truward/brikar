@@ -29,7 +29,7 @@ public final class LineParsingTest {
 
   private static final String MSG5 = "2015-07-24 23:22:20,748 INFO learn.LogProducerMain " +
       "rid=KhnHxNK/BbLbaiH4 " +
-      "[learn.LogProducerMain.main()] @metric tDelta=545, op=UserService.getUserById";
+      "[learn.LogProducerMain.main()] @metric1 tDelta=545, op=UserService.getUserById";
 
   private final LogMessageProcessor processor = new LogMessageProcessor();
 

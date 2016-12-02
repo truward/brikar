@@ -39,22 +39,22 @@ public final class LogUtilTest {
   }
 
   @Test
-  public void shouldVerifyRequestId() {
-    assertTrue(LogUtil.isValidRequestId("1"));
-    assertTrue(LogUtil.isValidRequestId(
+  public void shouldVerifyRequestVector() {
+    assertTrue(LogUtil.isValidRequestVector("1"));
+    assertTrue(LogUtil.isValidRequestVector(
         "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"));
-    assertFalse(LogUtil.isValidRequestId(null));
-    assertFalse(LogUtil.isValidRequestId(""));
-    assertFalse(LogUtil.isValidRequestId(" "));
-    assertFalse(LogUtil.isValidRequestId(" 1"));
-    assertFalse(LogUtil.isValidRequestId("1 "));
+    assertFalse(LogUtil.isValidRequestVector(null));
+    assertFalse(LogUtil.isValidRequestVector(""));
+    assertFalse(LogUtil.isValidRequestVector(" "));
+    assertFalse(LogUtil.isValidRequestVector(" 1"));
+    assertFalse(LogUtil.isValidRequestVector("1 "));
 
     // huge request IDs should be discarded
-    final int hugeRequestIdLength = LogUtil.MAX_REQUEST_ID_LENGTH + 1;
-    final StringBuilder hugeRequestIdBuilder = new StringBuilder(hugeRequestIdLength);
-    for (int i = 0; i < hugeRequestIdLength; ++i) {
-      hugeRequestIdBuilder.append('1');
+    final int hugeRequestVectorLength = LogUtil.MAX_REQUEST_VECTOR_LENGTH + 1;
+    final StringBuilder hugeRequestVectorBuilder = new StringBuilder(hugeRequestVectorLength);
+    for (int i = 0; i < hugeRequestVectorLength; ++i) {
+      hugeRequestVectorBuilder.append('1');
     }
-    assertFalse(LogUtil.isValidRequestId(hugeRequestIdBuilder.toString()));
+    assertFalse(LogUtil.isValidRequestVector(hugeRequestVectorBuilder.toString()));
   }
 }

@@ -183,13 +183,13 @@ public final class RestOperationsFactory implements DisposableBean, AutoCloseabl
     builder.setRetryHandler(retryHandler);
   }
 
-  protected void initRequestIdOperations(@Nonnull HttpClientBuilder builder) {
+  protected void initRequestVectorOperations(@Nonnull HttpClientBuilder builder) {
     builder.addInterceptorLast(new RequestLogAwareHttpRequestInterceptor());
     builder.addInterceptorLast(new RequestLogAwareHttpResponseInterceptor(log));
   }
 
   protected void initDefaultHttpClientBuilder(@Nonnull HttpClientBuilder builder) {
-    initRequestIdOperations(builder);
+    initRequestVectorOperations(builder);
     initTimings(builder);
     initCredentialsProvider(builder);
     initRetryHandler(builder);

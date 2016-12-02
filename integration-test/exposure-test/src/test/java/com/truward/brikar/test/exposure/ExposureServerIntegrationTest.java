@@ -4,19 +4,16 @@ import com.truward.brikar.client.rest.RestOperationsFactory;
 import com.truward.brikar.client.rest.ServiceClientCredentials;
 import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.common.tracking.TrackingHttpHeaderNames;
-import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
 import com.truward.brikar.protobuf.http.json.ProtobufJsonHttpMessageConverter;
 import com.truward.brikar.server.auth.SimpleServiceUser;
 import com.truward.brikar.test.exposure.model.ExposureModel;
 import com.truward.brikar.test.exposure.service.ExposureRestService;
-import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestOperations;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.Nullable;
@@ -55,8 +52,8 @@ public final class ExposureServerIntegrationTest extends AbstractServerIntegrati
 
       final RestOperations ro = rof.getRestOperations();
 
-      final String requestId = TrackingHttpHeaderNames.getNestedRequestId("sample", 1);
-      MDC.put(LogUtil.REQUEST_ID, requestId);
+      final String requestVector = TrackingHttpHeaderNames.getNestedRequestVector("sample", 1);
+      MDC.put(LogUtil.REQUEST_VECTOR, requestVector);
       final URI uri = UriComponentsBuilder.fromUri(baseUri)
           .pathSegment("exposure")
           .pathSegment("greet")
@@ -69,13 +66,13 @@ public final class ExposureServerIntegrationTest extends AbstractServerIntegrati
           ExposureModel.HelloResponse.class);
 
       final HttpHeaders headers = responseEntity.getHeaders();
-      final List<String> rids = headers.get(TrackingHttpHeaderNames.REQUEST_ID);
+      final List<String> rids = headers.get(TrackingHttpHeaderNames.REQUEST_VECTOR);
       assertEquals(1, rids.size());
 
       final ExposureModel.HelloResponse resp = responseEntity.getBody();
       assertEquals("Hello, USER of type SAMPLE in mode TEST", resp.getGreeting());
 
-      MDC.remove(LogUtil.REQUEST_ID);
+      MDC.remove(LogUtil.REQUEST_VECTOR);
 
       // verify with generated client wrapper
       final ExposureRestService exposureRestService = newClient(ExposureRestService.class, rof, "/api/test");

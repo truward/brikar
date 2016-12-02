@@ -1,7 +1,11 @@
 
 # 1.7.30 (PLANNED)
 
-(TBD)
+* @metric renamed to @metric1 to allow future extensions.
+* Request ID to Request Vector renaming:
+  * RequestIdAwareFilter renamed to RequestVectorAwareFilter
+  * Request-ID header has been renamed to RV
+  * rid logger name has been renamed to RV
 
 # 1.7.29
 
