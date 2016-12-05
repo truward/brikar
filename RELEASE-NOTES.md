@@ -1,5 +1,9 @@
 
-# 1.8.30 (PLANNED)
+# 1.8.31 (PLANNED)
+
+TBD
+
+# 1.8.30
 
 * Adoping OneAPI error response as described in '7.10.2' chapter in [REST API Guidelines](https://github.com/Microsoft/api-guidelines/blob/master/Guidelines.md)
   * Also adding brikar-error-response-parser module with helper class for parsing error response from spring web client's HttpStatusCodeException
