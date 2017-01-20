@@ -1,7 +1,7 @@
 
 # 1.8.31 (PLANNED)
 
-* Adding support for chaining metricss
+* Adding support for chaining metrics
 * Upgrading slf4j to ver. 1.7.22
 * Upgrading Spring to ver. 4.3.5.RELEASE
 * Upgrading Spring Security to ver. 4.2.1.RELEASE
