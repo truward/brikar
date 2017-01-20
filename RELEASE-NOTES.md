@@ -1,5 +1,7 @@
 
-# 1.8.32 (PLANNED)
+# 1.8.33 (PLANNED)
+
+# 1.8.32
 
 * Avoid adding default message converters in RestTemplate created in RestOperationFactory
 * Upgrading protobuf-jackson to ver. 1.0.3
