@@ -1,6 +1,9 @@
 
 # 1.8.32 (PLANNED)
 
+* Avoid adding default message converters in RestTemplate created in RestOperationFactory
+* Upgrading protobuf-jackson to ver. 1.0.3
+
 # 1.8.31
 
 * Adding support for chaining metrics

@@ -13,9 +13,12 @@
   <!-- Annotation driven support for MVC controllers -->
   <mvc:annotation-driven>
     <!-- custom marshallers -->
-    <mvc:message-converters>
+    <mvc:message-converters register-defaults="false">
       <bean class="com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter" />
       <bean class="com.truward.brikar.protobuf.http.json.ProtobufJsonHttpMessageConverter" />
+
+      <!-- Add String message converter (required for healthcheck controller) -->
+      <bean class="org.springframework.http.converter.StringHttpMessageConverter" />
     </mvc:message-converters>
   </mvc:annotation-driven>
 </beans>

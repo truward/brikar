@@ -133,8 +133,8 @@ public final class RestOperationsFactory implements DisposableBean, AutoCloseabl
     initDefaultHttpClientBuilder(builder);
 
     httpRequestFactory = new HttpComponentsClientHttpRequestFactory(builder.build());
-    final RestTemplate restTemplate = new RestTemplate(httpRequestFactory);
-    initRestTemplate(restTemplate);
+    final RestTemplate restTemplate = new RestTemplate(messageConverters);
+    restTemplate.setRequestFactory(httpRequestFactory);
     return restTemplate;
   }
 
@@ -193,9 +193,5 @@ public final class RestOperationsFactory implements DisposableBean, AutoCloseabl
     initTimings(builder);
     initCredentialsProvider(builder);
     initRetryHandler(builder);
-  }
-
-  protected void initRestTemplate(@Nonnull RestTemplate restTemplate) {
-    restTemplate.setMessageConverters(messageConverters);
   }
 }
