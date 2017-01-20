@@ -68,13 +68,13 @@
 
   <properties>
     <!-- logging -->
-    <slf4j.version>1.7.21</slf4j.version>
+    <slf4j.version>1.7.22</slf4j.version>
     <commons-logging.version>1.1.1</commons-logging.version>
 
     <jetty.version>8.1.19.v20160209</jetty.version>
 
-    <spring.version>4.3.0.RELEASE</spring.version>
-    <spring-security.version>4.1.0.RELEASE</spring-security.version>
+    <spring.version>4.3.5.RELEASE</spring.version>
+    <spring-security.version>4.2.1.RELEASE</spring-security.version>
 
     <!--  compiler settings -->
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -147,7 +147,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.1.2</version>
+        <version>1.1.8</version>
       </dependency>
       <!-- No commons logging -->
       <dependency>
@@ -183,7 +183,7 @@
       <dependency>
         <groupId>com.google.code.findbugs</groupId>
         <artifactId>jsr305</artifactId>
-        <version>1.3.9</version>
+        <version>3.0.1</version>
       </dependency>
 
       <!-- Jetty -->
@@ -212,7 +212,7 @@
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
-        <version>4.4.1</version>
+        <version>4.5.2</version>
       </dependency>
 
       <!-- Spring -->

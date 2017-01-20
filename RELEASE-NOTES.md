@@ -1,14 +1,22 @@
 
 # 1.8.31 (PLANNED)
 
-TBD
+* Adding support for chaining metricss
+* Upgrading slf4j to ver. 1.7.22
+* Upgrading Spring to ver. 4.3.5.RELEASE
+* Upgrading Spring Security to ver. 4.2.1.RELEASE
+* Upgrading httpcore to ver. 4.4.5
+* Upgrading httpclient to ver. 4.5.2
+* Upgrading jsr305 (com.google.code.findbugs) to ver. 3.0.1
+* Upgrading logback-classic to ver. 1.1.8
+* Bugfix: proper @Nonnull/@Nullable handling in StandardRestServiceBinder
 
 # 1.8.30
 
 * Adoping OneAPI error response as described in '7.10.2' chapter in [REST API Guidelines](https://github.com/Microsoft/api-guidelines/blob/master/Guidelines.md)
   * Also adding brikar-error-response-parser module with helper class for parsing error response from spring web client's HttpStatusCodeException
 * Making Java 8 as a requirement (primarily to enable use of mixins)
-* @metric renamed to @metric1 to allow future extensions.
+* @metrics renamed to @metric1 to allow future extensions.
 * Request ID to Request Vector renaming:
   * RequestIdAwareFilter renamed to RequestVectorAwareFilter
   * Request-ID header has been renamed to RV
@@ -23,7 +31,7 @@ TBD
 * RequestIdAwareFilter now logs combination of HTTP method + URL pattern as operation name
   instead of full operation to allow tools. So, for example, for HTTP request like 'GET /user/1/order/2' the
   following pattern might be recorded in request logs: 'GET_/user/{userId}/order/{orderId}'
-  to build metrics for RESTful operations.
+  to build metricss for RESTful operations.
 * Aliasing logger in RequestIdAwareFilter as 'BrikarRestLogger' for consistency with REST client.
 * Changing default '/rest' prefix to '/api'.
 * Migrating to protobuf 3.1.0

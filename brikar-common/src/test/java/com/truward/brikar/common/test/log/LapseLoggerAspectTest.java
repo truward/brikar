@@ -1,6 +1,9 @@
 package com.truward.brikar.common.test.log;
 
 import com.truward.brikar.common.log.LogLapse;
+import com.truward.brikar.common.log.LogUtil;
+import com.truward.brikar.common.log.lapse.SimpleLapse;
+import com.truward.brikar.common.log.metric.MetricsCollection;
 import com.truward.brikar.common.test.util.TestLoggerProvider;
 import com.truward.brikar.common.time.TimeSource;
 import org.junit.Before;
@@ -53,7 +56,7 @@ public final class LapseLoggerAspectTest {
     // Then:
     assertEquals(3, result);
     final String logContent = loggerProvider.getRawLogContents();
-    assertTrue(logContent.contains("@metric1 op=CalcService.plus, tDelta=200" + sep));
+    assertTrue(logContent.endsWith("@metric1 op=CalcService.plus, tStart=1000, tDelta=200" + sep));
   }
 
   @Test
@@ -74,7 +77,7 @@ public final class LapseLoggerAspectTest {
 
     // Then:
     final String logContent = loggerProvider.getRawLogContents();
-    assertTrue(logContent.contains("@metric1 op=CalcService.plus, tDelta=1, failed=true" + sep));
+    assertTrue(logContent.endsWith("@metric1 op=CalcService.plus, tStart=1000, tDelta=1, failed=true" + sep));
   }
 
   @Test
@@ -104,6 +107,31 @@ public final class LapseLoggerAspectTest {
     // Then:
     final String logContent = loggerProvider.getRawLogContents();
     assertTrue(logContent.contains("op=CalcService.foo"));
+  }
+
+  @Test
+  public void shouldChainMetrics() {
+    // Given:
+    when(timeSource.currentTime())
+        .thenReturn(1000L) // 1st time
+        .thenReturn(1200L); // 2nd time
+    when(mockCalcService.add(1, 2)).thenReturn(3);
+
+    // When:
+    final MetricsCollection metricsCollection = LogUtil.getOrCreateLocalMetricsCollection();
+    metricsCollection.add(new SimpleLapse().setOperation("TopLevel")
+        .setStartTime(900)
+        .setEndTime(1300));
+
+    final int result = realCalcService.add(1, 2);
+
+    LogUtil.logAndResetLocalMetricsCollection(loggerProvider.getLogger());
+
+    // Then:
+    assertEquals(3, result);
+    final String logContent = loggerProvider.getRawLogContents();
+    assertTrue(logContent.endsWith("@metric1 op=TopLevel, tStart=900, tDelta=400" + sep +
+        "\top=CalcService.plus, tStart=1000, tDelta=200" + sep));
   }
 
 

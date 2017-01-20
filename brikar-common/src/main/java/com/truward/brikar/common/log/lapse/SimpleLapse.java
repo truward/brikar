@@ -1,11 +1,11 @@
 package com.truward.brikar.common.log.lapse;
 
 import com.truward.brikar.common.log.LogUtil;
+import com.truward.brikar.common.log.metric.Metrics;
 import com.truward.brikar.common.time.TimeSource;
-import org.springframework.util.Assert;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
+import java.io.IOException;
 
 /**
  * @author Alexander Shabanov
@@ -16,35 +16,44 @@ public final class SimpleLapse implements Lapse {
   private long timeDelta = -1L;
   private boolean failed;
 
-  public void setOperation(@Nonnull String value) {
+  public SimpleLapse setOperation(@Nonnull String value) {
     this.operation = value;
+    return this;
   }
 
-  public void setStartTime(long timeMillis) {
+  public SimpleLapse setStartTime(long timeMillis) {
     this.startTime = timeMillis;
+    return this;
   }
 
-  public void setStartTime(@Nonnull TimeSource timeSource) {
-    setStartTime(timeSource.getTimeUnit().toMillis(timeSource.currentTime()));
+  public SimpleLapse setStartTime(@Nonnull TimeSource timeSource) {
+    return setStartTime(timeSource.getTimeUnit().toMillis(timeSource.currentTime()));
   }
 
-  public void setTimeDelta(long timeMillis) {
+  public SimpleLapse setTimeDelta(long timeMillis) {
     this.timeDelta = timeMillis;
+    return this;
   }
 
-  public void setEndTime(long timeMillis) {
+  public SimpleLapse setEndTime(long timeMillis) {
     if (startTime < 0) {
       throw new IllegalStateException("endTime can be set if and only if startTime has been set before");
     }
-    setTimeDelta(timeMillis - startTime);
+    return setTimeDelta(timeMillis - startTime);
   }
 
-  public void setEndTime(@Nonnull TimeSource timeSource) {
-    setEndTime(timeSource.getTimeUnit().toMillis(timeSource.currentTime()));
+  public SimpleLapse setEndTime(@Nonnull TimeSource timeSource) {
+    return setEndTime(timeSource.getTimeUnit().toMillis(timeSource.currentTime()));
   }
 
-  public void setFailed(boolean failed) {
+  public SimpleLapse setFailed(boolean failed) {
     this.failed = failed;
+    return this;
+  }
+
+  @Override
+  public long getStartTime() {
+    return startTime;
   }
 
   @Nonnull
@@ -61,5 +70,13 @@ public final class SimpleLapse implements Lapse {
   @Override
   public boolean isFailed() {
     return failed;
+  }
+
+  @Override
+  public void appendTo(@Nonnull Appendable appendable) throws IOException {
+    Metrics.appendValue(appendable, false, LogUtil.OPERATION, getOperation());
+    Metrics.appendPositiveValueOrSkip(appendable, true, LogUtil.START_TIME, getStartTime());
+    Metrics.appendPositiveValueOrSkip(appendable, true, LogUtil.TIME_DELTA, getTimeDeltaMillis());
+    Metrics.appendTrueValueOrSkip(appendable, true, LogUtil.FAILED, isFailed());
   }
 }

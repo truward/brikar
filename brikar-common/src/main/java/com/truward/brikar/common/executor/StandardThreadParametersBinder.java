@@ -1,6 +1,7 @@
 package com.truward.brikar.common.executor;
 
 import com.truward.brikar.common.log.LogUtil;
+import com.truward.brikar.common.log.metric.MetricsCollection;
 import org.slf4j.MDC;
 
 /**
@@ -32,6 +33,31 @@ public enum StandardThreadParametersBinder implements ThreadParametersBinder {
       }
 
       MDC.remove(LogUtil.REQUEST_VECTOR);
+    }
+  },
+
+  METRICS_COLLECTION {
+    @Override
+    public Object getLocalObject() {
+      return LogUtil.getLocalMetricsCollection();
+    }
+
+    @Override
+    public void setLocalObject(Object tag) {
+      if (tag == null) {
+        return;
+      }
+
+      LogUtil.setLocalMetricsCollection((MetricsCollection) tag);
+    }
+
+    @Override
+    public void unsetLocalObject(Object tag) {
+      if (tag == null) {
+        return;
+      }
+
+      LogUtil.setLocalMetricsCollection(null);
     }
   }
 }

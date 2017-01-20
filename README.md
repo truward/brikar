@@ -20,7 +20,7 @@ Brikar also offers:
 * Standardized logging
 * Optional spring security configuration
 * Simple service authentication
-* Emitting metrics to logs
+* Emitting metricss to logs
 * Tracking request IDs - associating unique request-specific ID with every message in the logs that correspond
 to particular request
 * Retries with backoff (for generated clients)
@@ -103,7 +103,7 @@ it can be started using configuration file given above as ``java -jar service.ja
 Brikar comes with pre-configured logging (slf4j+logback). See also ``default-service-logback.xml``.
 
 Metrics are necessary to capture information on how application processed particular request.
-That metric-specific information usually has the following attributes:
+That metrics-specific information usually has the following attributes:
 
 * Operation name. This is used to associate the particular place in code with business procedure.
 It can be a class and method names combined if such processing is encapsulated in the particular method, or it can
@@ -111,7 +111,7 @@ match an exposed REST API URL.
 * Time, to do the corresponding data processing, for example how much time it took to process an HTTP request.
 * Various extra parameters, such as whether or not operation succeeded, HTTP method name for capturing RESTful operations behavior, etc.
 
-Examples of request-response-related metrics (both client and server):
+Examples of request-response-related metricss (both client and server):
 
 ```
 2016-11-18 08:20:45,368 INFO BrikarRequestLogger RV=O1jah9BuYnSbiV [qtp728162039-20] @metric1 op=POST_/api/test/exposure/greet, verb=POST, tDelta=1, responseCode=200, url=/test/exposure/greet
@@ -120,6 +120,6 @@ Examples of request-response-related metrics (both client and server):
 2016-11-18 08:20:45,377 WARN BrikarRestClient  [main] @metric1 op=/api/test/exposure/greet, tDelta=8, verb=POST, responseCode=400, responseRV=7qjJwmY7W/kxf4
 ```
 
-Each line contains specifically formatted metric entry.
+Each line contains specifically formatted metrics entry.
 
-For example ``@metric op=/test/exposure/greet, tDelta=9`` line means that service invocation of ``/test/exposure/greet`` took ``9`` milliseconds.
+For example ``@metrics op=/test/exposure/greet, tDelta=9`` line means that service invocation of ``/test/exposure/greet`` took ``9`` milliseconds.

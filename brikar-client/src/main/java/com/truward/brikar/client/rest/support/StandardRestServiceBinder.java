@@ -67,12 +67,7 @@ public class StandardRestServiceBinder implements RestServiceBinder {
                                                              @Nonnull String serviceBaseUrl) {
     // toString+hashCode+equals
     if (method.getName().equals("toString") && method.getParameterTypes().length == 0) {
-      return new MethodInvocationHandler() {
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-          return clazz.getSimpleName();
-        }
-      };
+      return (proxy, method1, args) -> clazz.getSimpleName();
     } else if (method.getName().equals("hashCode") && method.getParameterTypes().length == 0) {
       return new MethodInvocationHandler() {
         @Override
@@ -82,12 +77,7 @@ public class StandardRestServiceBinder implements RestServiceBinder {
       };
     } else if (method.getName().equals("equals") && method.getParameterTypes().length == 1 &&
         method.getParameterTypes()[0] == Object.class) {
-      return new MethodInvocationHandler() {
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-          return proxy == args[0];
-        }
-      };
+      return (proxy, method12, args) -> proxy == args[0];
     }
 
     return createRequestMappingHandler(method, serviceBaseUrl);
@@ -278,7 +268,7 @@ public class StandardRestServiceBinder implements RestServiceBinder {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, @Nullable Object[] args) throws Throwable {
       final URI uri = uriExtractor.extract(args);
       final Object body = bodyExtractor.extract(args);
 
@@ -304,7 +294,7 @@ public class StandardRestServiceBinder implements RestServiceBinder {
 
   interface RequestBodyExtractor {
     @Nullable
-    Object extract(@Nonnull Object[] arguments);
+    Object extract(@Nullable Object[] arguments);
   }
 
   private static final class PostRequestBodyExtractor implements RequestBodyExtractor {
@@ -316,8 +306,8 @@ public class StandardRestServiceBinder implements RestServiceBinder {
 
     @Nullable
     @Override
-    public Object extract(@Nonnull Object[] arguments) {
-      if (arguments.length != 1) {
+    public Object extract(@Nullable Object[] arguments) {
+      if (arguments == null || arguments.length != 1) {
         throw new IllegalStateException("Exactly one argument expected for methods that are not " +
             "annotated with RequestMapping annotation");
       }
@@ -330,7 +320,7 @@ public class StandardRestServiceBinder implements RestServiceBinder {
 
     @Nullable
     @Override
-    public Object extract(@Nonnull Object[] arguments) {
+    public Object extract(@Nullable Object[] arguments) {
       return null;
     }
   }
@@ -344,7 +334,11 @@ public class StandardRestServiceBinder implements RestServiceBinder {
 
     @Nullable
     @Override
-    public Object extract(@Nonnull Object[] arguments) {
+    public Object extract(@Nullable Object[] arguments) {
+      if (arguments == null || argPos >= arguments.length) {
+        // should never happen as we check positional arguments before constructing this object
+        throw new IllegalStateException("Unexpected arguments: too few given");
+      }
       return arguments[argPos];
     }
   }
@@ -355,7 +349,7 @@ public class StandardRestServiceBinder implements RestServiceBinder {
 
   interface UriExtractor {
     @Nonnull
-    URI extract(@Nonnull Object[] arguments);
+    URI extract(@Nullable Object[] arguments);
   }
 
   private static abstract class AbstractUriExtractor implements UriExtractor {
@@ -376,7 +370,7 @@ public class StandardRestServiceBinder implements RestServiceBinder {
 
     @Nonnull
     @Override
-    public URI extract(@Nonnull Object[] arguments) {
+    public URI extract(@Nullable Object[] arguments) {
       // suppressed to have StringBuilder with estimated length
       //noinspection StringBufferReplaceableByString
       final StringBuilder builder = new StringBuilder(1 + baseUrl.length() + methodName.length());
@@ -393,7 +387,7 @@ public class StandardRestServiceBinder implements RestServiceBinder {
 
     @Nonnull
     @Override
-    public URI extract(@Nonnull Object[] arguments) {
+    public URI extract(@Nullable Object[] arguments) {
       try {
         return new URI(baseUrl);
       } catch (URISyntaxException e) {
@@ -412,12 +406,23 @@ public class StandardRestServiceBinder implements RestServiceBinder {
 
     @Nonnull
     @Override
-    public URI extract(@Nonnull Object[] arguments) {
+    public URI extract(@Nullable Object[] arguments) {
       final UriTemplate uriTemplate = new UriTemplate(baseUrl);
+
+      if (variables.length == 0) {
+        return uriTemplate.expand();
+      }
+
+      if (arguments == null || arguments.length != variables.length) {
+        // should never happen
+        throw new IllegalStateException("Unexpected: too few arguments given");
+      }
+
       final Map<String, Object> params = new HashMap<>(variables.length * 2);
       for (final PosNamePair pair : variables) {
         params.put(pair.argName, arguments[pair.argPos]);
       }
+
       return uriTemplate.expand(params);
     }
   }

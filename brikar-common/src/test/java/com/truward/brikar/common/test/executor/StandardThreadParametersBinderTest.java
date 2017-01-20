@@ -12,6 +12,7 @@ import org.slf4j.MDC;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -35,7 +36,9 @@ public final class StandardThreadParametersBinderTest {
 
     this.taskExecutor = new ThreadLocalPropagatingTaskExecutor(
         new SimpleAsyncTaskExecutor("StandardThreadParametersBinderTest-thread"),
-        Collections.singletonList(StandardThreadParametersBinder.REQUEST_VECTOR));
+        Arrays.asList(
+            StandardThreadParametersBinder.REQUEST_VECTOR,
+            StandardThreadParametersBinder.METRICS_COLLECTION));
 
     MDC.clear(); // clear all parameters
   }

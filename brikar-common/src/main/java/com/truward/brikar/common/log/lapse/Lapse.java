@@ -1,5 +1,7 @@
 package com.truward.brikar.common.log.lapse;
 
+import com.truward.brikar.common.log.metric.Metrics;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -11,13 +13,18 @@ import javax.annotation.Nonnull;
  *
  * @author Alexander Shabanov
  */
-public interface Lapse {
+public interface Lapse extends Metrics {
 
   /**
    * @return Code, associated with a function call. Usually an interface name concatenated with method name
    */
   @Nonnull
   String getOperation();
+
+  /**
+   * @return Operation start time, in millisecond, may be omitted in which case this value will be negative
+   */
+  long getStartTime();
 
   /**
    * @return Time in millisecond, which was needed to make a particular service call

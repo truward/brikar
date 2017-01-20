@@ -1,6 +1,9 @@
 package com.truward.brikar.common.log;
 
 import com.truward.brikar.common.log.lapse.Lapse;
+import com.truward.brikar.common.log.metric.Metrics;
+import com.truward.brikar.common.log.metric.MetricsCollection;
+import com.truward.brikar.common.log.metric.StandardMetricsCollection;
 import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
@@ -20,7 +23,7 @@ import javax.annotation.Nullable;
  * Each log record may contain none or exactly one metric entry which should be the last one in log message.
  * It is completely up to the developer to define semantics behind metric attributes, but general convention is as
  * follows:
- * Metric may contain:
+ * Metrics may contain:
  * <ul>
  *   <li>Operation name</li>
  *   <li>Optional time delta (how much time this operation took, in milliseconds)</li>
@@ -54,10 +57,65 @@ public final class LogUtil {
    */
   public static final String REQUEST_VECTOR = "RV";
 
+  public static final ThreadLocal<MetricsCollection> METRICS_COLLECTION = new ThreadLocal<>();
+
   /**
    * Maximum size of request vector.
    */
   public static final int MAX_REQUEST_VECTOR_LENGTH = 4096;
+
+  @Nullable
+  public static MetricsCollection getLocalMetricsCollection() {
+    return METRICS_COLLECTION.get();
+  }
+
+  @Nonnull
+  public static MetricsCollection getOrCreateLocalMetricsCollection() {
+    MetricsCollection result = getLocalMetricsCollection();
+    if (result == null) {
+      result = new StandardMetricsCollection();
+      setLocalMetricsCollection(result);
+    }
+    return result;
+  }
+
+  public static void setLocalMetricsCollection(@Nullable MetricsCollection value) {
+    METRICS_COLLECTION.set(value);
+  }
+
+  public static void logInfo(@Nonnull Metrics metrics, @Nonnull Logger log) {
+    final MetricsCollection metricsCollection = new StandardMetricsCollection();
+    metricsCollection.add(metrics);
+    log.info(metricsCollection.toString());
+  }
+
+  public static void logInfo(@Nonnull MetricsCollection metricsCollection, @Nonnull Logger log) {
+    log.info(metricsCollection.toString());
+  }
+
+  public static void logAndResetLocalMetricsCollection(@Nonnull Logger log) {
+    final MetricsCollection metricsCollection = getLocalMetricsCollection();
+    if (metricsCollection != null) {
+      logInfo(metricsCollection, log);
+      setLocalMetricsCollection(null);
+    }
+  }
+
+  /**
+   * Propagates metrics entry to the local metrics collection or (if unavailable) logs immediately
+   *
+   * @param metrics Metrics object to log
+   * @param log Target logger to use if local metrics collection is not available
+   */
+  public static void propagateOrLogInfo(@Nonnull Metrics metrics, @Nonnull Logger log) {
+    final MetricsCollection metricsCollection = getLocalMetricsCollection();
+    if (metricsCollection == null) {
+      logInfo(metrics, log);
+      return;
+    }
+
+    metricsCollection.add(metrics);
+  }
 
   /**
    * Validates, that passed request vector is valid. This function is used to prevent the potential attacker to send
@@ -102,6 +160,30 @@ public final class LogUtil {
   public static final String OPERATION = "op";
 
   /**
+   * A name, under which an integer count of something, related to the operation should be known.
+   * For example, if operation is to measure used/free memory ratio, this field should contain percentage.
+   */
+  public static final String COUNT = "cnt";
+
+  /**
+   * A name of the attribute, corresponding to operation start time (unix time, in milliseconds).
+   * Usually recorded as one of the metric attributes.
+   */
+  public static final String START_TIME = "tStart";
+
+  /**
+   * A name of the attribute, corresponding to time spent (in milliseconds).
+   * Usually recorded as one of the metric attributes.
+   */
+  public static final String TIME_DELTA = "tDelta";
+
+  /**
+   * A name of an optional attribute which indicates whether or not operation failed.
+   * Usually recorded as one of the metric attributes.
+   */
+  public static final String FAILED = "failed";
+
+  /**
    * HTTP method (invocation type)
    */
   public static final String VERB = "verb";
@@ -122,24 +204,6 @@ public final class LogUtil {
   public static final String RESPONSE_REQUEST_VECTOR = "responseRV";
 
   /**
-   * A name, under which an integer count of something, related to the operation should be known.
-   * For example, if operation is to measure used/free memory ratio, this field should contain percentage.
-   */
-  public static final String COUNT = "cnt";
-
-  /**
-   * A name, under which a time should be known.
-   * Usually recorded as one of the metric attributes.
-   */
-  public static final String TIME_DELTA = "tDelta";
-
-  /**
-   * A name of an optional attribute which indicates whether or not operation failed.
-   * Usually recorded as one of the metric attributes.
-   */
-  public static final String FAILED = "failed";
-
-  /**
    * Value for entry that should be used if corresponding value is omitted.
    */
   public static final String UNKNOWN_VALUE = "?";
@@ -149,20 +213,26 @@ public final class LogUtil {
   // Helper methods
   //
 
+  // use Metrics-related methods
+  @Deprecated
   public static void writeLapse(@Nonnull Logger log, @Nonnull String operation, long timeDeltaMillis, boolean failed) {
     log.info(failed ? SHORT_FAILED_LAPSE_FORMAT : SHORT_LAPSE_FORMAT, encodeString(operation), timeDeltaMillis);
   }
 
+  // use Metrics-related methods
+  @Deprecated
   public static void writeLapse(@Nonnull Logger log, @Nonnull Lapse lapse) {
     writeLapse(log, lapse.getOperation(), lapse.getTimeDeltaMillis(), lapse.isFailed());
   }
 
+  // use Metrics-related methods
+  @Deprecated
   public static void writeCount(@Nonnull Logger log, @Nonnull String operationName, int count) {
     log.info(COUNT_METRIC_HEADING, encodeString(operationName), count);
   }
 
   /**
-   * encodes a value, so that it won't contain spaces, commas and equal signs.
+   * Encodes a value, so that it won't contain spaces, commas and equal signs.
    *
    * @param value Value to be encoded
    * @return Encoded value or same value if passed argument does not contain whitespace, comma or equals sign
@@ -206,17 +276,23 @@ public final class LogUtil {
     return builder.toString();
   }
 
-  //
-  // Private
-  //
-
+  // use Metrics-related methods
+  @Deprecated
   public static final String METRIC_HEADING = METRIC_ENTRY + " " + OPERATION + "={}";
 
+  // use Metrics-related methods
+  @Deprecated
   public static final String COUNT_METRIC_HEADING = METRIC_HEADING + ", " + COUNT + "={}";
 
+  // use Metrics-related methods
+  @Deprecated
   public static final String LAPSE_HEADING = METRIC_HEADING + ", " + TIME_DELTA + "={}";
 
+  // use Metrics-related methods
+  @Deprecated
   public static final String SHORT_LAPSE_FORMAT = LAPSE_HEADING;
 
+  // use Metrics-related methods
+  @Deprecated
   public static final String SHORT_FAILED_LAPSE_FORMAT = LAPSE_HEADING + ", " + FAILED + "=true";
 }

@@ -20,32 +20,32 @@ import java.lang.reflect.Method;
 public abstract class LapseLoggerAspectBase {
 
   protected final Object around(Logger log, ProceedingJoinPoint jp, LogLapse logLapse) throws Throwable {
-    final SimpleLapse regula = new SimpleLapse();
+    final SimpleLapse lapse = new SimpleLapse();
 
-    regula.setStartTime(getTimeSource());
+    lapse.setStartTime(getTimeSource());
 
     String place = logLapse.value();
     if (!StringUtils.hasLength(place)) {
       // no text in annotation value - fallback to signature name
       place = getPlaceFromJoinPoint(jp);
     }
-    regula.setOperation(place);
+    lapse.setOperation(place);
 
     try {
       final Object result = jp.proceed();
 
-      regula.setEndTime(getTimeSource());
-      LogUtil.writeLapse(log, regula);
+      lapse.setEndTime(getTimeSource());
+      lapse.setFailed(false);
 
       return result;
     } catch (Exception e) {
-
       // record end of call time and write lapse
-      regula.setEndTime(getTimeSource());
-      regula.setFailed(true);
-      LogUtil.writeLapse(log, regula);
+      lapse.setEndTime(getTimeSource());
+      lapse.setFailed(true);
 
       throw e;
+    } finally {
+      LogUtil.propagateOrLogInfo(lapse, log);
     }
   }
 
