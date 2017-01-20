@@ -4,7 +4,7 @@
   <parent>
     <artifactId>brikar-protobuf</artifactId>
     <groupId>com.truward.brikar.protobuf</groupId>
-    <version>1.8.32-SNAPSHOT</version>
+    <version>1.8.32</version>
   </parent>
 
   <artifactId>brikar-protobuf-http-bin</artifactId>
