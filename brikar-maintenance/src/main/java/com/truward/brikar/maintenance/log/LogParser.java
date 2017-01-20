@@ -19,27 +19,28 @@ public class LogParser {
 
   public List<LogMessage> parse(InputStream inputStream) throws IOException {
     final List<LogMessage> messages = new ArrayList<>();
+    LogMessage currentMessage = NullLogMessage.INSTANCE;
 
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
       for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-        final LogMessage newMessage = logMessageProcessor.parse(line);
-        final LogMessage oldMessage = messages.isEmpty() ? NullLogMessage.INSTANCE : messages.get(messages.size() - 1);
+        final LogMessage oldMessage = currentMessage;
+        currentMessage = logMessageProcessor.parse(line, currentMessage);
 
-        if (newMessage.isNull()) {
+        if (currentMessage.isNull()) {
           continue; // drop new log message (parse error?)
         }
 
-        if (newMessage.isMultiLinePart()) {
+        if (currentMessage.isMultiLinePart()) {
           if (oldMessage.isMultiLinePart() || oldMessage.isNull()) {
             // old message is null or not present
             continue; // likely a malformed log
           }
 
-          oldMessage.addLine(newMessage.getLogEntry());
+          oldMessage.addLine(currentMessage.getLogEntry());
           continue;
         }
 
-        messages.add(newMessage);
+        messages.add(currentMessage);
       }
     }
 

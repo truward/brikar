@@ -1,6 +1,8 @@
 package com.truward.brikar.server.tracking;
 
 import com.truward.brikar.common.log.LogUtil;
+import com.truward.brikar.common.log.lapse.SimpleLapse;
+import com.truward.brikar.common.log.metric.MetricsCollection;
 import com.truward.brikar.common.tracking.TrackingHttpHeaderNames;
 import com.truward.brikar.server.util.IdUtil;
 import org.slf4j.Logger;
@@ -25,12 +27,6 @@ import java.io.IOException;
  * @author Alexander Shabanov
  */
 public class RequestVectorAwareFilter extends OncePerRequestFilter {
-  /**
-   * Log Format: operation, method, timeDelta, responseCode, url
-   */
-  private static final String OK_LOG_FORMAT = LogUtil.METRIC_HEADING + ", " + LogUtil.VERB + "={}, " +
-      LogUtil.TIME_DELTA + "={}, " + LogUtil.RESPONSE_CODE + "={}, " + LogUtil.URL + "={}";
-
   private final Logger log = LoggerFactory.getLogger("BrikarRequestLogger");
 
   @Override
@@ -53,7 +49,7 @@ public class RequestVectorAwareFilter extends OncePerRequestFilter {
     response.setHeader(TrackingHttpHeaderNames.REQUEST_VECTOR, originatingRequestVector);
 
     // process request
-    if (log.isTraceEnabled()) {
+    if (log.isInfoEnabled()) {
       String pathInfo = request.getPathInfo(); // can be null if request doesn't have path info
       if (pathInfo != null) {
         pathInfo = LogUtil.encodeString(pathInfo);
@@ -61,21 +57,29 @@ public class RequestVectorAwareFilter extends OncePerRequestFilter {
         pathInfo = "";
       }
 
-      long time = System.currentTimeMillis();
+      final SimpleLapse lapse = new SimpleLapse();
+      lapse.setStartTime(System.currentTimeMillis());
+      final MetricsCollection metricsCollection = LogUtil.getOrCreateLocalMetricsCollection();
       try {
         filterChain.doFilter(request, response);
       } finally {
-        time = System.currentTimeMillis() - time;
+        lapse.setEndTime(System.currentTimeMillis());
+
         // This code gets URL pattern associated with the method that handled request
         Object urlPattern = request.getAttribute("org.springframework.web.servlet.HandlerMapping.bestMatchingPattern");
         final String urlOperation = urlPattern != null ? urlPattern.toString() : pathInfo;
-
         final int operationSizeEstimate = request.getMethod().length() + 1 + urlOperation.length();
         @SuppressWarnings("StringBufferReplaceableByString")
         final StringBuilder operation = new StringBuilder(operationSizeEstimate);
         operation.append(request.getMethod()).append('_').append(urlOperation);
 
-        log.info(OK_LOG_FORMAT, operation.toString(), request.getMethod(), time, response.getStatus(), pathInfo);
+        lapse.setOperation(operation.toString());
+        lapse.setProperty(LogUtil.VERB, request.getMethod());
+        lapse.setProperty(LogUtil.RESPONSE_CODE, response.getStatus());
+        lapse.setProperty(LogUtil.URL, pathInfo);
+        metricsCollection.add(lapse);
+
+        LogUtil.logAndResetLocalMetricsCollection(log);
       }
     } else {
       filterChain.doFilter(request, response);

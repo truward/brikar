@@ -3,6 +3,7 @@ package com.truward.brikar.common.test.executor;
 import com.truward.brikar.common.executor.StandardThreadParametersBinder;
 import com.truward.brikar.common.executor.ThreadLocalPropagatingTaskExecutor;
 import com.truward.brikar.common.log.LogUtil;
+import com.truward.brikar.common.log.lapse.SimpleLapse;
 import com.truward.brikar.common.test.util.TestLoggerProvider;
 import org.junit.After;
 import org.junit.Before;
@@ -13,9 +14,7 @@ import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertEquals;
@@ -56,12 +55,11 @@ public final class StandardThreadParametersBinderTest {
 
     // When:
     MDC.put(LogUtil.REQUEST_VECTOR, requestVector);
-    final Future<Integer> future = taskExecutor.submit(new Callable<Integer>() {
-      @Override
-      public Integer call() throws Exception {
-        LogUtil.writeCount(log, "ReturnOne", 1);
-        return 1;
-      }
+    final Future<Integer> future = taskExecutor.submit(() -> {
+      LogUtil.logInfo(new SimpleLapse()
+          .setOperation("ReturnOne")
+          .setCount(1), log);
+      return 1;
     });
 
     // Then:

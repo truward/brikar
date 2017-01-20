@@ -1,6 +1,8 @@
 package com.truward.brikar.maintenance.log;
 
+import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.maintenance.log.message.LogMessage;
+import com.truward.brikar.maintenance.log.message.NullLogMessage;
 import com.truward.brikar.maintenance.log.processor.LogMessageProcessor;
 import org.junit.Test;
 
@@ -35,7 +37,7 @@ public final class LineParsingTest {
 
   @Test
   public void shouldMatchMsg1() {
-    final LogMessage logMessage = processor.parse(MSG1);
+    final LogMessage logMessage = processor.parse(MSG1, NullLogMessage.INSTANCE);
     assertFalse(logMessage.isNull());
     assertEquals(Severity.INFO, logMessage.getSeverity());
     assertEquals(MSG1, logMessage.getLogEntry());
@@ -48,7 +50,7 @@ public final class LineParsingTest {
 
   @Test
   public void shouldMatchMsg2() {
-    final LogMessage logMessage = processor.parse(MSG2);
+    final LogMessage logMessage = processor.parse(MSG2, NullLogMessage.INSTANCE);
     assertFalse(logMessage.isNull());
     assertEquals(Severity.WARN, logMessage.getSeverity());
     assertEquals(MSG2, logMessage.getLogEntry());
@@ -57,7 +59,7 @@ public final class LineParsingTest {
 
   @Test
   public void shouldMatchMsg3() {
-    final LogMessage logMessage = processor.parse(MSG3);
+    final LogMessage logMessage = processor.parse(MSG3, NullLogMessage.INSTANCE);
     assertFalse(logMessage.isNull());
     assertEquals(Severity.ERROR, logMessage.getSeverity());
     assertEquals(MSG3, logMessage.getLogEntry());
@@ -67,7 +69,7 @@ public final class LineParsingTest {
 
   @Test
   public void shouldMatchMsg4() {
-    final LogMessage logMessage = processor.parse(MSG4);
+    final LogMessage logMessage = processor.parse(MSG4, NullLogMessage.INSTANCE);
     assertFalse(logMessage.isNull());
     assertEquals(Severity.ERROR, logMessage.getSeverity());
     assertEquals(MSG4, logMessage.getLogEntry());
@@ -78,13 +80,28 @@ public final class LineParsingTest {
 
   @Test
   public void shouldMatchMsg5() {
-    final LogMessage logMessage = processor.parse(MSG5);
+    final LogMessage logMessage = processor.parse(MSG5, NullLogMessage.INSTANCE);
     assertFalse(logMessage.isNull());
     assertEquals(Severity.INFO, logMessage.getSeverity());
     assertEquals(MSG5, logMessage.getLogEntry());
 
-    assertEquals("UserService.getUserById", logMessage.getAttributes().get("op"));
-    assertEquals(545L, logMessage.getAttributes().get("tDelta"));
+    assertEquals("UserService.getUserById", logMessage.getAttributes().get(LogUtil.OPERATION));
+    assertEquals(545L, logMessage.getAttributes().get(LogUtil.TIME_DELTA));
     assertEquals("KhnHxNK/BbLbaiH4", logMessage.getAttributes().get("rid"));
+  }
+
+  @Test
+  public void shouldMatchMsg5ChainedWithExtraOne() {
+    final LogMessage prevLogMessage = processor.parse(MSG5, NullLogMessage.INSTANCE);
+
+    final String anotherLine = "\top=Another, tStart=1000, tDelta=20";
+    final LogMessage logMessage = processor.parse(anotherLine, prevLogMessage);
+    assertFalse(logMessage.isNull());
+    assertEquals(Severity.INFO, logMessage.getSeverity());
+    assertEquals(Collections.singletonList(anotherLine), logMessage.getLines());
+
+    assertEquals("Another", logMessage.getAttributes().get(LogUtil.OPERATION));
+    assertEquals(20L, logMessage.getAttributes().get(LogUtil.TIME_DELTA));
+    assertEquals(1000L, logMessage.getAttributes().get(LogUtil.START_TIME));
   }
 }

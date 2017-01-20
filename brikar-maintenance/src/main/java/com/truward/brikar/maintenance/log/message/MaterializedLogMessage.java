@@ -1,5 +1,6 @@
 package com.truward.brikar.maintenance.log.message;
 
+import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.maintenance.log.Severity;
 
 import javax.annotation.Nonnull;
@@ -49,6 +50,11 @@ public final class MaterializedLogMessage extends LogMessage {
   @Override
   public void addLine(@Nonnull String value) {
     this.lines.add(value);
+  }
+
+  @Override
+  public boolean hasMetrics() {
+    return this.attributes.containsKey(LogUtil.OPERATION);
   }
 
   public void putAttribute(@Nonnull String key, @Nullable Object value) {

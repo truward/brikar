@@ -49,7 +49,15 @@ public final class LogMessageProcessor {
     this.dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
   }
 
-  public LogMessage parse(String line) {
+  public LogMessage parse(String line, LogMessage previousMessage) {
+    if (previousMessage.hasMetrics() && line.startsWith("\t")) {
+      // special case: this line is a continuation of metrics entry started on the previous line
+      final MaterializedLogMessage logMessage = new MaterializedLogMessage(previousMessage.getUnixTime(),
+          previousMessage.getSeverity(), line);
+      addAttributesFromMetrics(logMessage, line.substring(1));
+      return logMessage;
+    }
+
     final Matcher matcher = RECORD_PATTERN.matcher(line);
     if (!matcher.matches()) {
       return new MultiLinePartLogMessage(line);
@@ -103,6 +111,8 @@ public final class LogMessageProcessor {
       final String key = entry.getKey();
       final Object value;
       if (LogUtil.TIME_DELTA.equals(key)) {
+        value = Long.parseLong(entry.getValue());
+      } else if (LogUtil.START_TIME.equals(key)) {
         value = Long.parseLong(entry.getValue());
       } else if (LogUtil.COUNT.equals(key)) {
         value = Long.parseLong(entry.getValue());

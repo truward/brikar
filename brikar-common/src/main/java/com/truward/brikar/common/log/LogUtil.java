@@ -1,6 +1,5 @@
 package com.truward.brikar.common.log;
 
-import com.truward.brikar.common.log.lapse.Lapse;
 import com.truward.brikar.common.log.metric.Metrics;
 import com.truward.brikar.common.log.metric.MetricsCollection;
 import com.truward.brikar.common.log.metric.StandardMetricsCollection;
@@ -213,24 +212,6 @@ public final class LogUtil {
   // Helper methods
   //
 
-  // use Metrics-related methods
-  @Deprecated
-  public static void writeLapse(@Nonnull Logger log, @Nonnull String operation, long timeDeltaMillis, boolean failed) {
-    log.info(failed ? SHORT_FAILED_LAPSE_FORMAT : SHORT_LAPSE_FORMAT, encodeString(operation), timeDeltaMillis);
-  }
-
-  // use Metrics-related methods
-  @Deprecated
-  public static void writeLapse(@Nonnull Logger log, @Nonnull Lapse lapse) {
-    writeLapse(log, lapse.getOperation(), lapse.getTimeDeltaMillis(), lapse.isFailed());
-  }
-
-  // use Metrics-related methods
-  @Deprecated
-  public static void writeCount(@Nonnull Logger log, @Nonnull String operationName, int count) {
-    log.info(COUNT_METRIC_HEADING, encodeString(operationName), count);
-  }
-
   /**
    * Encodes a value, so that it won't contain spaces, commas and equal signs.
    *
@@ -275,24 +256,4 @@ public final class LogUtil {
 
     return builder.toString();
   }
-
-  // use Metrics-related methods
-  @Deprecated
-  public static final String METRIC_HEADING = METRIC_ENTRY + " " + OPERATION + "={}";
-
-  // use Metrics-related methods
-  @Deprecated
-  public static final String COUNT_METRIC_HEADING = METRIC_HEADING + ", " + COUNT + "={}";
-
-  // use Metrics-related methods
-  @Deprecated
-  public static final String LAPSE_HEADING = METRIC_HEADING + ", " + TIME_DELTA + "={}";
-
-  // use Metrics-related methods
-  @Deprecated
-  public static final String SHORT_LAPSE_FORMAT = LAPSE_HEADING;
-
-  // use Metrics-related methods
-  @Deprecated
-  public static final String SHORT_FAILED_LAPSE_FORMAT = LAPSE_HEADING + ", " + FAILED + "=true";
 }

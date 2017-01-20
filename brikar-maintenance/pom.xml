@@ -30,6 +30,13 @@
       <artifactId>brikar-client</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <!-- Test scope -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
 

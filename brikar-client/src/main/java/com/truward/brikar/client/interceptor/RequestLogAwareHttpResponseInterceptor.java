@@ -1,6 +1,7 @@
 package com.truward.brikar.client.interceptor;
 
 import com.truward.brikar.common.log.LogUtil;
+import com.truward.brikar.common.log.lapse.SimpleLapse;
 import com.truward.brikar.common.tracking.TrackingHttpHeaderNames;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
@@ -17,12 +18,6 @@ import java.io.IOException;
  * @author Alexander Shabanov
  */
 public final class RequestLogAwareHttpResponseInterceptor implements HttpResponseInterceptor {
-  /**
-   * Layout: operation={}, timeDelta={}, method={}, responseCode={}, responseRid={}
-   */
-  private static final String LOG_FMT = LogUtil.LAPSE_HEADING + ", " +
-      LogUtil.VERB + "={}, " + LogUtil.RESPONSE_CODE + "={}, " + LogUtil.RESPONSE_REQUEST_VECTOR + "={}";
-
   private final Logger log;
 
   public RequestLogAwareHttpResponseInterceptor(Logger log) {
@@ -31,15 +26,17 @@ public final class RequestLogAwareHttpResponseInterceptor implements HttpRespons
 
   @Override
   public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
+    final SimpleLapse lapse = new SimpleLapse();
+
     // capture context parameters
-    final String uri = String.valueOf(context.getAttribute(RequestLogAwareHttpRequestInterceptor.ATTR_URI));
-    final String method = String.valueOf(context.getAttribute(RequestLogAwareHttpRequestInterceptor.ATTR_METHOD));
+    lapse.setOperation(String.valueOf(context.getAttribute(RequestLogAwareHttpRequestInterceptor.ATTR_URI)));
+    lapse.setProperty(LogUtil.VERB,
+        String.valueOf(context.getAttribute(RequestLogAwareHttpRequestInterceptor.ATTR_METHOD)));
+
     final Object startTimeObj = context.getAttribute(RequestLogAwareHttpRequestInterceptor.ATTR_START_TIME);
-    final long timeDelta;
     if (startTimeObj instanceof Long) {
-      timeDelta = System.currentTimeMillis() - (Long) startTimeObj;
-    } else {
-      timeDelta = -1L; // should never happen
+      lapse.setEndTime(System.currentTimeMillis());
+      lapse.setStartTime((Long) startTimeObj);
     }
 
     // get and validate request ID
@@ -53,11 +50,9 @@ public final class RequestLogAwareHttpResponseInterceptor implements HttpRespons
     }
 
     final int code = response.getStatusLine().getStatusCode();
+    lapse.setProperty(LogUtil.RESPONSE_CODE, code);
+    lapse.setProperty(LogUtil.RESPONSE_REQUEST_VECTOR, responseRequestVector);
 
-    if (code >= 200 && code < 300) {
-      log.info(LOG_FMT, uri, timeDelta, method, code, responseRequestVector);
-    } else {
-      log.warn(LOG_FMT, uri, timeDelta, method, code, responseRequestVector);
-    }
+    LogUtil.propagateOrLogInfo(lapse, log);
   }
 }

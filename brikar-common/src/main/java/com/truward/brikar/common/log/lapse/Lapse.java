@@ -29,7 +29,7 @@ public interface Lapse extends Metrics {
   /**
    * @return Time in millisecond, which was needed to make a particular service call
    */
-  long getTimeDeltaMillis();
+  long getEndTime();
 
   /**
    * @return True, if associated operation has been failed and false, if not

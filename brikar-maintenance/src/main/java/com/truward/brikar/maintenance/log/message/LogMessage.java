@@ -13,6 +13,10 @@ import java.util.Map;
  */
 public abstract class LogMessage {
 
+  public boolean hasMetrics() {
+    return false;
+  }
+
   public boolean isNull() {
     return false;
   }

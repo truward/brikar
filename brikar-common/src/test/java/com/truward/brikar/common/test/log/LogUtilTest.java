@@ -1,7 +1,10 @@
 package com.truward.brikar.common.test.log;
 
 import com.truward.brikar.common.log.LogUtil;
+import com.truward.brikar.common.log.lapse.SimpleLapse;
+import com.truward.brikar.common.test.util.TestLoggerProvider;
 import org.junit.Test;
+import org.slf4j.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -56,5 +59,19 @@ public final class LogUtilTest {
       hugeRequestVectorBuilder.append('1');
     }
     assertFalse(LogUtil.isValidRequestVector(hugeRequestVectorBuilder.toString()));
+  }
+
+  @Test
+  public void shouldRecordEmptyLapse() {
+    // Given:
+    final TestLoggerProvider loggerProvider = new TestLoggerProvider();
+    final Logger logger = loggerProvider.getLogger();
+
+    // When:
+    LogUtil.logInfo(new SimpleLapse(), logger);
+
+    // Then:
+    final String contents = loggerProvider.getRawLogContents();
+    assertTrue(contents.endsWith("@metric1 op=?" + System.lineSeparator()));
   }
 }
