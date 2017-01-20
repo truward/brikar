@@ -1,5 +1,7 @@
 
-# 1.8.31 (PLANNED)
+# 1.8.32 (PLANNED)
+
+# 1.8.31
 
 * Adding support for chaining metrics
 * Upgrading slf4j to ver. 1.7.22
