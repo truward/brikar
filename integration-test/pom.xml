@@ -69,7 +69,7 @@
         <version>${brikar.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.truward.brikar</groupId>
+        <groupId>com.truward.brikar.rpc</groupId>
         <artifactId>brikar-rpc-explorer-support</artifactId>
         <version>${brikar.version}</version>
       </dependency>

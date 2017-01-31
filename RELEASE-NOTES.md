@@ -1,6 +1,12 @@
 
 # 1.8.33 (PLANNED)
 
+* RPCv2 support
+  * Add option to use custom servlet (as opposed to spring's DispatcherServlet)
+    * Potentially w/o Spring MVC at all
+  * Add option to use custom error mapper akin to Jackson
+  * Add option to inject HttpServletRequest and HttpServletResponse
+
 # 1.8.32
 
 * Avoid adding default message converters in RestTemplate created in RestOperationFactory

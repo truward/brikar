@@ -8,14 +8,14 @@
     <version>1.8.33-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.truward.brikar.protobuf</groupId>
-  <artifactId>brikar-protobuf</artifactId>
+  <groupId>com.truward.brikar.rpc</groupId>
+  <artifactId>brikar-rpc</artifactId>
 
   <packaging>pom</packaging>
-  <name>Brikar Protocol Buffers Library Parent</name>
+  <name>Brikar RPC Support Parent</name>
 
   <modules>
-    <module>brikar-protobuf-http-bin</module>
-    <module>brikar-protobuf-http-json</module>
+    <module>brikar-rpc-rest</module>
+    <module>brikar-rpc-explorer-support</module>
   </modules>
 </project>

@@ -40,7 +40,7 @@
     </dependency>
 
     <dependency>
-      <groupId>com.truward.brikar</groupId>
+      <groupId>com.truward.brikar.rpc</groupId>
       <artifactId>brikar-rpc-explorer-support</artifactId>
     </dependency>
 

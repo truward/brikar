@@ -56,8 +56,7 @@
 
   <modules>
     <module>brikar-error-response</module>
-    <module>brikar-rpc-rest</module>
-    <module>brikar-rpc-explorer-support</module>
+    <module>brikar-rpc</module>
     <module>brikar-common</module>
     <module>brikar-protobuf</module>
     <module>brikar-error-response-parser</module>
