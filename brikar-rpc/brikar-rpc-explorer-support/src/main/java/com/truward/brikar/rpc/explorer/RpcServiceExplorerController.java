@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.truward.brikar.rpc.servlet.RpcExplorerUtil.serveFromFile;
+import static com.truward.brikar.rpc.servlet.RpcExplorerUtil.serveTemplate;
+
 /**
  * Controller for RPC service.
  * Writes inline HTML to avoid depending on any templating engine.
@@ -105,8 +108,9 @@ public class RpcServiceExplorerController {
     this.rpcBindingMap = result;
   }
 
-  @RequestMapping(value = "api/rpc/{serviceName}/**", method = RequestMethod.POST)
+  @RequestMapping(value = "api/rpc/{serviceName}/{methodName}", method = RequestMethod.POST)
   public void invoke(@PathVariable("serviceName") String serviceName,
+                     @PathVariable("methodName") String methodName,
                      HttpServletRequest request,
                      HttpServletResponse response) throws IOException {
     final ServletRpcBinding rpcBinding = rpcBindingMap.get(serviceName);
@@ -115,18 +119,9 @@ public class RpcServiceExplorerController {
       return;
     }
 
-    final String urlMethodPath;
-    final String requestURI = request.getRequestURI();
-    final String template = "/api/rpc/" + serviceName + "/";
-    if (requestURI.startsWith(template)) {
-      urlMethodPath = requestURI.substring(template.length());
-    } else {
-      urlMethodPath = null; // none
-    }
-
     boolean succeeded = false;
     try {
-      rpcBinding.process(urlMethodPath, request, response);
+      rpcBinding.process(methodName, request, response);
       succeeded = true;
     } finally {
       if (!succeeded) {
@@ -139,79 +134,22 @@ public class RpcServiceExplorerController {
   public void explorer(@PathVariable("serviceName") String serviceName,
                        HttpServletResponse response) throws IOException {
     if (!serviceExplorerEnabled) {
-      response.sendError(HttpServletResponse.SC_NOT_FOUND);
+      response.sendError(HttpServletResponse.SC_NOT_FOUND, "Explorer disabled");
       return;
     }
 
     final ServletRpcBinding rpcBinding = rpcBindingMap.get(serviceName);
     if (rpcBinding == null) {
-      response.sendError(HttpServletResponse.SC_NOT_FOUND);
+      response.sendError(HttpServletResponse.SC_NOT_FOUND, "No such service to explore");
       return;
     }
 
     if (filePath != null) {
-      serveFromFile(rpcBinding, response);
+      serveFromFile(filePath, rpcBinding, response);
       return;
     }
 
     serveTemplate(rpcBinding, template, templateInitializerIndex, response);
-  }
-
-  //
-  // Protected
-  //
-
-  protected void serveFromFile(ServletRpcBinding rpcBinding,
-                               HttpServletResponse response) throws IOException {
-    final File file = new File(filePath);
-    if (!file.exists()) {
-      log.error("File doesn't exist");
-      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      return;
-    }
-
-
-    final byte[] fileByteContents = Files.readAllBytes(file.toPath());
-    final String template = new String(fileByteContents, StandardCharsets.UTF_8);
-
-    final int initializerMarkerIndex = template.indexOf(STATE_INITIALIZER_MARKER);
-    if (initializerMarkerIndex < 0) {
-      log.error("No initializer marker in a given file");
-      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      return;
-    }
-
-    serveTemplate(rpcBinding, template, initializerMarkerIndex, response);
-  }
-
-  protected void serveTemplate(ServletRpcBinding rpcBinding,
-                               String template, int templateInitializerIndex,
-                               HttpServletResponse response) throws IOException {
-    try (final Writer writer = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)) {
-      // start of template
-      writer.append(template, 0, templateInitializerIndex);
-
-      // inject state
-      writer.append("state = {\nmethods: {\n");
-
-      for (final String methodName : rpcBinding.getExposedMethodNames()) {
-        writer.append(methodName).append(": {\n");
-        writer.append("templateRequest: ");
-        writer.append("'{}'"); // TODO: real prototype
-        writer.append('\n'); // end of templateRequest
-        writer.append("},\n"); // end of method
-      }
-      writer.append("},\n"); // end of 'methods'
-      writer.append("serviceName: '").append(rpcBinding.getServiceName()).append("',\n");
-      writer.append("generated: ").append(Long.toString(System.currentTimeMillis())).append('\n');
-
-      writer.append('}'); // end of state declaration
-
-      // end of template
-      writer.append(template, templateInitializerIndex + STATE_INITIALIZER_MARKER.length(), template.length());
-    }
-
-    response.setHeader("Content-Type", "text/html");
   }
 
   //
