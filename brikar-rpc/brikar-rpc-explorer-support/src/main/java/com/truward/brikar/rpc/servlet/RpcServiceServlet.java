@@ -20,7 +20,7 @@ public class RpcServiceServlet extends HttpServlet {
   private ApplicationContext applicationContext;
 
   public RpcServiceServlet() {
-    WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+    log.info("Creating RPC service servlet");
   }
 
   @Override
