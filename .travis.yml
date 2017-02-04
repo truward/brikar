@@ -1,0 +1,20 @@
+
+language: java
+sudo: false
+script: mvn clean install
+jdk:
+  - oraclejdk8
+
+
+# blocklist
+branches:
+  except:
+  - dev
+
+# safelist
+branches:
+  only:
+  - master
+
+# extra scripts
+

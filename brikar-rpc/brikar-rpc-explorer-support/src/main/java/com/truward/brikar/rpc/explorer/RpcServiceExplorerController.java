@@ -32,8 +32,6 @@ import static com.truward.brikar.rpc.servlet.RpcExplorerUtil.serveTemplate;
  * Controller for RPC service.
  * Writes inline HTML to avoid depending on any templating engine.
  *
- * TODO: use URLEncode whenever appropriate (e.g. serviceName)
- *
  * @author Alexander Shabanov
  */
 @Controller

@@ -8,10 +8,8 @@ import com.truward.brikar.server.util.IdUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -26,13 +24,21 @@ import java.io.IOException;
  *
  * @author Alexander Shabanov
  */
-public class RequestVectorAwareFilter extends OncePerRequestFilter {
+public class RequestVectorAwareFilter implements Filter {
   private final Logger log = LoggerFactory.getLogger("BrikarRequestLogger");
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request,
-                                  HttpServletResponse response,
-                                  FilterChain filterChain) throws ServletException, IOException {
+  public void init(FilterConfig filterConfig) throws ServletException {
+    log.debug("init");
+  }
+
+  @Override
+  public void doFilter(ServletRequest req,
+                       ServletResponse resp,
+                       FilterChain filterChain) throws IOException, ServletException {
+    final HttpServletRequest request = (HttpServletRequest) req;
+    final HttpServletResponse response = (HttpServletResponse) resp;
+
     // get originating request ID and propagate it to the logging context
     String originatingRequestVector = request.getHeader(TrackingHttpHeaderNames.REQUEST_VECTOR);
     if (!LogUtil.isValidRequestVector(originatingRequestVector)) {
@@ -87,5 +93,10 @@ public class RequestVectorAwareFilter extends OncePerRequestFilter {
 
     // remove MDC variables
     MDC.remove(LogUtil.REQUEST_VECTOR);
+  }
+
+  @Override
+  public void destroy() {
+    log.debug("destroy");
   }
 }

@@ -40,6 +40,7 @@ public class RpcServiceServlet extends HttpServlet {
       return;
     }
 
+    // delegate to the base class
     super.service(req, resp);
   }
 
