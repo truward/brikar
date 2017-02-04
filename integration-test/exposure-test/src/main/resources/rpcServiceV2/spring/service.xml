@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+  <import resource="classpath:/spring/default-service-base.xml"/>
+
+  <bean id="rpcService" class="com.truward.brikar.test.exposure.rpc.HelloRpcService"/>
+
+  <bean id="protobufConverter" class="com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter" />
+  <bean id="protobufJsonConverter" class="com.truward.brikar.protobuf.http.json.ProtobufJsonHttpMessageConverter" />
+
+  <!-- Controllers -->
+  <bean class="com.truward.brikar.rpc.explorer.RpcServiceExplorerController">
+    <property name="rpcBindings">
+      <list>
+        <bean class="com.truward.brikar.rpc.support.ServiceInterfaceServletRpcBinding">
+          <constructor-arg>
+            <list>
+              <ref bean="protobufConverter"/>
+              <ref bean="protobufJsonConverter"/>
+            </list>
+          </constructor-arg>
+          <constructor-arg ref="rpcService" />
+        </bean>
+      </list>
+    </property>
+  </bean>
+</beans>

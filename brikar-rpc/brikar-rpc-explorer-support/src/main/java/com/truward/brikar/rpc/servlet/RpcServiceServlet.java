@@ -16,8 +16,8 @@ import java.io.IOException;
  * Experimental servlet, that exposes RPC API + explorer.
  */
 public class RpcServiceServlet extends HttpServlet {
-  private static final String API_PREFIX = "/api";
-  private static final String EXPLORER_PREFIX = "/explorer";
+  private static final String API_PREFIX = "/rpc/api";
+  private static final String EXPLORER_PREFIX = "/rpc/explorer";
 
   private RpcServiceExplorerController rpcController;
 

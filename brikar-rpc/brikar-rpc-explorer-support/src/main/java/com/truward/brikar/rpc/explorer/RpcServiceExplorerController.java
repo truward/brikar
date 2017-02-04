@@ -43,8 +43,6 @@ public class RpcServiceExplorerController {
 
   private static final String STATE_INITIALIZER_MARKER = "// State Initializer";
 
-  private final Logger log = LoggerFactory.getLogger(getClass());
-
   private Map<String, ServletRpcBinding> rpcBindingMap = Collections.emptyMap();
 
   private String filePath;

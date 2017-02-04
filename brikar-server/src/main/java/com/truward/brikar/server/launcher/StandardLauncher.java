@@ -211,12 +211,7 @@ public class StandardLauncher implements AutoCloseable {
    * @throws Exception if unable to perform initialization
    */
   public StandardLauncher(@Nonnull final String defaultDirPrefix) throws Exception {
-    this(new Callable<PropertySource<?>>() {
-      @Override
-      public PropertySource<?> call() throws Exception {
-        return createPropertySource(getConfigurationPaths(defaultDirPrefix));
-      }
-    }, defaultDirPrefix);
+    this(() -> createPropertySource(getConfigurationPaths(defaultDirPrefix)), defaultDirPrefix);
   }
 
   @Override
@@ -398,12 +393,16 @@ public class StandardLauncher implements AutoCloseable {
 
   protected void initServlets(@Nonnull ServletContextHandler contextHandler) {
     final ServletHolder dispatcherServlet = contextHandler.addServlet(DispatcherServlet.class,
-        "/g/*,/api/*,/j_spring_security_check");
+        getDispatcherServletMapping());
     dispatcherServlet.setInitParameter("contextConfigLocation", getDispatcherServletConfigLocations());
 
     if (simpleSecurityEnabled) {
       initSimpleSecurity(contextHandler);
     }
+  }
+
+  protected String getDispatcherServletMapping() {
+    return "/g/*,/api/*,/j_spring_security_check";
   }
 
   protected void initSimpleSecurity(@Nonnull ServletContextHandler contextHandler) {

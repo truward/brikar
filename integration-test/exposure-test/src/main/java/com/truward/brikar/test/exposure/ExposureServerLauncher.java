@@ -1,6 +1,7 @@
 package com.truward.brikar.test.exposure;
 
 import com.truward.brikar.server.launcher.StandardLauncher;
+import com.truward.brikar.test.exposure.rpcV2.RpcV2Launcher;
 import org.eclipse.jetty.server.Server;
 import org.springframework.core.env.PropertySource;
 
@@ -21,6 +22,11 @@ public final class ExposureServerLauncher {
                           @Nonnull LaunchMode launchMode) throws Exception {
     StandardLauncher.ensureLoggersConfigured();
 
+    if (launchMode == LaunchMode.RPC_SERVICE_V2) {
+      RpcV2Launcher.main(extraConfigPaths, serverAware);
+      return;
+    }
+
     final String dirPrefix = getConfigPath(launchMode);
 
     final List<String> configPaths = new ArrayList<>(StandardLauncher.getConfigurationPaths(dirPrefix));
@@ -28,12 +34,7 @@ public final class ExposureServerLauncher {
 
     final PropertySource<?> propertySource = StandardLauncher.createPropertySource(configPaths);
 
-    final StandardLauncher launcher = new StandardLauncher(new Callable<PropertySource<?>>() {
-      @Override
-      public PropertySource<?> call() throws Exception {
-        return propertySource;
-      }
-    }, dirPrefix) {
+    final StandardLauncher launcher = new StandardLauncher(() -> propertySource, dirPrefix) {
       @Override
       protected void setServerSettings(@Nonnull Server server) {
         super.setServerSettings(server);
