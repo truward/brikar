@@ -1,6 +1,6 @@
 [![GitHub license](https://img.shields.io/badge/license-Apache%202-green.svg)](https://raw.githubusercontent.com/truward/brikar/master/LICENSE)
 [![Maven Central](https://img.shields.io/maven-central/v/com.truward.brikar/brikar.svg)](https://repo1.maven.org/maven2/com/truward/brikar/brikar/)
-
+[![Travis CI](https://travis-ci.org/truward/brikar.svg?style=flat-square)](https://travis-ci.org/truward/brikar)
 [![Join the chat at https://gitter.im/truward/brikar](https://badges.gitter.im/truward/brikar.svg)](https://gitter.im/truward/brikar)
 
 Brikar
