@@ -58,6 +58,18 @@
   </dependencies>
 
   <build>
+    <!--
+        Deploy an artifact to s3:
+        mvn clean package deploy -Passembly -DskipTests=true
+       -->
+    <extensions>
+      <extension>
+        <groupId>org.kuali.maven.wagons</groupId>
+        <artifactId>maven-s3-wagon</artifactId>
+        <version>1.2.1</version>
+      </extension>
+    </extensions>
+
     <plugins>
       <!-- Execution from the command line - mvn exec:java starts the server -->
       <plugin>
@@ -84,19 +96,6 @@
   <profiles>
     <profile>
       <id>assembly</id>
-
-      <!--
-        Deploy an artifact to s3:
-        mvn clean package deploy -Passembly -DskipTests=true
-       -->
-      <extensions>
-        <extension>
-          <groupId>org.kuali.maven.wagons</groupId>
-          <artifactId>maven-s3-wagon</artifactId>
-          <version>1.2.1</version>
-        </extension>
-      </extensions>
-
       <build>
         <plugins>
           <plugin>
