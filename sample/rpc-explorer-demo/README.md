@@ -2,6 +2,7 @@
 # How to Launch
 
 1. Run ``mvn exec:java``
+1. Run ``curl -s -X POST http://127.0.0.1:8080/api/health`` to see if server is healthy
 1. Open ``http://127.0.0.1:8080/api/explorer/UserService`` in the browser
 1. (Alternatively) Test using curl (below).
 

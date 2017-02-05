@@ -21,6 +21,9 @@
     <mvc:message-converters register-defaults="false">
       <ref bean="protobufMessageConverter"/>
       <ref bean="protobufJsonMessageConverter"/>
+
+      <!-- Add String message converter (required for healthcheck controller) -->
+      <bean class="org.springframework.http.converter.StringHttpMessageConverter" />
     </mvc:message-converters>
   </mvc:annotation-driven>
 </beans>
