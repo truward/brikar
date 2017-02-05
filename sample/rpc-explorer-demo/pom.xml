@@ -85,9 +85,20 @@
     <profile>
       <id>assembly</id>
 
+      <!--
+        Deploy an artifact to s3:
+        mvn clean package deploy -Passembly -DskipTests=true
+       -->
+      <extensions>
+        <extension>
+          <groupId>org.kuali.maven.wagons</groupId>
+          <artifactId>maven-s3-wagon</artifactId>
+          <version>1.2.1</version>
+        </extension>
+      </extensions>
+
       <build>
         <plugins>
-          <!-- Assembly Plugin - *ATTENTION* - this guy declares *AD HOC* config for creating an uber JAR -->
           <plugin>
             <artifactId>maven-shade-plugin</artifactId>
             <version>1.4</version>
@@ -128,6 +139,23 @@
           </plugin>
         </plugins>
       </build>
+
+      <distributionManagement>
+        <snapshotRepository>
+          <id>truward-builds</id>
+          <url>s3://truward-builds/snapshot</url>
+        </snapshotRepository>
+        <repository>
+          <id>truward-builds</id>
+          <url>s3://truward-builds/release</url>
+        </repository>
+      </distributionManagement>
+      <repositories>
+        <repository>
+          <id>truward-builds</id>
+          <url>s3://truward-builds/release</url>
+        </repository>
+      </repositories>
     </profile>
   </profiles>
 </project>
