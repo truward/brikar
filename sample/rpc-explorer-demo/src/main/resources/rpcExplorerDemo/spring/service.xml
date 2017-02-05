@@ -5,4 +5,25 @@
   <import resource="classpath:/spring/default-service-base.xml"/>
 
   <bean id="userService" class="com.truward.brikar.sample.rpcExplorerDemo.service.UserServiceImpl"/>
+
+  <bean id="protobufMessageConverter" class="com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter" />
+  <bean id="protobufJsonMessageConverter" class="com.truward.brikar.protobuf.http.json.ProtobufJsonHttpMessageConverter" />
+
+  <!-- Controller -->
+  <!-- NOTE: RPC controller available in the main config to be accessible to RPC servlet -->
+  <bean class="com.truward.brikar.rpc.explorer.RpcServiceExplorerController">
+    <property name="rpcBindings">
+      <list>
+        <bean class="com.truward.brikar.rpc.support.ServiceInterfaceServletRpcBinding">
+          <constructor-arg>
+            <list>
+              <ref bean="protobufMessageConverter"/>
+              <ref bean="protobufJsonMessageConverter"/>
+            </list>
+          </constructor-arg>
+          <constructor-arg ref="userService" />
+        </bean>
+      </list>
+    </property>
+  </bean>
 </beans>

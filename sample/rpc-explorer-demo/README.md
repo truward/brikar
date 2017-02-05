@@ -37,3 +37,17 @@ $ curl -s -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: 
     "message": "Illegal Argument: userId=0"
 }
 ```
+
+# RPCv2 Sample
+
+Get User:
+
+```
+curl -s -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/json' http://127.0.0.1:8080/rpc/api/UserService/getUser -d '{"userId": 10}' | python -mjson.tool
+```
+
+Query Users:
+
+```
+curl -s -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/json' http://127.0.0.1:8080/rpc/api/UserService/queryUsers -d '{"userIds": [10, 11, 12, 13, 14]}' | python -mjson.tool
+```

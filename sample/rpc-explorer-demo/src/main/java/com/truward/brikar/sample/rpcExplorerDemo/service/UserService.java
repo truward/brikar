@@ -12,4 +12,6 @@ import javax.annotation.Generated;
 @Generated("")
 public interface UserService {
   UserModel.GetUserReply getUser(UserModel.GetUserRequest request);
+
+  UserModel.QueryUsersReply queryUsers(UserModel.QueryUsersRequest request);
 }

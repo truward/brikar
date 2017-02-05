@@ -14,6 +14,7 @@ message User {
   int64 id = 1;
   string name = 2;
   string password = 3;
+  repeated string roles = 4;
 }
 
 message Registration {
@@ -31,6 +32,14 @@ message GetUserRequest {
 
 message GetUserReply {
   User user = 1;
+}
+
+message QueryUsersRequest {
+  repeated int64 userIds = 1;
+}
+
+message QueryUsersReply {
+  repeated User users = 1;
 }
 
 //
