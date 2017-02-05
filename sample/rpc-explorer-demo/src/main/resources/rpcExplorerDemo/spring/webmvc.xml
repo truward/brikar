@@ -7,6 +7,14 @@
         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
   <import resource="classpath:/spring/default-webmvc-base.xml"/>
 
+  <bean class="com.truward.brikar.rpc.explorer.RpcServiceExplorerController">
+    <property name="rpcBindings">
+      <list>
+        <ref bean="rpcBinding"/>
+      </list>
+    </property>
+  </bean>
+
   <!-- Annotation driven support for MVC controllers -->
   <mvc:annotation-driven>
     <!-- custom marshallers -->

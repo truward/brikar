@@ -51,3 +51,11 @@ Query Users:
 ```
 curl -s -X POST -H 'Content-Type: application/json;charset=UTF-8' -H 'Accept: application/json' http://127.0.0.1:8080/rpc/api/UserService/queryUsers -d '{"userIds": [10, 11, 12, 13, 14]}' | python -mjson.tool
 ```
+
+Apache Bench:
+
+```
+echo '{"userIds": [10, 11, 12, 13, 14]}' > /tmp/queryUsersRequest.txt
+
+ab -p /tmp/queryUsersRequest.txt -T application/json -c 1 -n 5 http://127.0.0.1:8080/rpc/api/UserService/queryUsers
+```
