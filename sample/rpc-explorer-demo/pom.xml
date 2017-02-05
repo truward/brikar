@@ -60,7 +60,7 @@
   <build>
     <!--
         Deploy an artifact to s3:
-        mvn clean package deploy -Passembly -DskipTests=true
+        mvn clean deploy -Passembly -DskipTests=true
        -->
     <extensions>
       <extension>
