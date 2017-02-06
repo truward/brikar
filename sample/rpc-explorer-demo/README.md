@@ -60,3 +60,9 @@ echo '{"userIds": [10, 11, 12, 13, 14]}' > /tmp/queryUsersRequest.txt
 
 ab -p /tmp/queryUsersRequest.txt -T application/json -c 1 -n 5 http://127.0.0.1:8080/rpc/api/UserService/queryUsers
 ```
+
+# Trigger Out-Of-Memory Error
+
+```
+curl -s -X POST -H 'Content-Type: application/json;charset=UTF-8' http://127.0.0.1:8080/api/rpc/UserService/triggerOutOfMemoryError -d '{}'
+```

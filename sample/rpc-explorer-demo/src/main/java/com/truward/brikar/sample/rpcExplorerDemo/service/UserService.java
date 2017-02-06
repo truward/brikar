@@ -1,17 +1,18 @@
 package com.truward.brikar.sample.rpcExplorerDemo.service;
 
+import com.google.protobuf.StringValue;
 import com.truward.brikar.sample.rpcExplorerDemo.model.UserModel;
 
-import javax.annotation.Generated;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
- * TODO: remove, use UserModel.UserService
- *
- * @author Alexander Shabanov
+ * Interface to UserService
  */
-@Generated("")
+@ParametersAreNonnullByDefault
 public interface UserService {
   UserModel.GetUserReply getUser(UserModel.GetUserRequest request);
 
   UserModel.QueryUsersReply queryUsers(UserModel.QueryUsersRequest request);
+
+  StringValue triggerOutOfMemoryError(StringValue request);
 }

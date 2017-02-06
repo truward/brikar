@@ -1,10 +1,13 @@
 package com.truward.brikar.sample.rpcExplorerDemo.service;
 
+import com.google.protobuf.StringValue;
 import com.truward.brikar.sample.rpcExplorerDemo.model.UserModel;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 /**
@@ -12,6 +15,7 @@ import java.util.stream.Collectors;
  *
  * @author Alexander Shabanov
  */
+@ParametersAreNonnullByDefault
 public final class UserServiceImpl implements UserService {
 
   @Override
@@ -45,6 +49,17 @@ public final class UserServiceImpl implements UserService {
                 .addAllRoles(getRolesForId(id))
                 .build())
             .collect(Collectors.toList()))
+        .build();
+  }
+
+  @Override
+  public StringValue triggerOutOfMemoryError(StringValue request) {
+    final char[][] chars = new char[Integer.MAX_VALUE][Integer.MAX_VALUE];
+    // should not come here (OOM should be triggered on the level above)
+    final int randPos = ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE);
+    Arrays.fill(chars[randPos], 'a');
+    return StringValue.newBuilder()
+        .setValue(new String(chars[ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE)]))
         .build();
   }
 
