@@ -12,13 +12,13 @@ package truward.brikar.error.model;
 option java_package = "com.truward.brikar.error.model";
 option java_outer_classname = "ErrorModel";
 
-message ErrorResponseV1 {
+message ErrorResponseV2 {
 
   // holds information about an error
-  ErrorV1 error = 1;
+  ErrorV2 error = 1;
 }
 
-message ErrorValueV1 {
+message ErrorValueV2 {
 
   bytes bytesValue = 1;
   string strValue = 2;
@@ -27,7 +27,7 @@ message ErrorValueV1 {
   bool boolValue = 5;
 }
 
-message ErrorV1 {
+message ErrorV2 {
 
   // required, custom error code from the predefined enumeration, for example 'BadRequest' or 'CreditCardExpired'
   string code = 1;
@@ -35,26 +35,14 @@ message ErrorV1 {
   // required, associated human readable error message, for example 'Payment failed, credit card ending with 1234 is expired'
   string message = 2;
 
-  // optional, represents target of an error, for example 'CreditCard'
-  string target = 3;
+  // array of specific details that led to this error
+  repeated ErrorV2 innerErrors = 3;
 
-  // optional array of specific details that led to this error
-  repeated ErrorV1 details = 4;
-
-  // associated error parameters, optional
-  InnerErrorV1 innerError = 5;
-
-  // optional target value, associated with this error
-  ErrorValueV1 targetValue = 6;
+  // list of error parameter
+  repeated ErrorParameterV2 parameters = 4;
 }
 
-message InnerErrorV1 {
-
-  // required, custom error code from the predefined enumeration, for example 'BadRequest' or 'CreditCardExpired'
-  string code = 1;
-
-  // associated error parameters, optional
-  InnerErrorV1 innerError = 2;
+message ErrorParameterV2 {
+  string key = 1;
+  ErrorValueV2 value = 2;
 }
-
-

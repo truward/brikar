@@ -11,9 +11,9 @@ import java.util.Objects;
  */
 public final class HttpRestErrorException extends RuntimeException {
   private final int statusCode;
-  private final ErrorModel.ErrorV1 error;
+  private final ErrorModel.ErrorV2 error;
 
-  public HttpRestErrorException(int statusCode, ErrorModel.ErrorV1 error) {
+  public HttpRestErrorException(int statusCode, ErrorModel.ErrorV2 error) {
     this.statusCode = statusCode;
     this.error = Objects.requireNonNull(error, "error");
   }
@@ -22,7 +22,7 @@ public final class HttpRestErrorException extends RuntimeException {
     return statusCode;
   }
 
-  public ErrorModel.ErrorV1 getError() {
+  public ErrorModel.ErrorV2 getError() {
     return error;
   }
 }

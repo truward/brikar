@@ -25,8 +25,10 @@ public final class ExposureRestController implements ExposureRestService, Defaul
   @ExceptionHandler(AccessDeniedException.class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   @ResponseBody
-  public ErrorModel.ErrorResponseV1 accessDeniedException(AccessDeniedException e) {
-    return RestErrors.response(e, "Access Denied", StandardRestErrorCode.ACCESS_DENIED);
+  public ErrorModel.ErrorResponseV2 accessDeniedException(AccessDeniedException e) {
+    return ErrorModel.ErrorResponseV2.newBuilder()
+        .setError(RestErrors.error(e, "Access Denied", StandardRestErrorCode.ACCESS_DENIED))
+        .build();
   }
 
   @Override
@@ -50,7 +52,7 @@ public final class ExposureRestController implements ExposureRestService, Defaul
     }
 
     if (person.equals("Chewbacca")) {
-      throw new HttpRestErrorException(HttpStatus.I_AM_A_TEAPOT.value(), ErrorModel.ErrorV1.newBuilder()
+      throw new HttpRestErrorException(HttpStatus.I_AM_A_TEAPOT.value(), ErrorModel.ErrorV2.newBuilder()
           .setCode("TeapotIsNotAChewbacca")
           .setMessage("I am a teapot")
           .build());

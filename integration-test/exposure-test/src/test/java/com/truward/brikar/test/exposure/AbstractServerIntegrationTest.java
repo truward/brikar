@@ -20,6 +20,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import javax.annotation.Nonnull;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -103,9 +104,10 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
       fail("Should not greet R2D2");
     } catch (HttpStatusCodeException e) {
       assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
-      final ErrorModel.ErrorV1 error = RestErrorParser.parseError(e);
+      final ErrorModel.ErrorV2 error = RestErrorParser.parseError(e);
       assertEquals("Invalid Argument", error.getMessage());
-      assertEquals("name", error.getTarget());
+      assertEquals(Collections.singletonList(ErrorModel.ErrorParameterV2.newBuilder().setKey("name").build()),
+          error.getParametersList());
       assertEquals(StandardRestErrorCode.INVALID_ARGUMENT.getCodeName(), error.getCode());
     }
 
@@ -114,9 +116,9 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
       fail("Should not greet Darth Vader");
     } catch (HttpStatusCodeException e) {
       assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
-      final ErrorModel.ErrorV1 error = RestErrorParser.parseError(e);
-      assertEquals("name", error.getTarget());
+      final ErrorModel.ErrorV2 error = RestErrorParser.parseError(e);
       assertEquals(StandardRestErrorCode.UNSUPPORTED.getCodeName(), error.getCode());
+      assertEquals("name", error.getMessage());
     }
 
     try {
@@ -124,9 +126,9 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
       fail("Should not greet Chewbacca");
     } catch (HttpStatusCodeException e) {
       assertEquals(HttpStatus.I_AM_A_TEAPOT, e.getStatusCode());
-      final ErrorModel.ErrorV1 error = RestErrorParser.parseError(e);
+      final ErrorModel.ErrorV2 error = RestErrorParser.parseError(e);
       assertEquals("TeapotIsNotAChewbacca", error.getCode());
-      assertEquals("", error.getTarget());
+      assertEquals(0, error.getParametersCount());
       assertEquals("I am a teapot", error.getMessage());
     }
 
@@ -135,7 +137,7 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
       fail("Should not greet admin");
     } catch (HttpStatusCodeException e) {
       assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
-      final ErrorModel.ErrorV1 error = RestErrorParser.parseError(e);
+      final ErrorModel.ErrorV2 error = RestErrorParser.parseError(e);
       assertEquals(StandardRestErrorCode.ACCESS_DENIED.getCodeName(), error.getCode());
       assertEquals(ExposureRestController.ACCESS_DENIED, error.getMessage());
     }

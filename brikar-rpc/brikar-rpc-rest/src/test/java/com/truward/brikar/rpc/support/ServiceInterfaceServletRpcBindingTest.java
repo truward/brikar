@@ -262,7 +262,7 @@ public final class ServiceInterfaceServletRpcBindingTest {
 
     @Override
     protected boolean supports(Class<?> clazz) {
-      return DomainObject.class.isAssignableFrom(clazz) || ErrorModel.ErrorResponseV1.class.isAssignableFrom(clazz);
+      return DomainObject.class.isAssignableFrom(clazz) || ErrorModel.ErrorResponseV2.class.isAssignableFrom(clazz);
     }
 
     @Override
@@ -281,8 +281,9 @@ public final class ServiceInterfaceServletRpcBindingTest {
 
     @Override
     protected void writeInternal(Object o, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
-      if (o instanceof ErrorModel.ErrorResponseV1) {
-        outputMessage.getBody().write(((ErrorModel.ErrorResponseV1) o).getError().getMessage().getBytes(StandardCharsets.UTF_8));
+      if (o instanceof ErrorModel.ErrorResponseV2) {
+        outputMessage.getBody().write(((ErrorModel.ErrorResponseV2) o).getError().getMessage()
+            .getBytes(StandardCharsets.UTF_8));
         return;
       }
 

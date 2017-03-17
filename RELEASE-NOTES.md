@@ -6,6 +6,7 @@
     * Potentially w/o Spring MVC at all
   * Add option to use custom error mapper akin to Jackson
   * Add option to inject HttpServletRequest and HttpServletResponse
+* Introducing ErrorResponseV2
 
 # 1.8.32
 

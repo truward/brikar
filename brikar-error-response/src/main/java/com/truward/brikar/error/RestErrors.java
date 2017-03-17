@@ -2,7 +2,6 @@ package com.truward.brikar.error;
 
 import com.truward.brikar.error.model.ErrorModel;
 
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,85 +13,89 @@ import java.util.Collections;
  */
 @ParametersAreNonnullByDefault
 public final class RestErrors {
-  private RestErrors() {} // Hidden
+  public static final String INVALID_ARGUMENT_MESSAGE = "Invalid Argument";
+  public static final String UNCATEGORIZED_FAILURE_MESSAGE = "Uncategorized Failure";
+  public static final String UNSUPPORTED_MESSAGE = "Unsupported Operation";
+
+  private RestErrors() {
+  } // Hidden
+
+  public static ErrorModel.ErrorParameterV2 parameter(String name) {
+    return ErrorModel.ErrorParameterV2.newBuilder().setKey(name).build();
+  }
 
   public static String getMessageOrDefault(Throwable e, String defaultMessage) {
     final String message = e.getMessage();
     return message != null ? message : defaultMessage;
   }
 
-  public static ErrorModel.ErrorResponseV1 invalidArgument(String argumentName) {
-    return invalidArgument("Invalid Argument", argumentName);
+  public static ErrorModel.ErrorV2 invalidArgument(String argumentName) {
+    return invalidArgument(INVALID_ARGUMENT_MESSAGE, argumentName);
   }
 
-  public static ErrorModel.ErrorResponseV1 invalidArgument(String message, String argumentName) {
-    return response(message, StandardRestErrorCode.INVALID_ARGUMENT, argumentName);
+  public static ErrorModel.ErrorV2 invalidArgument(String message, String argumentName) {
+    return error(message, StandardRestErrorCode.INVALID_ARGUMENT,
+        Collections.singletonList(parameter(argumentName)));
   }
 
-  public static ErrorModel.ErrorResponseV1 unsupported(String message, @Nullable String target) {
-    return response(message, StandardRestErrorCode.UNSUPPORTED, target);
+  public static ErrorModel.ErrorV2 unsupported(String message, Collection<ErrorModel.ErrorParameterV2> parameters) {
+    return error(message, StandardRestErrorCode.UNSUPPORTED, parameters);
   }
 
-  public static ErrorModel.ErrorResponseV1 fromThrowable(Throwable throwable) {
+  public static ErrorModel.ErrorV2 fromThrowable(Throwable throwable) {
     if (throwable instanceof HttpRestErrorException) {
       final HttpRestErrorException e = (HttpRestErrorException) throwable;
-      return ErrorModel.ErrorResponseV1.newBuilder().setError(e.getError()).build();
+      return e.getError();
     }
 
-    String defaultMessage = "Uncategorized Failure";
+    String defaultMessage = UNCATEGORIZED_FAILURE_MESSAGE;
     RestErrorCode errorCode = StandardRestErrorCode.UNCATEGORIZED;
 
     if (throwable instanceof IllegalArgumentException) {
-      defaultMessage = "Invalid Argument";
-      errorCode = StandardRestErrorCode.INVALID_ARGUMENT;
+      return error(INVALID_ARGUMENT_MESSAGE, StandardRestErrorCode.INVALID_ARGUMENT,
+          throwable.getMessage() != null ? Collections.singletonList(parameter(throwable.getMessage())) :
+              Collections.emptyList());
     } else if (throwable instanceof UnsupportedOperationException) {
-      defaultMessage = "Unsupported Operation";
+      defaultMessage = UNSUPPORTED_MESSAGE;
       errorCode = StandardRestErrorCode.UNSUPPORTED;
     }
 
-    return response(throwable, defaultMessage, errorCode);
+    return error(throwable, defaultMessage, errorCode);
   }
 
-  public static ErrorModel.ErrorResponseV1 response(Throwable throwable,
-                                                    String defaultMessage,
-                                                    RestErrorCode code) {
-    String message = getMessageOrDefault(throwable, defaultMessage);
-    String target = null;
-    if (!message.contains(" ")) {
-      // message looks like an argument name
-      target = message;
-      message = defaultMessage;
-    }
-
-    return RestErrors.response(message, code, target);
+  public static ErrorModel.ErrorV2 error(Throwable throwable,
+                                         String defaultMessage,
+                                         RestErrorCode code) {
+    final String message = getMessageOrDefault(throwable, defaultMessage);
+    return RestErrors.error(message, code, Collections.emptyList());
   }
 
-  public static ErrorModel.ErrorResponseV1 response(String message,
-                                                    RestErrorCode code) {
-    return response(message, code, null);
+  public static ErrorModel.ErrorV2 error(String message,
+                                         RestErrorCode code) {
+    return error(message, code, Collections.emptyList());
   }
 
-  public static ErrorModel.ErrorResponseV1 response(String message,
-                                                    RestErrorCode code,
-                                                    @Nullable String target) {
-    return response(message, code, target, Collections.emptyList());
+  public static ErrorModel.ErrorV2 error(String message,
+                                         RestErrorCode code,
+                                         Collection<ErrorModel.ErrorParameterV2> parameters) {
+    return error(message, code, parameters, Collections.emptyList());
   }
 
-  public static ErrorModel.ErrorResponseV1 response(String message,
-                                                    RestErrorCode code,
-                                                    @Nullable String target,
-                                                    Collection<ErrorModel.ErrorV1> details) {
-    final ErrorModel.ErrorV1.Builder errorBuilder = ErrorModel.ErrorV1.newBuilder()
+  public static ErrorModel.ErrorV2 error(String message,
+                                         RestErrorCode code,
+                                         Collection<ErrorModel.ErrorParameterV2> parameters,
+                                         Collection<ErrorModel.ErrorV2> innerErrors) {
+    final ErrorModel.ErrorV2.Builder errorBuilder = ErrorModel.ErrorV2.newBuilder()
         .setMessage(message).setCode(code.getCodeName());
 
-    if (target != null) {
-      errorBuilder.setTarget(target);
+    if (!parameters.isEmpty()) {
+      errorBuilder.addAllParameters(parameters);
     }
 
-    if (!details.isEmpty()) {
-      errorBuilder.addAllDetails(details);
+    if (!innerErrors.isEmpty()) {
+      errorBuilder.addAllInnerErrors(innerErrors);
     }
 
-    return ErrorModel.ErrorResponseV1.newBuilder().setError(errorBuilder.build()).build();
+    return errorBuilder.build();
   }
 }

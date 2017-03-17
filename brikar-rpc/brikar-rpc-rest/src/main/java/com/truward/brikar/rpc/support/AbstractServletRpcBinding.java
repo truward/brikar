@@ -17,9 +17,10 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Abstract base class for RPC bindings.
@@ -134,9 +135,9 @@ public abstract class AbstractServletRpcBinding implements ServletRpcBinding {
                            String description) throws IOException {
     response.setStatus(statusCode);
     write(acceptType,
-        ErrorModel.ErrorResponseV1.class,
-        ErrorModel.ErrorResponseV1.newBuilder()
-            .setError(ErrorModel.ErrorV1.newBuilder()
+        ErrorModel.ErrorResponseV2.class,
+        ErrorModel.ErrorResponseV2.newBuilder()
+            .setError(ErrorModel.ErrorV2.newBuilder()
                 .setCode(HttpStatus.valueOf(statusCode).name())
                 .setMessage(description)
                 .build())

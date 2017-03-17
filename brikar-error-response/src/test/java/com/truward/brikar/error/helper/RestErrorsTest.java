@@ -25,10 +25,10 @@ public final class RestErrorsTest {
     final String argumentName = "argumentName";
 
     // When:
-    final ErrorModel.ErrorResponseV1 e = RestErrors.invalidArgument(argumentName);
+    final ErrorModel.ErrorV2 e = RestErrors.invalidArgument(argumentName);
 
     // Then:
-    assertErrorMessageEquals(e, "Invalid Argument", StandardRestErrorCode.INVALID_ARGUMENT, argumentName);
+    assertErrorEquals(e, "Invalid Argument", StandardRestErrorCode.INVALID_ARGUMENT, argumentName);
   }
 
   @Test
@@ -38,10 +38,10 @@ public final class RestErrorsTest {
     final String message = "Error message";
 
     // When:
-    final ErrorModel.ErrorResponseV1 e = RestErrors.invalidArgument(message, argumentName);
+    final ErrorModel.ErrorV2 e = RestErrors.invalidArgument(message, argumentName);
 
     // Then:
-    assertErrorMessageEquals(e, message, StandardRestErrorCode.INVALID_ARGUMENT, argumentName);
+    assertErrorEquals(e, message, StandardRestErrorCode.INVALID_ARGUMENT, argumentName);
   }
 
   @Test
@@ -51,18 +51,19 @@ public final class RestErrorsTest {
     final String target = "/send/sms";
 
     // When:
-    final ErrorModel.ErrorResponseV1 e = RestErrors.unsupported(message, target);
+    final ErrorModel.ErrorV2 e = RestErrors.unsupported(message,
+        Collections.singletonList(RestErrors.parameter(target)));
 
     // Then:
-    assertErrorMessageEquals(e, message, StandardRestErrorCode.UNSUPPORTED, target);
+    assertErrorEquals(e, message, StandardRestErrorCode.UNSUPPORTED, target);
   }
 
   @Test
   public void shouldConvertIllegalArgumentException() {
-    final ErrorModel.ErrorResponseV1 e = RestErrors.fromThrowable(new IllegalArgumentException());
+    final ErrorModel.ErrorV2 e = RestErrors.fromThrowable(new IllegalArgumentException());
 
     // Then:
-    assertErrorMessageEquals(e, "Invalid Argument", StandardRestErrorCode.INVALID_ARGUMENT, null);
+    assertErrorEquals(e, "Invalid Argument", StandardRestErrorCode.INVALID_ARGUMENT, null);
   }
 
   @Test
@@ -71,37 +72,37 @@ public final class RestErrorsTest {
     final String name = "foo";
 
     // When:
-    final ErrorModel.ErrorResponseV1 e = RestErrors.fromThrowable(new IllegalArgumentException(name));
+    final ErrorModel.ErrorV2 e = RestErrors.fromThrowable(new IllegalArgumentException(name));
 
     // Then:
-    assertErrorMessageEquals(e, "Invalid Argument", StandardRestErrorCode.INVALID_ARGUMENT, name);
+    assertErrorEquals(e, RestErrors.INVALID_ARGUMENT_MESSAGE, StandardRestErrorCode.INVALID_ARGUMENT, name);
   }
 
   @Test
   public void shouldConvertUnsupportedException() {
-    final ErrorModel.ErrorResponseV1 e = RestErrors.fromThrowable(new UnsupportedOperationException());
+    final ErrorModel.ErrorV2 e = RestErrors.fromThrowable(new UnsupportedOperationException());
 
     // Then:
-    assertErrorMessageEquals(e, "Unsupported Operation", StandardRestErrorCode.UNSUPPORTED, null);
+    assertErrorEquals(e, "Unsupported Operation", StandardRestErrorCode.UNSUPPORTED, null);
   }
 
   @Test
   public void shouldConvertUncategorizedException() {
-    final ErrorModel.ErrorResponseV1 e = RestErrors.fromThrowable(new RuntimeException());
+    final ErrorModel.ErrorV2 e = RestErrors.fromThrowable(new RuntimeException());
 
     // Then:
-    assertErrorMessageEquals(e, "Uncategorized Failure", StandardRestErrorCode.UNCATEGORIZED, null);
+    assertErrorEquals(e, "Uncategorized Failure", StandardRestErrorCode.UNCATEGORIZED, null);
   }
 
   @Test
   public void shouldConvertCustomRestError() {
     final String message = "Custom Client Error Message";
     final String code = "Custom Code";
-    final ErrorModel.ErrorV1 err = ErrorModel.ErrorV1.newBuilder().setMessage(message).setCode(code).build();
+    final ErrorModel.ErrorV2 err = ErrorModel.ErrorV2.newBuilder().setMessage(message).setCode(code).build();
 
-    final ErrorModel.ErrorResponseV1 e = RestErrors.fromThrowable(new HttpRestErrorException(500, err));
+    final ErrorModel.ErrorV2 e = RestErrors.fromThrowable(new HttpRestErrorException(500, err));
 
-    assertEquals(err, e.getError());
+    assertEquals(err, e);
   }
 
   @Test
@@ -111,10 +112,10 @@ public final class RestErrorsTest {
     final RuntimeException ex = new RuntimeException(message);
 
     // When:
-    final ErrorModel.ErrorResponseV1 e = RestErrors.fromThrowable(ex);
+    final ErrorModel.ErrorV2 e = RestErrors.fromThrowable(ex);
 
     // Then:
-    assertErrorMessageEquals(e, message, StandardRestErrorCode.UNCATEGORIZED, null);
+    assertErrorEquals(e, message, StandardRestErrorCode.UNCATEGORIZED, null);
   }
 
   @Test
@@ -123,50 +124,42 @@ public final class RestErrorsTest {
     final String message = "Access is denied for non-admin users";
 
     // When:
-    final ErrorModel.ErrorResponseV1 e = RestErrors.response(message, StandardRestErrorCode.ACCESS_DENIED);
+    final ErrorModel.ErrorV2 e = RestErrors.error(message, StandardRestErrorCode.ACCESS_DENIED);
 
     // Then:
-    assertErrorMessageEquals(e, message, StandardRestErrorCode.ACCESS_DENIED, null);
+    assertErrorEquals(e, message, StandardRestErrorCode.ACCESS_DENIED, null);
   }
 
   //
   // Private
   //
 
-  private static void assertErrorMessageEquals(ErrorModel.ErrorResponseV1 response,
-                                               String message,
-                                               RestErrorCode code,
-                                               @Nullable String target) {
-    assertErrorMessageEquals(response, message, code, target, Collections.emptyList(), null);
+  private static void assertErrorEquals(ErrorModel.ErrorV2 error,
+                                        String message,
+                                        RestErrorCode code,
+                                        @Nullable String target) {
+    assertErrorEquals(error, message, code, target, Collections.emptyList());
   }
 
-  private static void assertErrorMessageEquals(ErrorModel.ErrorResponseV1 response,
-                                               String message,
-                                               RestErrorCode code,
-                                               @Nullable String target,
-                                               Collection<ErrorModel.ErrorV1> details,
-                                               @Nullable ErrorModel.InnerErrorV1 innerError) {
-    assertNotNull("response error is missing", response.hasError());
-    final ErrorModel.ErrorV1 err = response.getError();
-
+  private static void assertErrorEquals(ErrorModel.ErrorV2 err,
+                                        String message,
+                                        RestErrorCode code,
+                                        @Nullable String target,
+                                        Collection<ErrorModel.ErrorV2> innerErrors) {
     assertEquals(message, err.getMessage());
     assertEquals(code.getCodeName(), err.getCode());
     if (target != null) {
-      assertEquals(target, err.getTarget());
+      assertEquals(Collections.singletonList(ErrorModel.ErrorParameterV2.newBuilder()
+          .setKey(target)
+          .build()), err.getParametersList());
     } else {
-      assertTrue("error target should be missing", err.getTarget().isEmpty());
+      assertEquals("error target should be missing", 0, err.getParametersCount());
     }
 
-    if (!details.isEmpty()) {
-      assertEquals(details, err.getDetailsList());
+    if (!innerErrors.isEmpty()) {
+      assertEquals(innerErrors, err.getInnerErrorsList());
     } else {
-      assertEquals(0, err.getDetailsCount());
-    }
-
-    if (innerError != null) {
-      assertEquals(innerError, err.getInnerError());
-    } else {
-      assertFalse("inner error should be missing", err.hasInnerError());
+      assertEquals(0, err.getInnerErrorsCount());
     }
   }
 }
