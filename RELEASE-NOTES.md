@@ -7,6 +7,15 @@
   * Add option to use custom error mapper akin to Jackson
   * Add option to inject HttpServletRequest and HttpServletResponse
 * Introducing ErrorResponseV2
+* Upgrading slf4j to ver. 1.7.24
+* Upgrading logback-classic to ver. 1.2.1
+* Upgrading Spring to ver. 4.3.7.RELEASE
+* Upgrading Spring Security to ver. 4.2.2.RELEASE
+* Upgrading httpcore to ver. 4.4.6
+* Upgrading httpclient to ver. 4.5.3
+* Upgrading jetty to ver. 8.2.0.v20160908
+* Upgrading protobuf to ver. 3.2.0
+
 
 # 1.8.32
 
