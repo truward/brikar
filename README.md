@@ -20,7 +20,7 @@ Brikar also offers:
 * Standardized logging
 * Optional spring security configuration
 * Simple service authentication
-* Emitting metricss to logs
+* Emitting metrics to logs
 * Tracking request IDs - associating unique request-specific ID with every message in the logs that correspond
 to particular request
 * Retries with backoff (for generated clients)
