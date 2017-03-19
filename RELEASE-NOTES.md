@@ -1,5 +1,9 @@
 
-# 1.8.33 (PLANNED)
+# 1.8.34 (PLANNED)
+
+TBD
+
+# 1.8.33
 
 * RPCv2 support
   * Add option to use custom servlet (as opposed to spring's DispatcherServlet)
@@ -15,7 +19,6 @@
 * Upgrading httpclient to ver. 4.5.3
 * Upgrading jetty to ver. 8.2.0.v20160908
 * Upgrading protobuf to ver. 3.2.0
-
 
 # 1.8.32
 
