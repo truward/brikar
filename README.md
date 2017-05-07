@@ -115,7 +115,7 @@ match an exposed REST API URL.
 * Time, to do the corresponding data processing, for example how much time it took to process an HTTP request.
 * Various extra parameters, such as whether or not operation succeeded, HTTP method name for capturing RESTful operations behavior, etc.
 
-Examples of request-response-related metricss (both client and server):
+Examples of request-response-related metrics (both client and server):
 
 ```
 2016-11-18 08:20:45,368 INFO BrikarRequestLogger RV=O1jah9BuYnSbiV [qtp728162039-20] @metric1 op=POST_/api/test/exposure/greet, verb=POST, tDelta=1, responseCode=200, url=/test/exposure/greet
@@ -126,4 +126,4 @@ Examples of request-response-related metricss (both client and server):
 
 Each line contains specifically formatted metrics entry.
 
-For example ``@metrics op=/test/exposure/greet, tDelta=9`` line means that service invocation of ``/test/exposure/greet`` took ``9`` milliseconds.
+For example ``@metric1 op=/test/exposure/greet, tDelta=9`` line means that service invocation of ``/test/exposure/greet`` took ``9`` milliseconds.
