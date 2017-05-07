@@ -35,7 +35,7 @@ curl -H 'Accept: application/json; charset=UTF-8' 127.0.0.1:8080/api/calc/variab
 Protobuf:
 
 ```
-curl 127.0.0.1:8080/api/calc/variable -s | protoc --decode_raw --proto_path=$PROJ/brikar/sample/calc/calc-model/src/main/resources/
+curl 127.0.0.1:8080/api/calc/variable -s | tail -c +2 | protoc --decode_raw
 1 {
   1: "over"
   2: 9000
