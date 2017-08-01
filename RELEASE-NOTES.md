@@ -3,6 +3,7 @@
 
 * Add message source into ``ErrorV2``.
 * Deprecate ``TimeSource`` in brikar-common in favor of similar abstraction from ``utc-time`` library.
+* Remove the requirement to have class annotated with ``@Service`` annotation to enable ``StandardLapseLoggerAspect``.
 
 # 1.8.33
 

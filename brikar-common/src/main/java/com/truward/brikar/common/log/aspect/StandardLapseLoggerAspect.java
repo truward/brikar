@@ -43,10 +43,7 @@ public class StandardLapseLoggerAspect extends LapseLoggerAspectBase implements 
   @Pointcut("execution(public * *(..))")
   public void publicMethod() {}
 
-  @Pointcut("@within(org.springframework.stereotype.Service)")
-  public void withinService() {}
-
-  @Around("publicMethod() && withinService() && @annotation(logLapse)")
+  @Around("publicMethod() && @annotation(logLapse)")
   public Object around(ProceedingJoinPoint jp, LogLapse logLapse) throws Throwable {
     return around(logger, jp, logLapse);
   }

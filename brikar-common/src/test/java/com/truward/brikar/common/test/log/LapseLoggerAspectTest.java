@@ -9,7 +9,6 @@ import com.truward.time.TimeSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -81,7 +80,7 @@ public final class LapseLoggerAspectTest {
   }
 
   @Test
-  public void shouldNotLogAnyEntriesForNonServiceBean() {
+  public void shouldNotLogAnyEntriesForNonAnnotatedMethods() {
     // Given:
     when(timeSource.currentTime()).thenReturn(1000L);
     when(mockCalcService.add(1, 2)).thenReturn(3);
@@ -147,7 +146,6 @@ public final class LapseLoggerAspectTest {
     void bar();
   }
 
-  @Service
   public static final class TestCalcService implements CalcService {
     final CalcService calcService;
 
@@ -180,19 +178,16 @@ public final class LapseLoggerAspectTest {
       this.calcService = calcService;
     }
 
-    @LogLapse
     @Override
     public int add(int x, int y) {
       return calcService.add(x, y);
     }
 
-    @LogLapse
     @Override
     public void foo() {
       calcService.foo();
     }
 
-    @LogLapse
     @Override
     public void bar() {
       calcService.bar();
