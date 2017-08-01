@@ -241,6 +241,13 @@
         <version>${spring.version}</version>
       </dependency>
 
+      <!-- UTC time -->
+      <dependency>
+        <groupId>com.truward.time</groupId>
+        <artifactId>utc-time</artifactId>
+        <version>1.0.6</version>
+      </dependency>
+
       <!-- Spring Web -->
       <dependency>
         <groupId>org.springframework</groupId>

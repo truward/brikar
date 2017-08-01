@@ -35,6 +35,9 @@ message ErrorV2 {
   // required, associated human readable error message, for example 'Payment failed, credit card ending with 1234 is expired'
   string message = 2;
 
+  // optional message source, it is recommended to put service name here to allow easy error chaining
+  string source = 5;
+
   // array of specific details that led to this error
   repeated ErrorV2 innerErrors = 3;
 

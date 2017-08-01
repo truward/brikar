@@ -1,7 +1,8 @@
 
 # 1.8.34 (PLANNED)
 
-TBD
+* Add message source into ``ErrorV2``.
+* Deprecate ``TimeSource`` in brikar-common in favor of similar abstraction from ``utc-time`` library.
 
 # 1.8.33
 

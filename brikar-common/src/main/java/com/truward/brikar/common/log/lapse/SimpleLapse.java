@@ -2,7 +2,7 @@ package com.truward.brikar.common.log.lapse;
 
 import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.common.log.metric.Metrics;
-import com.truward.brikar.common.time.TimeSource;
+import com.truward.time.TimeSource;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;

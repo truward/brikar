@@ -1,8 +1,8 @@
 package com.truward.brikar.common.log.aspect;
 
 import com.truward.brikar.common.log.LogLapse;
-import com.truward.brikar.common.time.TimeSource;
-import com.truward.brikar.common.time.support.StandardTimeSource;
+import com.truward.time.TimeSource;
+import com.truward.time.support.StandardTimeSource;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

@@ -18,6 +18,12 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- UtcTime for "time source" abstraction -->
+    <dependency>
+      <groupId>com.truward.time</groupId>
+      <artifactId>utc-time</artifactId>
+    </dependency>
+
     <!-- Spring -->
     <dependency>
       <groupId>org.springframework</groupId>

@@ -5,7 +5,7 @@ import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.common.log.lapse.SimpleLapse;
 import com.truward.brikar.common.log.metric.MetricsCollection;
 import com.truward.brikar.common.test.util.TestLoggerProvider;
-import com.truward.brikar.common.time.TimeSource;
+import com.truward.time.TimeSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
