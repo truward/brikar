@@ -21,21 +21,23 @@ public final class StandardMetricsCollection implements MetricsCollection {
 
   @Override
   public String toString() {
-    final Metrics[] metricsArray = metricsList.toArray(new Metrics[metricsList.size()]);
-    final StringBuilder builder = new StringBuilder(10 + metricsArray.length * 100);
+    final StringBuilder builder = new StringBuilder(10 + metricsList.size() * 100);
     builder.append(LogUtil.METRIC_ENTRY);
 
-    for (int i = 0; i < metricsArray.length; ++i) {
-      if (i == 0) {
-        builder.append(' ');
-      } else {
+    boolean next = false;
+    for (final Metrics metrics : metricsList) {
+      if (next) {
         builder.append(System.lineSeparator()).append('\t');
+      } else {
+        builder.append(' ');
+        next = true;
       }
+
       try {
-        metricsArray[i].appendTo(builder);
+        metrics.appendTo(builder);
       } catch (IOException e) {
         // suppress error - should never happen
-        builder.append("<error>");
+        builder.append("Internal Error: ").append(e.getMessage());
       }
     }
 

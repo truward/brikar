@@ -18,9 +18,10 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
+import static com.truward.brikar.common.test.log.support.TestServices.*;
 
 /**
- * @author Alexander Shabanov
+ * Tests for {@link com.truward.brikar.common.log.aspect.StandardLapseLoggerAspect}.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/spring/LapseLoggerAspectTest-context.xml")
@@ -131,66 +132,5 @@ public final class LapseLoggerAspectTest {
     final String logContent = loggerProvider.getRawLogContents();
     assertTrue(logContent.endsWith("@metric1 op=TopLevel, tStart=900, tDelta=400" + sep +
         "\top=CalcService.plus, tStart=1000, tDelta=200" + sep));
-  }
-
-
-  //
-  // Helper classes
-  //
-
-  public interface CalcService {
-    int add(int x, int y);
-
-    void foo();
-
-    void bar();
-  }
-
-  public static final class TestCalcService implements CalcService {
-    final CalcService calcService;
-
-    public TestCalcService(CalcService calcService) {
-      this.calcService = calcService;
-    }
-
-    @LogLapse("CalcService.plus")
-    @Override
-    public int add(int x, int y) {
-      return calcService.add(x, y);
-    }
-
-    @LogLapse
-    @Override
-    public void foo() {
-      calcService.foo();
-    }
-
-    @Override
-    public void bar() {
-      calcService.bar();
-    }
-  }
-
-  public static final class TestCalcService2 implements CalcService {
-    final CalcService calcService;
-
-    public TestCalcService2(CalcService calcService) {
-      this.calcService = calcService;
-    }
-
-    @Override
-    public int add(int x, int y) {
-      return calcService.add(x, y);
-    }
-
-    @Override
-    public void foo() {
-      calcService.foo();
-    }
-
-    @Override
-    public void bar() {
-      calcService.bar();
-    }
   }
 }

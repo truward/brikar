@@ -1,15 +1,18 @@
 package com.truward.brikar.common.log.aspect;
 
 import com.truward.brikar.common.log.LogLapse;
-import com.truward.time.TimeSource;
-import com.truward.time.support.StandardTimeSource;
+import com.truward.brikar.common.log.LogUtil;
+import com.truward.brikar.common.log.metric.Metrics;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
+import org.slf4j.helpers.NOPLogger;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Standard spring aspect that enables processing
@@ -17,27 +20,12 @@ import org.springframework.beans.factory.InitializingBean;
  * @author Alexander Shabanov
  */
 @Aspect
-public class StandardLapseLoggerAspect extends LapseLoggerAspectBase implements InitializingBean {
-  private Logger logger;
-  private TimeSource timeSource;
+@ParametersAreNonnullByDefault
+public class StandardLapseLoggerAspect extends LapseLoggerAspectBase {
+  private Logger logger = NOPLogger.NOP_LOGGER;
 
   public void setLogger(Logger logger) {
-    this.logger = logger;
-  }
-
-  public void setTimeSource(TimeSource timeSource) {
-    this.timeSource = timeSource;
-  }
-
-  @Override
-  public void afterPropertiesSet() throws Exception {
-    if (logger == null) {
-      setLogger(LoggerFactory.getLogger(StandardLapseLoggerAspect.class));
-    }
-
-    if (timeSource == null) {
-      setTimeSource(StandardTimeSource.INSTANCE);
-    }
+    this.logger = requireNonNull(logger);
   }
 
   @Pointcut("execution(public * *(..))")
@@ -45,11 +33,11 @@ public class StandardLapseLoggerAspect extends LapseLoggerAspectBase implements 
 
   @Around("publicMethod() && @annotation(logLapse)")
   public Object around(ProceedingJoinPoint jp, LogLapse logLapse) throws Throwable {
-    return around(logger, jp, logLapse);
+    return invokeAndLog(jp, logLapse);
   }
 
   @Override
-  protected TimeSource getTimeSource() {
-    return timeSource;
+  protected void logMetrics(Metrics metrics) {
+    LogUtil.propagateOrLogInfo(metrics, logger);
   }
 }

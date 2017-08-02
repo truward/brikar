@@ -1,25 +1,39 @@
 package com.truward.brikar.common.log.aspect;
 
 import com.truward.brikar.common.log.LogLapse;
-import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.common.log.lapse.SimpleLapse;
+import com.truward.brikar.common.log.metric.Metrics;
 import com.truward.time.TimeSource;
+import com.truward.time.support.StandardTimeSource;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.reflect.Method;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Base class for lapse logging aspects.
  *
  * @author Alexander Shabanov
  */
+@ParametersAreNonnullByDefault
 public abstract class LapseLoggerAspectBase {
 
-  protected final Object around(Logger log, ProceedingJoinPoint jp, LogLapse logLapse) throws Throwable {
+  private TimeSource timeSource = StandardTimeSource.INSTANCE;
+
+  public final void setTimeSource(TimeSource timeSource) {
+    this.timeSource = requireNonNull(timeSource);
+  }
+
+  public final TimeSource getTimeSource() {
+    return timeSource;
+  }
+
+  protected final Object invokeAndLog(ProceedingJoinPoint jp, LogLapse logLapse) throws Throwable {
     final SimpleLapse lapse = new SimpleLapse();
 
     lapse.setStartTime(getTimeSource());
@@ -45,11 +59,11 @@ public abstract class LapseLoggerAspectBase {
 
       throw e;
     } finally {
-      LogUtil.propagateOrLogInfo(lapse, log);
+      logMetrics(lapse);
     }
   }
 
-  protected abstract TimeSource getTimeSource();
+  protected abstract void logMetrics(Metrics metrics);
 
   //
   // Private

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
  * Common constants for logging.
@@ -41,6 +42,7 @@ import javax.annotation.Nullable;
  *
  * @author Alexander Shabanov
  */
+@ParametersAreNonnullByDefault
 public final class LogUtil {
   private LogUtil() {}
 
@@ -56,7 +58,7 @@ public final class LogUtil {
    */
   public static final String REQUEST_VECTOR = "RV";
 
-  public static final ThreadLocal<MetricsCollection> METRICS_COLLECTION = new ThreadLocal<>();
+  private static final ThreadLocal<MetricsCollection> METRICS_COLLECTION = new ThreadLocal<>();
 
   /**
    * Maximum size of request vector.
@@ -68,7 +70,6 @@ public final class LogUtil {
     return METRICS_COLLECTION.get();
   }
 
-  @Nonnull
   public static MetricsCollection getOrCreateLocalMetricsCollection() {
     MetricsCollection result = getLocalMetricsCollection();
     if (result == null) {
@@ -82,17 +83,17 @@ public final class LogUtil {
     METRICS_COLLECTION.set(value);
   }
 
-  public static void logInfo(@Nonnull Metrics metrics, @Nonnull Logger log) {
+  public static void logInfo(Metrics metrics, Logger log) {
     final MetricsCollection metricsCollection = new StandardMetricsCollection();
     metricsCollection.add(metrics);
     log.info(metricsCollection.toString());
   }
 
-  public static void logInfo(@Nonnull MetricsCollection metricsCollection, @Nonnull Logger log) {
+  public static void logInfo(MetricsCollection metricsCollection, Logger log) {
     log.info(metricsCollection.toString());
   }
 
-  public static void logAndResetLocalMetricsCollection(@Nonnull Logger log) {
+  public static void logAndResetLocalMetricsCollection(Logger log) {
     final MetricsCollection metricsCollection = getLocalMetricsCollection();
     if (metricsCollection != null) {
       logInfo(metricsCollection, log);
@@ -106,14 +107,28 @@ public final class LogUtil {
    * @param metrics Metrics object to log
    * @param log Target logger to use if local metrics collection is not available
    */
-  public static void propagateOrLogInfo(@Nonnull Metrics metrics, @Nonnull Logger log) {
-    final MetricsCollection metricsCollection = getLocalMetricsCollection();
+  public static void propagateOrLogInfo(Metrics metrics, Logger log) {
+    final MetricsCollection metricsCollection = propagate(metrics);
     if (metricsCollection == null) {
       logInfo(metrics, log);
-      return;
+    }
+  }
+
+  /**
+   * Propagates metrics entry to the thread local metrics collection, does nothing if local metrics collection
+   * is missing.
+   *
+   * @param metrics Metrics to capture
+   * @return Local metrics collection or null
+   */
+  @Nullable
+  public static MetricsCollection propagate(Metrics metrics) {
+    final MetricsCollection metricsCollection = getLocalMetricsCollection();
+    if (metricsCollection != null) {
+      metricsCollection.add(metrics);
     }
 
-    metricsCollection.add(metrics);
+    return metricsCollection;
   }
 
   /**
@@ -218,8 +233,7 @@ public final class LogUtil {
    * @param value Value to be encoded
    * @return Encoded value or same value if passed argument does not contain whitespace, comma or equals sign
    */
-  @Nonnull
-  public static String encodeString(@Nonnull String value) {
+  public static String encodeString(String value) {
     int estimatedSize = 0;
     final int len = value.length();
 
