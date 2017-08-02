@@ -13,6 +13,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class PropagateLapseLoggerAspectBean extends LapseLoggerAspectBase {
 
+  @SuppressWarnings("unused")
   public Object around(ProceedingJoinPoint jp, LogLapse logLapse) throws Throwable {
     return invokeAndLog(jp, logLapse);
   }

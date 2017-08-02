@@ -28,9 +28,11 @@ public class StandardLapseLoggerAspect extends LapseLoggerAspectBase {
     this.logger = requireNonNull(logger);
   }
 
+  @SuppressWarnings("unused")
   @Pointcut("execution(public * *(..))")
   public void publicMethod() {}
 
+  @SuppressWarnings("unused")
   @Around("publicMethod() && @annotation(logLapse)")
   public Object around(ProceedingJoinPoint jp, LogLapse logLapse) throws Throwable {
     return invokeAndLog(jp, logLapse);
