@@ -1,5 +1,9 @@
 
-# 1.8.35 (PLANNED)
+# 1.8.36 (PLANNED)
+
+TBD
+
+# 1.8.35
 
 * Introduce more helper logging classes: ``PropagateLapseLoggerAspectBean``
   which enables wiring aspects to arbitrary pointcuts. 
