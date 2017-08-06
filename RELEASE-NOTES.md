@@ -1,7 +1,8 @@
 
 # 1.8.35 (PLANNED)
 
-* Introduce more helper logging classes.
+* Introduce more helper logging classes: ``PropagateLapseLoggerAspectBean``
+  which enables wiring aspects to arbitrary pointcuts. 
 
 # 1.8.34
 
