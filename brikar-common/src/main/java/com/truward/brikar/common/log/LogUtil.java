@@ -49,7 +49,7 @@ public final class LogUtil {
   /**
    * A name, under which a request vector is known as one of the logger attributes.
    * <p>
-   * Request vector is an identifer that uniquely identifies particular service request, where did it come from,
+   * Request vector is an identifier that uniquely identifies particular service request, where did it come from,
    * as well as its place in the bigger inter-service call graph.
    * </p>
    *
@@ -93,12 +93,16 @@ public final class LogUtil {
     log.info(metricsCollection.toString());
   }
 
-  public static void logAndResetLocalMetricsCollection(Logger log) {
+  public static void logAndResetLocalMetricsCollection(Logger log, @Nullable MetricsCollection newMetricsCollection) {
     final MetricsCollection metricsCollection = getLocalMetricsCollection();
     if (metricsCollection != null) {
       logInfo(metricsCollection, log);
-      setLocalMetricsCollection(null);
     }
+    setLocalMetricsCollection(newMetricsCollection);
+  }
+
+  public static void logAndResetLocalMetricsCollection(Logger log) {
+    logAndResetLocalMetricsCollection(log, null);
   }
 
   /**

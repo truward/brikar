@@ -13,21 +13,35 @@
     <constructor-arg value="com.truward.time.TimeSource"/>
   </bean>
 
+  <!-- Propagating thread pool -->
+  <bean id="test.taskExecutor" class="com.truward.brikar.common.executor.ThreadLocalPropagatingTaskExecutor">
+    <constructor-arg>
+      <bean class="org.springframework.core.task.SimpleAsyncTaskExecutor">
+        <constructor-arg value="PropagatingTaskExecutorTestThread"/>
+      </bean>
+    </constructor-arg>
+    <constructor-arg>
+      <list value-type="com.truward.brikar.common.executor.StandardThreadParametersBinder">
+        <value>METRICS_COLLECTION</value>
+      </list>
+    </constructor-arg>
+  </bean>
+
   <!-- aspects: define aspect beans -->
-  <bean id="propagateLapseLoggerAspect" class="com.truward.brikar.common.log.aspect.PropagateLapseLoggerAspectBean">
+  <bean id="test.propagateLapseLoggerAspect" class="com.truward.brikar.common.log.aspect.PropagateLapseLoggerAspectBean">
     <property name="timeSource" ref="test.timeSource"/>
   </bean>
 
   <!-- aspects: define pointcuts -->
   <aop:config>
-    <aop:pointcut id="logLapsePointcut" expression="execution(public * *(..)) &amp;&amp; @annotation(logLapse)"/>
+    <aop:pointcut id="test.logLapsePointcut" expression="execution(public * *(..)) &amp;&amp; @annotation(logLapse)"/>
   </aop:config>
 
 
   <!-- aspects: bind pointcuts to the aspect beans -->
   <aop:config>
-    <aop:aspect ref="propagateLapseLoggerAspect" order="1">
-      <aop:around pointcut-ref="logLapsePointcut" method="around" arg-names="proceedingJoinPoint, logLapse"/>
+    <aop:aspect ref="test.propagateLapseLoggerAspect" order="1">
+      <aop:around pointcut-ref="test.logLapsePointcut" method="around" arg-names="proceedingJoinPoint, logLapse"/>
     </aop:aspect>
   </aop:config>
 

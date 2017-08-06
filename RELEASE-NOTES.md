@@ -1,7 +1,7 @@
 
 # 1.8.35 (PLANNED)
 
-TBD
+* Introduce more helper logging classes.
 
 # 1.8.34
 
