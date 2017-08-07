@@ -32,9 +32,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git@github.com:truward/brikar.git</connection>
-    <developerConnection>scm:git:git@github.com:truward/brikar.git</developerConnection>
-    <url>git@github.com:truward/brikar.git</url>
+    <connection>scm:git:https://github.com/truward/brikar.git</connection>
+    <developerConnection>scm:git:https://github.com/truward/brikar.git</developerConnection>
+    <url>https://github.com/truward/brikar.git</url>
     <tag>HEAD</tag>
   </scm>
 
