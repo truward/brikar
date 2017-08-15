@@ -55,11 +55,8 @@
   </issueManagement>
 
   <modules>
-    <module>brikar-error-response</module>
     <module>brikar-rpc</module>
     <module>brikar-common</module>
-    <module>brikar-protobuf</module>
-    <module>brikar-error-response-parser</module>
     <module>brikar-client</module>
     <module>brikar-server</module>
     <module>brikar-maintenance</module>
@@ -74,6 +71,9 @@
 
     <spring.version>4.3.7.RELEASE</spring.version>
     <spring-security.version>4.2.2.RELEASE</spring-security.version>
+
+    <brikar-protobuf.version>2.0.1</brikar-protobuf.version>
+    <brikar-errors.version>2.0.1</brikar-errors.version>
 
     <!--  compiler settings -->
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -90,27 +90,8 @@
   <dependencyManagement>
 
     <dependencies>
+
       <!-- Project artifacts -->
-      <dependency>
-        <groupId>com.truward.brikar</groupId>
-        <artifactId>brikar-error-response</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.truward.brikar</groupId>
-        <artifactId>brikar-error-response-parser</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.truward.brikar.protobuf</groupId>
-        <artifactId>brikar-protobuf-http-bin</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.truward.brikar.protobuf</groupId>
-        <artifactId>brikar-protobuf-http-json</artifactId>
-        <version>${project.version}</version>
-      </dependency>
       <dependency>
         <groupId>com.truward.brikar</groupId>
         <artifactId>brikar-common</artifactId>
@@ -130,6 +111,30 @@
         <groupId>com.truward.brikar</groupId>
         <artifactId>brikar-maintenance</artifactId>
         <version>${project.version}</version>
+      </dependency>
+
+      <!-- Protocol Buffer Serialization -->
+      <dependency>
+        <groupId>com.truward.brikar.protobuf</groupId>
+        <artifactId>spring-protobuf-http-bin</artifactId>
+        <version>${brikar-protobuf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.truward.brikar.protobuf</groupId>
+        <artifactId>spring-protobuf-http-json</artifactId>
+        <version>${brikar-protobuf.version}</version>
+      </dependency>
+
+      <!-- Error Handling -->
+      <dependency>
+        <groupId>com.truward.brikar.error</groupId>
+        <artifactId>rest-errors</artifactId>
+        <version>${brikar-errors.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.truward.brikar.error</groupId>
+        <artifactId>rest-errors-parser</artifactId>
+        <version>${brikar-errors.version}</version>
       </dependency>
 
       <!-- Logging -->

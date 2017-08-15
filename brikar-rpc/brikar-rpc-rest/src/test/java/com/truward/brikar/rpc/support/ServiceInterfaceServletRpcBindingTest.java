@@ -1,6 +1,6 @@
 package com.truward.brikar.rpc.support;
 
-import com.truward.brikar.error.model.ErrorModel;
+import com.truward.brikar.error.model.ErrorV1;
 import com.truward.brikar.rpc.ServletRpcBinding;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,7 +8,6 @@ import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -39,7 +38,7 @@ public final class ServiceInterfaceServletRpcBindingTest {
   public void init() {
     defaultService = new DefaultService();
     rpcBinding = new ServiceInterfaceServletRpcBinding(
-        Collections.<HttpMessageConverter<?>>singletonList(new TestHttpMessageConverter()),
+        Collections.singletonList(new TestHttpMessageConverter()),
         DerivedService.class,
         defaultService);
   }
@@ -119,14 +118,14 @@ public final class ServiceInterfaceServletRpcBindingTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void shouldFailToInferSingleServiceInterface() {
-    new ServiceInterfaceServletRpcBinding(Collections.<HttpMessageConverter<?>>singletonList(new TestHttpMessageConverter()),
+    new ServiceInterfaceServletRpcBinding(Collections.singletonList(new TestHttpMessageConverter()),
         new NonExposableService());
   }
 
 
   @Test
   public void shouldNotFailToInferSingleServiceInterface() {
-    new ServiceInterfaceServletRpcBinding(Collections.<HttpMessageConverter<?>>singletonList(new TestHttpMessageConverter()),
+    new ServiceInterfaceServletRpcBinding(Collections.singletonList(new TestHttpMessageConverter()),
         new DefaultService());
   }
 
@@ -187,7 +186,7 @@ public final class ServiceInterfaceServletRpcBindingTest {
       throw new UnsupportedOperationException("getBar method is not implemented");
     }
 
-    public String getLast() {
+    String getLast() {
       if (messages.isEmpty()) {
         throw new IllegalStateException("Empty messages list");
       }
@@ -213,7 +212,7 @@ public final class ServiceInterfaceServletRpcBindingTest {
     }
 
     @SuppressWarnings("unchecked")
-    public T setProp(String prop) {
+    T setProp(String prop) {
       this.prop = prop;
       return (T) this;
     }
@@ -256,13 +255,13 @@ public final class ServiceInterfaceServletRpcBindingTest {
 
   private static final class TestHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
 
-    public TestHttpMessageConverter() {
+    TestHttpMessageConverter() {
       super(MediaType.APPLICATION_JSON);
     }
 
     @Override
     protected boolean supports(Class<?> clazz) {
-      return DomainObject.class.isAssignableFrom(clazz) || ErrorModel.ErrorResponseV2.class.isAssignableFrom(clazz);
+      return DomainObject.class.isAssignableFrom(clazz) || ErrorV1.ErrorResponse.class.isAssignableFrom(clazz);
     }
 
     @Override
@@ -281,8 +280,8 @@ public final class ServiceInterfaceServletRpcBindingTest {
 
     @Override
     protected void writeInternal(Object o, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
-      if (o instanceof ErrorModel.ErrorResponseV2) {
-        outputMessage.getBody().write(((ErrorModel.ErrorResponseV2) o).getError().getMessage()
+      if (o instanceof ErrorV1.ErrorResponse) {
+        outputMessage.getBody().write(((ErrorV1.ErrorResponse) o).getError().getMessage()
             .getBytes(StandardCharsets.UTF_8));
         return;
       }

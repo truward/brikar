@@ -33,11 +33,11 @@
     <!-- Protobuf Message Converters -->
     <dependency>
       <groupId>com.truward.brikar.protobuf</groupId>
-      <artifactId>brikar-protobuf-http-bin</artifactId>
+      <artifactId>spring-protobuf-http-bin</artifactId>
     </dependency>
     <dependency>
       <groupId>com.truward.brikar.protobuf</groupId>
-      <artifactId>brikar-protobuf-http-json</artifactId>
+      <artifactId>spring-protobuf-http-json</artifactId>
     </dependency>
 
     <!-- Exposure Base -->

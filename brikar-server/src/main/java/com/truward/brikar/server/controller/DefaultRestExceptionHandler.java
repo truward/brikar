@@ -2,7 +2,8 @@ package com.truward.brikar.server.controller;
 
 import com.truward.brikar.error.HttpRestErrorException;
 import com.truward.brikar.error.RestErrors;
-import com.truward.brikar.error.model.ErrorModel;
+import com.truward.brikar.error.StandardRestErrorCode;
+import com.truward.brikar.error.model.ErrorV1;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Base class for handling exceptions. It is not required to inherit this class, but it might bring some benefits such
@@ -26,24 +28,52 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public interface DefaultRestExceptionHandler {
 
+  static String getMessage(Throwable e, String defaultMessage) {
+    final String message = e.getMessage();
+    return message != null ? message : defaultMessage;
+  }
+
+  static String getMessage(Throwable e) {
+    return getMessage(e, "");
+  }
+
+  RestErrors getRestErrors();
+
   @ExceptionHandler(HttpRestErrorException.class)
   @ResponseBody
-  default ResponseEntity<ErrorModel.ErrorResponseV2> restErrorException(HttpRestErrorException e) {
-    final ErrorModel.ErrorResponseV2 body = ErrorModel.ErrorResponseV2.newBuilder().setError(e.getError()).build();
+  default ResponseEntity<ErrorV1.ErrorResponse> restErrorException(
+      HttpRestErrorException e,
+      HttpServletResponse response) {
+    response.setStatus(e.getStatusCode());
+
+    final ErrorV1.ErrorResponse body = ErrorV1.ErrorResponse.newBuilder().setError(e.getError()).build();
     return new ResponseEntity<>(body, HttpStatus.valueOf(e.getStatusCode()));
   }
 
-  @ExceptionHandler({IllegalArgumentException.class, UnsupportedOperationException.class})
+  @ExceptionHandler(IllegalArgumentException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ResponseBody
-  default ErrorModel.ErrorResponseV2 illegalArgumentOrUnsupportedException(Exception e) {
-    return ErrorModel.ErrorResponseV2.newBuilder().setError(RestErrors.fromThrowable(e)).build();
+  default ErrorV1.ErrorResponse illegalArgument(IllegalArgumentException e) {
+    return RestErrors.errorResponse(getRestErrors().errorBuilder(StandardRestErrorCode.INVALID_ARGUMENT)
+        .setTarget(getMessage(e))
+        .build());
+  }
+
+  @ExceptionHandler(UnsupportedOperationException.class)
+  @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
+  @ResponseBody
+  default ErrorV1.ErrorResponse unsupported(UnsupportedOperationException e) {
+    return RestErrors.errorResponse(getRestErrors().errorBuilder(StandardRestErrorCode.UNSUPPORTED)
+        .setMessage(getMessage(e, StandardRestErrorCode.UNSUPPORTED.getDescription()))
+        .build());
   }
 
   @ExceptionHandler(Throwable.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   @ResponseBody
-  default ErrorModel.ErrorResponseV2 uncategorizedException(Throwable e) {
-    return ErrorModel.ErrorResponseV2.newBuilder().setError(RestErrors.fromThrowable(e)).build();
+  default ErrorV1.ErrorResponse internalServerError(Throwable e) {
+    return RestErrors.errorResponse(getRestErrors().errorBuilder(StandardRestErrorCode.INTERNAL)
+        .setMessage(getMessage(e, StandardRestErrorCode.INTERNAL.getDescription()))
+        .build());
   }
 }

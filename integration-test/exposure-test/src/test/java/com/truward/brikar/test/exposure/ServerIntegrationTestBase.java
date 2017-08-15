@@ -95,9 +95,10 @@ public abstract class ServerIntegrationTestBase {
     LOG.info("Server initialized");
   }
 
-  protected <T> T newClient(@Nonnull Class<T> serviceClass,
-                            @Nonnull RestOperationsFactory restOperationsFactory,
-                            @Nonnull String relativePath) {
+  protected <T> T newClient(
+      @Nonnull Class<T> serviceClass,
+      @Nonnull RestOperationsFactory restOperationsFactory,
+      @Nonnull String relativePath) {
     return ServerApiUtil.newClient(serviceClass, restOperationsFactory, getUser(), getServerUrl(relativePath));
   }
 

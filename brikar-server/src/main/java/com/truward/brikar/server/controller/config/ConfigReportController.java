@@ -1,5 +1,6 @@
 package com.truward.brikar.server.controller.config;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,9 +10,8 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Date;
-import java.util.Map;
-import java.util.Objects;
+import java.net.*;
+import java.util.*;
 
 /**
  * Controller, for reporting configuration.
@@ -27,11 +27,14 @@ import java.util.Objects;
 public class ConfigReportController {
 
   private Map<?, ?> appProperties;
+  private Map<?, ?> networkProperties;
   private boolean includeSystemProperties;
+  private boolean includeNetworkProperties;
 
   public ConfigReportController() {
     setAppProperties(null);
     setIncludeSystemProperties(true);
+    setIncludeNetworkProperties(true);
   }
 
   public void setAppProperties(@Nullable Map<?, ?> appProperties) {
@@ -40,6 +43,10 @@ public class ConfigReportController {
 
   public void setIncludeSystemProperties(boolean includeSystemProperties) {
     this.includeSystemProperties = includeSystemProperties;
+  }
+
+  public void setIncludeNetworkProperties(boolean includeNetworkProperties) {
+    this.includeNetworkProperties = includeNetworkProperties;
   }
 
   @RequestMapping(value = "/config", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -61,6 +68,41 @@ public class ConfigReportController {
     if (appProperties != null) {
       writeProperties(writer, "Application", appProperties);
     }
+
+    if (includeNetworkProperties) {
+      if (networkProperties == null) {
+        networkProperties = getNetworkProperties();
+      }
+      writeProperties(writer, "Network", networkProperties);
+    }
+  }
+
+  protected static Map<String, String> getNetworkProperties() {
+    final Map<String, String> sysInfoProperties = new HashMap<>();
+
+    try {
+      final Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+      final StringBuilder sb = new StringBuilder(100);
+
+      while (networkInterfaces.hasMoreElements()) {
+        final NetworkInterface networkInterface = networkInterfaces.nextElement();
+        int i = 0;
+        for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
+          sb.setLength(0);
+          sb.append(networkInterface.getDisplayName()).append('.').append(i);
+          sysInfoProperties.put(sb.toString(), interfaceAddress.getAddress().getHostAddress());
+          ++i;
+        }
+      }
+
+      InetAddress inetAddr = InetAddress.getLocalHost();
+      sysInfoProperties.put("localhost.name", inetAddr.getHostName());
+      sysInfoProperties.put("localhost.address", inetAddr.getHostAddress());
+    } catch (UnknownHostException | SocketException e) {
+      LoggerFactory.getLogger(ConfigReportController.class).error("Unable to pull network info", e);
+    }
+
+    return sysInfoProperties;
   }
 
   protected static void writeProperties(@Nonnull PrintWriter writer,

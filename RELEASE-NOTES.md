@@ -1,7 +1,10 @@
 
-# 1.8.36 (PLANNED)
+# 1.9.36 (PLANNED)
 
-TBD
+* (Breaking Change) Introducing error model v3 (error-v3.proto).
+* Most of the methods in ``RestErrors`` class made non-static and that class was made abstract.
+* ``brikar-protobuf`` moved to the other repository with the same name.
+* ``brikar-error-response``, ``brikar-error-response-parser`` moved to the other repository ``brikar-errors``.
 
 # 1.8.35
 
@@ -68,7 +71,7 @@ TBD
 * RequestIdAwareFilter now logs combination of HTTP method + URL pattern as operation name
   instead of full operation to allow tools. So, for example, for HTTP request like 'GET /user/1/order/2' the
   following pattern might be recorded in request logs: 'GET_/user/{userId}/order/{orderId}'
-  to build metricss for RESTful operations.
+  to build metrics for RESTful operations.
 * Aliasing logger in RequestIdAwareFilter as 'BrikarRestLogger' for consistency with REST client.
 * Changing default '/rest' prefix to '/api'.
 * Migrating to protobuf 3.1.0

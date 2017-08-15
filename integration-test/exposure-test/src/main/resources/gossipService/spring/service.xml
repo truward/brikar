@@ -36,4 +36,7 @@
   <bean id="gossipService.restClient"
         factory-bean="gossipService.restOperationsFactory"
         factory-method="getRestOperations"/>
+
+  <!-- Service Errors -->
+  <bean class="com.truward.brikar.test.exposure.ServiceErrors"/>
 </beans>

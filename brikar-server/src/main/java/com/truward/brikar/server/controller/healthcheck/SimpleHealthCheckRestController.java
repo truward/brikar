@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/api")
-public class SimpleHealthCheckRestController implements HealthCheckRestService, DefaultRestExceptionHandler {
+public class SimpleHealthCheckRestController implements HealthCheckRestService {
 
 
   @Override

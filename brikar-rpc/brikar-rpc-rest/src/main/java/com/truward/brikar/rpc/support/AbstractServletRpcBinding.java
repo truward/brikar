@@ -1,6 +1,6 @@
 package com.truward.brikar.rpc.support;
 
-import com.truward.brikar.error.model.ErrorModel;
+import com.truward.brikar.error.model.ErrorV1;
 import com.truward.brikar.rpc.RpcMethod;
 import com.truward.brikar.rpc.ServletRpcBinding;
 import org.slf4j.Logger;
@@ -17,7 +17,6 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -135,30 +134,14 @@ public abstract class AbstractServletRpcBinding implements ServletRpcBinding {
                            String description) throws IOException {
     response.setStatus(statusCode);
     write(acceptType,
-        ErrorModel.ErrorResponseV2.class,
-        ErrorModel.ErrorResponseV2.newBuilder()
-            .setError(ErrorModel.ErrorV2.newBuilder()
+        ErrorV1.ErrorResponse.class,
+        ErrorV1.ErrorResponse.newBuilder()
+            .setError(ErrorV1.Error.newBuilder()
                 .setCode(HttpStatus.valueOf(statusCode).name())
                 .setMessage(description)
                 .build())
             .build(),
         new ServletServerHttpResponse(response));
-  }
-
-  protected void handleInvocationException(MediaType acceptType,
-                                           HttpServletResponse response,
-                                           Method method,
-                                           Throwable e) throws IOException {
-    // TODO: error mapping
-    if (e instanceof IllegalArgumentException) {
-      sendError(acceptType, response, HttpServletResponse.SC_BAD_REQUEST,
-          "Illegal Argument: " + e.getMessage());
-      return;
-    }
-
-    log.error("InvocationTargetException while invoking {}", method, e);
-    sendError(acceptType, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-        "Internal Error: " + e.getMessage());
   }
 
   //

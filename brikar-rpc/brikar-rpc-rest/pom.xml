@@ -24,8 +24,8 @@
     </dependency>
 
     <dependency>
-      <groupId>com.truward.brikar</groupId>
-      <artifactId>brikar-error-response</artifactId>
+      <groupId>com.truward.brikar.error</groupId>
+      <artifactId>rest-errors</artifactId>
     </dependency>
 
     <dependency>

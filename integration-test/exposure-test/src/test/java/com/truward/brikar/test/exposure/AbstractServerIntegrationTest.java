@@ -3,7 +3,7 @@ package com.truward.brikar.test.exposure;
 import com.truward.brikar.client.rest.RestOperationsFactory;
 import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.error.StandardRestErrorCode;
-import com.truward.brikar.error.model.ErrorModel;
+import com.truward.brikar.error.model.ErrorV1;
 import com.truward.brikar.error.parser.RestErrorParser;
 import com.truward.brikar.maintenance.ServerApiUtil;
 import com.truward.brikar.protobuf.http.ProtobufHttpMessageConverter;
@@ -104,10 +104,9 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
       fail("Should not greet R2D2");
     } catch (HttpStatusCodeException e) {
       assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
-      final ErrorModel.ErrorV2 error = RestErrorParser.parseError(e);
-      assertEquals("Invalid Argument", error.getMessage());
-      assertEquals(Collections.singletonList(ErrorModel.ErrorParameterV2.newBuilder().setKey("name").build()),
-          error.getParametersList());
+      final ErrorV1.Error error = RestErrorParser.parseError(e);
+      assertEquals("Invalid argument", error.getMessage());
+      assertEquals("name", error.getTarget());
       assertEquals(StandardRestErrorCode.INVALID_ARGUMENT.getCodeName(), error.getCode());
     }
 
@@ -115,8 +114,8 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
       exposureService.greet(ExposureModel.HelloRequest.newBuilder().setPerson("Darth Vader").build());
       fail("Should not greet Darth Vader");
     } catch (HttpStatusCodeException e) {
-      assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
-      final ErrorModel.ErrorV2 error = RestErrorParser.parseError(e);
+      assertEquals(HttpStatus.NOT_IMPLEMENTED, e.getStatusCode());
+      final ErrorV1.Error error = RestErrorParser.parseError(e);
       assertEquals(StandardRestErrorCode.UNSUPPORTED.getCodeName(), error.getCode());
       assertEquals("name", error.getMessage());
     }
@@ -126,7 +125,7 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
       fail("Should not greet Chewbacca");
     } catch (HttpStatusCodeException e) {
       assertEquals(HttpStatus.I_AM_A_TEAPOT, e.getStatusCode());
-      final ErrorModel.ErrorV2 error = RestErrorParser.parseError(e);
+      final ErrorV1.Error error = RestErrorParser.parseError(e);
       assertEquals("TeapotIsNotAChewbacca", error.getCode());
       assertEquals(0, error.getParametersCount());
       assertEquals("I am a teapot", error.getMessage());
@@ -137,8 +136,8 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
       fail("Should not greet admin");
     } catch (HttpStatusCodeException e) {
       assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
-      final ErrorModel.ErrorV2 error = RestErrorParser.parseError(e);
-      assertEquals(StandardRestErrorCode.ACCESS_DENIED.getCodeName(), error.getCode());
+      final ErrorV1.Error error = RestErrorParser.parseError(e);
+      assertEquals(StandardRestErrorCode.FORBIDDEN.getCodeName(), error.getCode());
       assertEquals(ExposureRestController.ACCESS_DENIED, error.getMessage());
     }
   }

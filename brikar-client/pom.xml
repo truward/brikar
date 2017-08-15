@@ -70,9 +70,6 @@
       <plugin>
         <groupId>org.xolstice.maven.plugins</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
-        <configuration>
-          <protoTestSourceRoot>../brikar-protobuf/test-proto</protoTestSourceRoot>
-        </configuration>
       </plugin>
     </plugins>
   </build>

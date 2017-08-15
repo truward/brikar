@@ -26,11 +26,11 @@
     <!-- Protobuf Message Converters - illustrates using both protobuf&JSON -->
     <dependency>
       <groupId>com.truward.brikar.protobuf</groupId>
-      <artifactId>brikar-protobuf-http-bin</artifactId>
+      <artifactId>spring-protobuf-http-bin</artifactId>
     </dependency>
     <dependency>
       <groupId>com.truward.brikar.protobuf</groupId>
-      <artifactId>brikar-protobuf-http-json</artifactId>
+      <artifactId>spring-protobuf-http-json</artifactId>
     </dependency>
 
     <!-- Exposure Base -->

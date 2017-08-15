@@ -22,21 +22,21 @@
     <!-- Protobuf Message Converters -->
     <dependency>
       <groupId>com.truward.brikar.protobuf</groupId>
-      <artifactId>brikar-protobuf-http-bin</artifactId>
+      <artifactId>spring-protobuf-http-bin</artifactId>
     </dependency>
     <dependency>
       <groupId>com.truward.brikar.protobuf</groupId>
-      <artifactId>brikar-protobuf-http-json</artifactId>
+      <artifactId>spring-protobuf-http-json</artifactId>
     </dependency>
 
     <!-- Generic error response -->
     <dependency>
-      <groupId>com.truward.brikar</groupId>
-      <artifactId>brikar-error-response</artifactId>
+      <groupId>com.truward.brikar.error</groupId>
+      <artifactId>rest-errors</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.truward.brikar</groupId>
-      <artifactId>brikar-error-response-parser</artifactId>
+      <groupId>com.truward.brikar.error</groupId>
+      <artifactId>rest-errors-parser</artifactId>
     </dependency>
 
     <dependency>

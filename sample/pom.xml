@@ -33,21 +33,6 @@
       <!-- Brikar Dependencies -->
       <dependency>
         <groupId>com.truward.brikar</groupId>
-        <artifactId>brikar-error-response</artifactId>
-        <version>${brikar.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.truward.brikar.protobuf</groupId>
-        <artifactId>brikar-protobuf-http-bin</artifactId>
-        <version>${brikar.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.truward.brikar.protobuf</groupId>
-        <artifactId>brikar-protobuf-http-json</artifactId>
-        <version>${brikar.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.truward.brikar</groupId>
         <artifactId>brikar-common</artifactId>
         <version>${brikar.version}</version>
       </dependency>

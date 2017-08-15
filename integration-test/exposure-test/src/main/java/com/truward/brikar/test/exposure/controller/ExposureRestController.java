@@ -3,8 +3,9 @@ package com.truward.brikar.test.exposure.controller;
 import com.truward.brikar.error.HttpRestErrorException;
 import com.truward.brikar.error.RestErrors;
 import com.truward.brikar.error.StandardRestErrorCode;
-import com.truward.brikar.error.model.ErrorModel;
+import com.truward.brikar.error.model.ErrorV1;
 import com.truward.brikar.server.controller.DefaultRestExceptionHandler;
+import com.truward.brikar.test.exposure.ServiceErrors;
 import com.truward.brikar.test.exposure.model.ExposureModel;
 import com.truward.brikar.test.exposure.service.ExposureRestService;
 import org.springframework.http.HttpStatus;
@@ -12,22 +13,27 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.Resource;
 
 /**
  * @author Alexander Shabanov
  */
 @Controller
 @RequestMapping("/api/test")
+@ParametersAreNonnullByDefault
 public final class ExposureRestController implements ExposureRestService, DefaultRestExceptionHandler {
   public static final String ACCESS_DENIED = "No access for non-admin";
+
+  @Resource
+  private ServiceErrors errors;
 
   @ExceptionHandler(AccessDeniedException.class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   @ResponseBody
-  public ErrorModel.ErrorResponseV2 accessDeniedException(AccessDeniedException e) {
-    return ErrorModel.ErrorResponseV2.newBuilder()
-        .setError(RestErrors.error(e, "Access Denied", StandardRestErrorCode.ACCESS_DENIED))
+  public ErrorV1.ErrorResponse accessDeniedException(AccessDeniedException e) {
+    return ErrorV1.ErrorResponse.newBuilder()
+        .setError(getRestErrors().errorBuilder(StandardRestErrorCode.FORBIDDEN).setMessage(ACCESS_DENIED).build())
         .build();
   }
 
@@ -52,10 +58,7 @@ public final class ExposureRestController implements ExposureRestService, Defaul
     }
 
     if (person.equals("Chewbacca")) {
-      throw new HttpRestErrorException(HttpStatus.I_AM_A_TEAPOT.value(), ErrorModel.ErrorV2.newBuilder()
-          .setCode("TeapotIsNotAChewbacca")
-          .setMessage("I am a teapot")
-          .build());
+      throw errors.teapot();
     }
 
     return ExposureModel.HelloResponse.newBuilder()
@@ -70,5 +73,10 @@ public final class ExposureRestController implements ExposureRestService, Defaul
     return ExposureModel.HelloResponse.newBuilder()
         .setGreeting("Hello, " + user + " of type " + type + " in mode " + mode)
         .build();
+  }
+
+  @Override
+  public RestErrors getRestErrors() {
+    return errors;
   }
 }

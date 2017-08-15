@@ -13,13 +13,13 @@
 
   <dependencies>
     <dependency>
-      <artifactId>brikar-common</artifactId>
       <groupId>com.truward.brikar</groupId>
+      <artifactId>brikar-common</artifactId>
     </dependency>
 
     <dependency>
-      <artifactId>brikar-error-response</artifactId>
-      <groupId>com.truward.brikar</groupId>
+      <groupId>com.truward.brikar.error</groupId>
+      <artifactId>rest-errors</artifactId>
     </dependency>
 
     <!-- Jetty -->
