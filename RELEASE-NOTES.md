@@ -1,5 +1,9 @@
 
-# 1.9.36 (PLANNED)
+# 1.9.38 (PLANNED)
+
+TBD
+
+# 1.9.37
 
 * (Breaking Change) Introducing error model v3 (error-v3.proto).
 * Most of the methods in ``RestErrors`` class made non-static and that class was made abstract.
