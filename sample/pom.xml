@@ -5,7 +5,7 @@
   <parent>
     <artifactId>brikar</artifactId>
     <groupId>com.truward.brikar</groupId>
-    <version>1.8.36-SNAPSHOT</version>
+    <version>1.9.38-SNAPSHOT</version>
   </parent>
 
   <groupId>com.truward.brikar.sample</groupId>
@@ -24,7 +24,7 @@
   </modules>
 
   <properties>
-    <brikar.version>1.8.36-SNAPSHOT</brikar.version>
+    <brikar.version>1.9.38-SNAPSHOT</brikar.version>
   </properties>
 
   <dependencyManagement>
