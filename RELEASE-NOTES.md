@@ -1,7 +1,7 @@
 
 # 1.9.38 (PLANNED)
 
-TBD
+* Use empty roles list by default in SimpleAuthenticatorUtil
 
 # 1.9.37
 

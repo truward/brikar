@@ -216,7 +216,7 @@ public final class SimpleAuthenticatorUtil {
     private static final class MutableUserEntry {
       private String username = "";
       private String password = "";
-      private List<String> roles = SimpleServiceUser.DEFAULT_ROLES;
+      private List<String> roles = Collections.emptyList();
     }
   } // class PropertyEntrySink
 }

@@ -76,7 +76,7 @@ public final class SimpleAuthenticatorUtilTest {
     // Then:
     assertEquals(new HashSet<>(asList(new SimpleServiceUser("alice", "test", asList("ROLE_ADMIN", "ROLE_USER")),
             new SimpleServiceUser("bob", "hello", Collections.<String>emptyList()),
-            new SimpleServiceUser("dave", "a", SimpleServiceUser.DEFAULT_ROLES))),
+            new SimpleServiceUser("dave", "a"))),
         new HashSet<>(users));
   }
 

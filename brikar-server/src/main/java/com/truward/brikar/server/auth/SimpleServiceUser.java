@@ -1,6 +1,7 @@
 package com.truward.brikar.server.auth;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,9 +15,6 @@ import static java.util.Collections.unmodifiableList;
  * @author Alexander Shabanov
  */
 public final class SimpleServiceUser {
-  public static final String ROLE_USER = "ROLE_USER";
-  public static final List<String> DEFAULT_ROLES = unmodifiableList(singletonList(ROLE_USER));
-
   private final String username;
   private final String password;
   private final List<String> roles;
@@ -30,7 +28,7 @@ public final class SimpleServiceUser {
   }
 
   public SimpleServiceUser(@Nonnull String username, @Nonnull String password) {
-    this(username, password, DEFAULT_ROLES);
+    this(username, password, Collections.emptyList());
   }
 
   @Nonnull
