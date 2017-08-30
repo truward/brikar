@@ -1,5 +1,9 @@
 
-# 1.9.38 (PLANNED)
+# 1.9.39 (PLANNED)
+
+TBD
+
+# 1.9.38
 
 * Rename ``roles`` property to ``authorities``.
 * Use default authority "USER" for uninitialized ``authorities`` collections.
