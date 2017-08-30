@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -29,14 +28,15 @@ import static org.junit.Assert.assertEquals;
  * @author Alexander Shabanov
  */
 public final class ExposureServerIntegrationTest extends AbstractServerIntegrationTest {
-  private static final SimpleServiceUser USER = new SimpleServiceUser("jettyAuthUser", "testExposureService");
+  private static final SimpleServiceUser USER = new SimpleServiceUser(
+      "jettyAuthUser",
+      "testExposureService");
 
   @BeforeClass
   public static void initServer() {
     initServer(USER, LaunchMode.EXPOSURE_WITH_SIMPLE_SECURITY);
   }
 
-  @Nullable
   @Override
   protected SimpleServiceUser getUser() {
     return USER;

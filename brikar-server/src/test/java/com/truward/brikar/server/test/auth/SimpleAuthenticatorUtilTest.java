@@ -9,10 +9,8 @@ import org.springframework.core.env.PropertySource;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -27,15 +25,15 @@ import static org.junit.Assert.assertTrue;
 public final class SimpleAuthenticatorUtilTest {
   private static final String ONE_USER_PROPS = "myService.auth.users.1.username=alice\n" +
       "myService.auth.users.1.password=test\n" +
-      "myService.auth.users.1.roles=ROLE_USER\n";
+      "myService.auth.users.1.authorities=USER\n";
 
   private static final List<SimpleServiceUser> ONE_USER = singletonList(
-      new SimpleServiceUser("alice", "test", singletonList("ROLE_USER")));
+      new SimpleServiceUser("alice", "test", singletonList(SimpleAuthenticatorUtil.USER_AUTHORITY)));
 
   @Test
   public void shouldLoadSingleUserEntry() throws IOException {
     // Given:
-    final String content = ONE_USER_PROPS;
+    @SuppressWarnings("UnnecessaryLocalVariable") final String content = ONE_USER_PROPS;
 
     // When:
     final List<SimpleServiceUser> users = SimpleAuthenticatorUtil.loadUsers(
@@ -60,24 +58,27 @@ public final class SimpleAuthenticatorUtilTest {
     // Given:
     final String content = "myService.auth.users.1.username=alice\n" +
         "myService.auth.users.1.password=test\n" +
-        "myService.auth.users.1.roles=ROLE_ADMIN,ROLE_USER\n" +
+        "myService.auth.users.1.authorities=ADMIN,USER\n" +
         "\n" +
         "myService.auth.users.213.username=bob\n" +
         "myService.auth.users.213.password=hello\n" +
-        "myService.auth.users.213.roles=\n" +
+        "myService.auth.users.213.authorities=\n" +
         "\n" +
         "myService.auth.users.2.username=dave\n" +
         "myService.auth.users.2.password=a\n";
 
     // When:
     final List<SimpleServiceUser> users = SimpleAuthenticatorUtil.loadUsers(
-        createPropertySource(content), "myService.auth.users");
+        createPropertySource(content), "myService.auth.users")
+        .stream()
+        .sorted(Comparator.comparing(SimpleServiceUser::getUsername))
+        .collect(Collectors.toList());
 
     // Then:
-    assertEquals(new HashSet<>(asList(new SimpleServiceUser("alice", "test", asList("ROLE_ADMIN", "ROLE_USER")),
-            new SimpleServiceUser("bob", "hello", Collections.<String>emptyList()),
-            new SimpleServiceUser("dave", "a"))),
-        new HashSet<>(users));
+    assertEquals(asList(new SimpleServiceUser("alice", "test", asList("ADMIN", "USER")),
+            new SimpleServiceUser("bob", "hello", SimpleAuthenticatorUtil.DEFAULT_AUTHORITIES),
+            new SimpleServiceUser("dave", "a", SimpleAuthenticatorUtil.DEFAULT_AUTHORITIES)),
+        users);
   }
 
   //

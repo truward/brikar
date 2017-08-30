@@ -18,9 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 
 import javax.annotation.Nonnull;
-
 import java.io.IOException;
-import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -116,7 +114,7 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
     } catch (HttpStatusCodeException e) {
       assertEquals(HttpStatus.NOT_IMPLEMENTED, e.getStatusCode());
       final ErrorV1.Error error = RestErrorParser.parseError(e);
-      assertEquals(StandardRestErrorCode.UNSUPPORTED.getCodeName(), error.getCode());
+      assertEquals(StandardRestErrorCode.NOT_IMPLEMENTED.getCodeName(), error.getCode());
       assertEquals("name", error.getMessage());
     }
 

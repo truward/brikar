@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,12 +28,24 @@ import java.util.Set;
  *
  * @author Alexander Shabanov
  */
+@ParametersAreNonnullByDefault
 public final class SimpleAuthenticatorUtil {
   private SimpleAuthenticatorUtil() {}
 
-  public static final String DEFAULT_REALM = "default";
+  /**
+   * Default role which is assigned in the absence of all other authorities.
+   * Note, that Jetty basic authentication doesn't work properly with empty user collections.
+   */
+  public static final String USER_AUTHORITY = "USER";
 
-  public static final String DEFAULT_REALM_NAME = "defaultRealm";
+  /**
+   * Default authorities list which is assigned to the user if configuration specifies no authorities.
+   */
+  public static final List<String> DEFAULT_AUTHORITIES = Collections.singletonList(USER_AUTHORITY);
+
+  private static final String DEFAULT_REALM = "default";
+
+  private static final String DEFAULT_REALM_NAME = "defaultRealm";
 
   /**
    * Creates a handler for jetty server with the given list of users.
@@ -43,15 +55,14 @@ public final class SimpleAuthenticatorUtil {
    * @param users List of user entries
    * @return Jetty security handler
    */
-  @Nonnull
-  public static SecurityHandler newSecurityHandler(@Nonnull List<SimpleServiceUser> users) {
+  public static SecurityHandler newSecurityHandler(List<SimpleServiceUser> users) {
     final HashLoginService loginService = new HashLoginService();
     final Set<String> roles = new HashSet<>();
     for (final SimpleServiceUser user : users) {
-      final List<String> r = user.getRoles();
+      final List<String> authorities = user.getAuthorities();
       loginService.putUser(user.getUsername(), Credential.getCredential(user.getPassword()),
-          r.toArray(new String[r.size()]));
-      roles.addAll(r);
+          authorities.toArray(new String[authorities.size()]));
+      roles.addAll(authorities);
 
     }
     loginService.setName(DEFAULT_REALM);
@@ -85,7 +96,7 @@ public final class SimpleAuthenticatorUtil {
    * <code>
    *   myService.auth.1.username=alice
    *   myService.auth.1.password=test
-   *   myService.auth.1.roles=ROLE_USER, ROLE_ADMIN
+   *   myService.auth.1.roles=USER,ADMIN
    *
    *   myService.auth.1.username=bob
    *   myService.auth.1.password=password
@@ -99,16 +110,15 @@ public final class SimpleAuthenticatorUtil {
    *
    * <p>
    * Note: if {@code .roles} property entry is missing for a user, the default value will be used, which is a list
-   * of single element which is {@code ROLE_USER}.
+   * of single element which is {@code USER}.
    * See also {@link SimpleServiceUser}.
    * </p>
    *
    * @param propertySource Property source, to read auth properties from
    * @param authPropertiesPrefix Prefix for properties in a given reader, that should be treated as user record entries
    * @return List of the parsed user entries
-   */@Nonnull
-  public static List<SimpleServiceUser> loadUsers(@Nonnull PropertySource<?> propertySource,
-                                                  @Nonnull String authPropertiesPrefix) {
+   */
+  public static List<SimpleServiceUser> loadUsers(PropertySource<?> propertySource, String authPropertiesPrefix) {
     if (propertySource instanceof EnumerablePropertySource) {
       final EnumerablePropertySource<?> enumPropSource = (EnumerablePropertySource) propertySource;
       final String[] propertyNames = enumPropSource.getPropertyNames();
@@ -139,11 +149,11 @@ public final class SimpleAuthenticatorUtil {
     private final String authPropertiesPrefix;
     private final Map<String, MutableUserEntry> codeToMutableEntryMap = new HashMap<>();
 
-    public PropertyEntrySink(@Nonnull String authPropertiesPrefix) {
+    PropertyEntrySink(String authPropertiesPrefix) {
       this.authPropertiesPrefix = authPropertiesPrefix;
     }
 
-    public void putEntry(@Nonnull String key, @Nonnull String value) {
+    void putEntry(String key, String value) {
       if (!key.startsWith(authPropertiesPrefix)) {
         return;
       }
@@ -177,12 +187,9 @@ public final class SimpleAuthenticatorUtil {
           e.password = value;
           break;
 
-        case "roles":
-          if (value.isEmpty()) {
-            // Special case: no roles at all
-            e.roles = Collections.emptyList();
-          } else {
-            e.roles = Arrays.asList(value.split(","));
+        case "authorities":
+          if (!value.isEmpty()) {
+            e.authorities = Arrays.asList(value.split(","));
           }
           break;
 
@@ -191,11 +198,10 @@ public final class SimpleAuthenticatorUtil {
       }
     }
 
-    @Nonnull
-    public List<SimpleServiceUser> getUserList() {
+    List<SimpleServiceUser> getUserList() {
       final List<SimpleServiceUser> result = new ArrayList<>();
       for (final MutableUserEntry e : codeToMutableEntryMap.values()) {
-        result.add(new SimpleServiceUser(e.username, e.password, e.roles));
+        result.add(new SimpleServiceUser(e.username, e.password, e.authorities));
       }
       return result;
     }
@@ -204,19 +210,18 @@ public final class SimpleAuthenticatorUtil {
     // Private
     //
 
-    @Nonnull
     private Logger getLogger() {
       return LoggerFactory.getLogger(getClass());
     }
 
     private int getExpectedEntryLength() {
-      return authPropertiesPrefix.length() + 4; // {prefix} + dot + code + dot + propertyname
+      return authPropertiesPrefix.length() + 4; // {prefix} + dot + code + dot + property name
     }
 
     private static final class MutableUserEntry {
-      private String username = "";
-      private String password = "";
-      private List<String> roles = Collections.emptyList();
+      String username = "";
+      String password = "";
+      List<String> authorities = DEFAULT_AUTHORITIES;
     }
   } // class PropertyEntrySink
 }

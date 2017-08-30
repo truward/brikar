@@ -63,8 +63,8 @@ public interface DefaultRestExceptionHandler {
   @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
   @ResponseBody
   default ErrorV1.ErrorResponse unsupported(UnsupportedOperationException e) {
-    return RestErrors.errorResponse(getRestErrors().errorBuilder(StandardRestErrorCode.UNSUPPORTED)
-        .setMessage(getMessage(e, StandardRestErrorCode.UNSUPPORTED.getDescription()))
+    return RestErrors.errorResponse(getRestErrors().errorBuilder(StandardRestErrorCode.NOT_IMPLEMENTED)
+        .setMessage(getMessage(e, StandardRestErrorCode.NOT_IMPLEMENTED.getDescription()))
         .build());
   }
 

@@ -73,7 +73,7 @@
     <spring-security.version>4.2.2.RELEASE</spring-security.version>
 
     <brikar-protobuf.version>2.0.1</brikar-protobuf.version>
-    <brikar-errors.version>2.0.1</brikar-errors.version>
+    <brikar-errors.version>2.0.2</brikar-errors.version>
 
     <!--  compiler settings -->
     <maven.compiler.source>1.8</maven.compiler.source>
