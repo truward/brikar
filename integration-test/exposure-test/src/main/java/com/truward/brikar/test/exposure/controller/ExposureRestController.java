@@ -1,8 +1,7 @@
 package com.truward.brikar.test.exposure.controller;
 
-import com.truward.brikar.error.HttpRestErrorException;
 import com.truward.brikar.error.RestErrors;
-import com.truward.brikar.error.StandardRestErrorCode;
+import com.truward.brikar.error.StandardRestErrorCodes;
 import com.truward.brikar.error.model.ErrorV1;
 import com.truward.brikar.server.controller.DefaultRestExceptionHandler;
 import com.truward.brikar.test.exposure.ServiceErrors;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.annotation.Resource;
 
 /**
  * @author Alexander Shabanov
@@ -25,16 +23,18 @@ import javax.annotation.Resource;
 public final class ExposureRestController implements ExposureRestService, DefaultRestExceptionHandler {
   public static final String ACCESS_DENIED = "No access for non-admin";
 
-  @Resource
-  private ServiceErrors errors;
+  private final ServiceErrors errors;
+
+  public ExposureRestController(ServiceErrors errors) {
+    this.errors = errors;
+  }
 
   @ExceptionHandler(AccessDeniedException.class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   @ResponseBody
   public ErrorV1.ErrorResponse accessDeniedException(AccessDeniedException e) {
-    return ErrorV1.ErrorResponse.newBuilder()
-        .setError(getRestErrors().errorBuilder(StandardRestErrorCode.FORBIDDEN).setMessage(ACCESS_DENIED).build())
-        .build();
+    return ServiceErrors.errorResponse(getRestErrors().errorBuilder(StandardRestErrorCodes.FORBIDDEN)
+        .setMessage(ACCESS_DENIED).build());
   }
 
   @Override

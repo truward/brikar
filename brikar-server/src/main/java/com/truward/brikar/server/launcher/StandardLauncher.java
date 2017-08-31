@@ -105,6 +105,11 @@ public class StandardLauncher implements AutoCloseable {
    */
   public static final String DEFAULT_STATIC_WEB_FOLDER = "web/static";
 
+  /**
+   * Standard name for logback configuration file location.
+   */
+  private static final String LOGBACK_CONFIGURATION_FILE_PROPERTY_NAME = "logback.configurationFile";
+
   @Nonnull
   public static List<String> getConfigurationPaths(@Nonnull String defaultDirPrefix) {
     final List<String> paths = new ArrayList<>();
@@ -313,8 +318,8 @@ public class StandardLauncher implements AutoCloseable {
    */
   public static void ensureLoggersConfigured() {
     // initialize logback if logback.configurationFile property has not been set
-    if (System.getProperty("logback.configurationFile") == null) {
-      System.setProperty("logback.configurationFile", "default-service-logback.xml");
+    if (System.getProperty(LOGBACK_CONFIGURATION_FILE_PROPERTY_NAME) == null) {
+      System.setProperty(LOGBACK_CONFIGURATION_FILE_PROPERTY_NAME, "default-service-logback.xml");
     }
   }
 
@@ -475,12 +480,7 @@ public class StandardLauncher implements AutoCloseable {
     contextHandler.setInitParameter("contextConfigLocation", getSpringContextLocations());
 
     propertySourceCloseableRegistration = StandardWebApplicationContextInitializer
-        .register(new StandardWebApplicationContextInitializer.ServletInitializer() {
-          @Override
-          public void setInitParameter(@Nonnull String key, @Nonnull String value) {
-            contextHandler.setInitParameter(key, value);
-          }
-        }, propertySource);
+        .register((key, value) -> contextHandler.setInitParameter(key, value), propertySource);
 
     contextHandler.setInitParameter("contextInitializerClasses",
         StandardWebApplicationContextInitializer.class.getName());

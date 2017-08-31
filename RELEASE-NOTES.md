@@ -1,7 +1,11 @@
 
-# 1.9.39 (PLANNED)
+# 1.9.40 (PLANNED)
 
 TBD
+
+# 1.9.39
+
+* Use brikar error model v. 2.0.3
 
 # 1.9.38
 
