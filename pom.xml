@@ -4,7 +4,7 @@
 
   <groupId>com.truward.brikar</groupId>
   <artifactId>brikar</artifactId>
-  <version>1.9.39-SNAPSHOT</version>
+  <version>1.9.39</version>
   <url>https://github.com/truward/brikar</url>
   <packaging>pom</packaging>
   <name>Brikar Parent</name>
@@ -35,7 +35,7 @@
     <connection>scm:git:https://github.com/truward/brikar.git</connection>
     <developerConnection>scm:git:https://github.com/truward/brikar.git</developerConnection>
     <url>https://github.com/truward/brikar.git</url>
-    <tag>HEAD</tag>
+    <tag>brikar-1.9.39</tag>
   </scm>
 
   <distributionManagement>
