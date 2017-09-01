@@ -1,11 +1,11 @@
 package com.truward.brikar.server.auth;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
 
 /**
@@ -14,23 +14,20 @@ import static java.util.Collections.unmodifiableList;
  * @author Alexander Shabanov
  */
 public final class SimpleServiceUser {
-  public static final String ROLE_USER = "ROLE_USER";
-  public static final List<String> DEFAULT_ROLES = unmodifiableList(singletonList(ROLE_USER));
-
   private final String username;
   private final String password;
-  private final List<String> roles;
+  private final List<String> authorities;
 
-  public SimpleServiceUser(@Nonnull String username, @Nonnull String password, @Nonnull List<String> roles) {
+  public SimpleServiceUser(@Nonnull String username, @Nonnull String password, @Nonnull List<String> authorities) {
     this.username = Objects.requireNonNull(username, "username");
     this.password = Objects.requireNonNull(password, "password");
 
-    Objects.requireNonNull(roles, "roles");
-    this.roles = unmodifiableList(asList(roles.toArray(new String[roles.size()])));
+    Objects.requireNonNull(authorities, "authorities");
+    this.authorities = unmodifiableList(asList(authorities.toArray(new String[authorities.size()])));
   }
 
   public SimpleServiceUser(@Nonnull String username, @Nonnull String password) {
-    this(username, password, DEFAULT_ROLES);
+    this(username, password, Collections.emptyList());
   }
 
   @Nonnull
@@ -44,8 +41,8 @@ public final class SimpleServiceUser {
   }
 
   @Nonnull
-  public List<String> getRoles() {
-    return roles;
+  public List<String> getAuthorities() {
+    return authorities;
   }
 
   @Override
@@ -55,14 +52,14 @@ public final class SimpleServiceUser {
 
     SimpleServiceUser that = (SimpleServiceUser) o;
 
-    return password.equals(that.password) && roles.equals(that.roles) && username.equals(that.username);
+    return password.equals(that.password) && authorities.equals(that.authorities) && username.equals(that.username);
   }
 
   @Override
   public int hashCode() {
     int result = username.hashCode();
     result = 31 * result + password.hashCode();
-    result = 31 * result + roles.hashCode();
+    result = 31 * result + authorities.hashCode();
     return result;
   }
 
@@ -71,7 +68,7 @@ public final class SimpleServiceUser {
     return "SimpleServiceUser{" +
         "username='" + getUsername() + '\'' +
         ", passwordHash=" + getPassword().hashCode() +
-        ", roles=" + getRoles() +
+        ", authorities=" + getAuthorities() +
         '}';
   }
 }

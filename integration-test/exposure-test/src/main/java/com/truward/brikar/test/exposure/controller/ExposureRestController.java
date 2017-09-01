@@ -1,7 +1,7 @@
 package com.truward.brikar.test.exposure.controller;
 
 import com.truward.brikar.error.RestErrors;
-import com.truward.brikar.error.StandardRestErrorCode;
+import com.truward.brikar.error.StandardRestErrorCodes;
 import com.truward.brikar.error.model.ErrorV1;
 import com.truward.brikar.server.controller.DefaultRestExceptionHandler;
 import com.truward.brikar.test.exposure.ServiceErrors;
@@ -23,7 +23,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public final class ExposureRestController implements ExposureRestService, DefaultRestExceptionHandler {
   public static final String ACCESS_DENIED = "No access for non-admin";
 
-  private ServiceErrors errors;
+  private final ServiceErrors errors;
 
   public ExposureRestController(ServiceErrors errors) {
     this.errors = errors;
@@ -33,10 +33,8 @@ public final class ExposureRestController implements ExposureRestService, Defaul
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   @ResponseBody
   public ErrorV1.ErrorResponse accessDeniedException(AccessDeniedException e) {
-    return ErrorV1.ErrorResponse.newBuilder()
-        .setError(errors.errorBuilder(StandardRestErrorCode.FORBIDDEN)
-        .setMessage(ACCESS_DENIED))
-        .build();
+    return ServiceErrors.errorResponse(getRestErrors().errorBuilder(StandardRestErrorCodes.FORBIDDEN)
+        .setMessage(ACCESS_DENIED).build());
   }
 
   @Override

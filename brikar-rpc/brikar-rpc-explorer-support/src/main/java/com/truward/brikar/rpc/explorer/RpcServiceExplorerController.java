@@ -1,8 +1,6 @@
 package com.truward.brikar.rpc.explorer;
 
 import com.truward.brikar.rpc.ServletRpcBinding;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
@@ -12,18 +10,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.truward.brikar.rpc.servlet.RpcExplorerUtil.serveFromFile;
 import static com.truward.brikar.rpc.servlet.RpcExplorerUtil.serveTemplate;

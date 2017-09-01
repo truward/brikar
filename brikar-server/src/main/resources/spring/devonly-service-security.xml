@@ -15,14 +15,14 @@
     <headers disabled="true"/> <!-- Extra headers protection is usually not needed for REST API, or custom one is required -->
     <csrf disabled="true"/> <!-- CSRF protection needs special treatment - enable only in custom configuration with sessions enabled -->
     <http-basic/>
-    <intercept-url pattern="/api/**" access="hasRole('ROLE_SERVICE_USER')" />
+    <intercept-url pattern="/api/**" access="isAuthenticated()" />
   </http>
 
   <authentication-manager>
     <authentication-provider>
       <password-encoder hash="md5"/>
       <user-service>
-        <user name="testonly" password="098f6bcd4621d373cade4e832627b4f6" authorities="ROLE_SERVICE_USER" />
+        <user name="testonly" password="098f6bcd4621d373cade4e832627b4f6" authorities="USER" />
       </user-service>
     </authentication-provider>
   </authentication-manager>

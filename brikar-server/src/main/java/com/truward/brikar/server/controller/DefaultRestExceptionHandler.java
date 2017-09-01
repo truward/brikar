@@ -2,7 +2,7 @@ package com.truward.brikar.server.controller;
 
 import com.truward.brikar.error.HttpRestErrorException;
 import com.truward.brikar.error.RestErrors;
-import com.truward.brikar.error.StandardRestErrorCode;
+import com.truward.brikar.error.StandardRestErrorCodes;
 import com.truward.brikar.error.model.ErrorV1;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +54,7 @@ public interface DefaultRestExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ResponseBody
   default ErrorV1.ErrorResponse illegalArgument(IllegalArgumentException e) {
-    return RestErrors.errorResponse(getRestErrors().errorBuilder(StandardRestErrorCode.INVALID_ARGUMENT)
+    return RestErrors.errorResponse(getRestErrors().errorBuilder(StandardRestErrorCodes.INVALID_ARGUMENT)
         .setTarget(getMessage(e))
         .build());
   }
@@ -63,8 +63,8 @@ public interface DefaultRestExceptionHandler {
   @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
   @ResponseBody
   default ErrorV1.ErrorResponse unsupported(UnsupportedOperationException e) {
-    return RestErrors.errorResponse(getRestErrors().errorBuilder(StandardRestErrorCode.UNSUPPORTED)
-        .setMessage(getMessage(e, StandardRestErrorCode.UNSUPPORTED.getDescription()))
+    return RestErrors.errorResponse(getRestErrors().errorBuilder(StandardRestErrorCodes.NOT_IMPLEMENTED)
+        .setMessage(getMessage(e, StandardRestErrorCodes.NOT_IMPLEMENTED.getDescription()))
         .build());
   }
 
@@ -72,8 +72,8 @@ public interface DefaultRestExceptionHandler {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   @ResponseBody
   default ErrorV1.ErrorResponse internalServerError(Throwable e) {
-    return RestErrors.errorResponse(getRestErrors().errorBuilder(StandardRestErrorCode.INTERNAL)
-        .setMessage(getMessage(e, StandardRestErrorCode.INTERNAL.getDescription()))
+    return RestErrors.errorResponse(getRestErrors().errorBuilder(StandardRestErrorCodes.INTERNAL)
+        .setMessage(getMessage(e, StandardRestErrorCodes.INTERNAL.getDescription()))
         .build());
   }
 }

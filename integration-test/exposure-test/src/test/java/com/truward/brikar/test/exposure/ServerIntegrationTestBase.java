@@ -65,26 +65,18 @@ public abstract class ServerIntegrationTestBase {
   }
 
   protected static void initServer(@Nullable SimpleServiceUser user, final LaunchMode launchMode) {
-    THREAD = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          final TempConfiguration tempConfiguration = new TempConfiguration()
-              .setPort(PORT_NUMBER)
-              .setShutdownDelay(100L);
+    THREAD = new Thread(() -> {
+      try {
+        final TempConfiguration tempConfiguration = new TempConfiguration()
+            .setPort(PORT_NUMBER)
+            .setShutdownDelay(100L);
 
-          ExposureServerLauncher.main(
-              Collections.singletonList(tempConfiguration.writeToTempFile().toExternalForm()),
-              new ServerAware() {
-                @Override
-                public void setServer(@Nonnull Server server) {
-                  SERVER = server;
-                }
-              },
-              launchMode);
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
+        ExposureServerLauncher.main(
+            Collections.singletonList(tempConfiguration.writeToTempFile().toExternalForm()),
+            server -> SERVER = server,
+            launchMode);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
       }
     });
 

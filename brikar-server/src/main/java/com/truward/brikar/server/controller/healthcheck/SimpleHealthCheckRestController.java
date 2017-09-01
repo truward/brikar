@@ -1,7 +1,6 @@
 package com.truward.brikar.server.controller.healthcheck;
 
 import com.truward.brikar.common.healthcheck.HealthCheckRestService;
-import com.truward.brikar.server.controller.DefaultRestExceptionHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 

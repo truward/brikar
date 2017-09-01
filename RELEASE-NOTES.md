@@ -1,11 +1,21 @@
 
-# 1.9.38 (PLANNED)
+# 1.9.40 (PLANNED)
 
 TBD
 
+# 1.9.39
+
+* Use brikar error model v. 2.0.3
+
+# 1.9.38
+
+* Rename ``roles`` property to ``authorities``.
+* Use default authority "USER" for uninitialized ``authorities`` collections.
+* Rename ``default-service-security.xml`` to ``devonly-service-security.xml``.
+* Use brikar error model v. 2.0.2
+
 # 1.9.37
 
-* (Breaking Change) Introducing error model v3 (error-v3.proto).
 * Most of the methods in ``RestErrors`` class made non-static and that class was made abstract.
 * ``brikar-protobuf`` moved to the other repository with the same name.
 * ``brikar-error-response``, ``brikar-error-response-parser`` moved to the other repository ``brikar-errors``.

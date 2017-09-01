@@ -2,7 +2,7 @@ package com.truward.brikar.test.exposure;
 
 import com.truward.brikar.client.rest.RestOperationsFactory;
 import com.truward.brikar.common.log.LogUtil;
-import com.truward.brikar.error.StandardRestErrorCode;
+import com.truward.brikar.error.StandardRestErrorCodes;
 import com.truward.brikar.error.model.ErrorV1;
 import com.truward.brikar.error.parser.RestErrorParser;
 import com.truward.brikar.maintenance.ServerApiUtil;
@@ -18,9 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 
 import javax.annotation.Nonnull;
-
 import java.io.IOException;
-import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -107,7 +105,7 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
       final ErrorV1.Error error = RestErrorParser.parseError(e);
       assertEquals("Invalid argument", error.getMessage());
       assertEquals("name", error.getTarget());
-      assertEquals(StandardRestErrorCode.INVALID_ARGUMENT.getCodeName(), error.getCode());
+      assertEquals(StandardRestErrorCodes.INVALID_ARGUMENT.getCodeName(), error.getCode());
     }
 
     try {
@@ -116,7 +114,7 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
     } catch (HttpStatusCodeException e) {
       assertEquals(HttpStatus.NOT_IMPLEMENTED, e.getStatusCode());
       final ErrorV1.Error error = RestErrorParser.parseError(e);
-      assertEquals(StandardRestErrorCode.UNSUPPORTED.getCodeName(), error.getCode());
+      assertEquals(StandardRestErrorCodes.NOT_IMPLEMENTED.getCodeName(), error.getCode());
       assertEquals("name", error.getMessage());
     }
 
@@ -137,7 +135,7 @@ public abstract class AbstractServerIntegrationTest extends ServerIntegrationTes
     } catch (HttpStatusCodeException e) {
       assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
       final ErrorV1.Error error = RestErrorParser.parseError(e);
-      assertEquals(StandardRestErrorCode.FORBIDDEN.getCodeName(), error.getCode());
+      assertEquals(StandardRestErrorCodes.FORBIDDEN.getCodeName(), error.getCode());
       assertEquals(ExposureRestController.ACCESS_DENIED, error.getMessage());
     }
   }

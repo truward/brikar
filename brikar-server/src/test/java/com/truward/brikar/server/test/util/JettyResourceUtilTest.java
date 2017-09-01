@@ -3,17 +3,14 @@ package com.truward.brikar.server.test.util;
 import com.truward.brikar.server.util.JettyResourceUtil;
 import org.eclipse.jetty.util.resource.Resource;
 import org.junit.Test;
-import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StreamUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.*;
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * @author Alexander Shabanov

@@ -3,8 +3,6 @@ package com.truward.brikar.test.exposure;
 import com.truward.brikar.server.auth.SimpleServiceUser;
 import org.junit.BeforeClass;
 
-import javax.annotation.Nullable;
-
 /**
  * Integration tests for server that uses spring security.
  *
@@ -18,7 +16,6 @@ public final class ExposureServerSpringSecurityIntegrationTest extends AbstractS
     initServer(USER, LaunchMode.EXPOSURE_WITH_SPRING_SECURITY);
   }
 
-  @Nullable
   @Override
   protected SimpleServiceUser getUser() {
     return USER;

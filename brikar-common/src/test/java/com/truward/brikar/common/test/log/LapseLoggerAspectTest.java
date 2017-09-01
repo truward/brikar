@@ -1,6 +1,5 @@
 package com.truward.brikar.common.test.log;
 
-import com.truward.brikar.common.log.LogLapse;
 import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.common.log.lapse.SimpleLapse;
 import com.truward.brikar.common.log.metric.MetricsCollection;
@@ -15,10 +14,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
 
+import static com.truward.brikar.common.test.log.support.TestServices.CalcService;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
-import static com.truward.brikar.common.test.log.support.TestServices.*;
 
 /**
  * Tests for {@link com.truward.brikar.common.log.aspect.StandardLapseLoggerAspect}.

@@ -5,7 +5,6 @@ import com.truward.brikar.common.log.metric.MetricsCollection;
 import com.truward.brikar.common.log.metric.StandardMetricsCollection;
 import org.slf4j.Logger;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 

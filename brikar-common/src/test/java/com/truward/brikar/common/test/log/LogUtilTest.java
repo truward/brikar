@@ -6,9 +6,7 @@ import com.truward.brikar.common.test.util.TestLoggerProvider;
 import org.junit.Test;
 import org.slf4j.Logger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Tests for {@link com.truward.brikar.common.log.LogUtil}.

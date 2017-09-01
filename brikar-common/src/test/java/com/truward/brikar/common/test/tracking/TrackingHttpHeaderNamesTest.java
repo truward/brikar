@@ -3,7 +3,10 @@ package com.truward.brikar.common.test.tracking;
 import com.truward.brikar.common.tracking.TrackingHttpHeaderNames;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertEquals;
