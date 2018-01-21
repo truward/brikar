@@ -3,6 +3,7 @@ package com.truward.brikar.common.test.log;
 import com.truward.brikar.common.log.LogUtil;
 import com.truward.brikar.common.log.lapse.SimpleLapse;
 import com.truward.brikar.common.log.metric.MetricsCollection;
+import com.truward.brikar.common.log.metric.StandardMetricsCollection;
 import com.truward.brikar.common.test.util.TestLoggerProvider;
 import com.truward.time.TimeSource;
 import org.junit.Before;
@@ -38,6 +39,8 @@ public final class LapseLoggerAspectTest {
 
     when(timeSource.getTimeUnit()).thenReturn(TimeUnit.MILLISECONDS);
     loggerProvider.reset();
+
+    LogUtil.setLocalMetricsCollection(null);
   }
 
 
@@ -55,7 +58,9 @@ public final class LapseLoggerAspectTest {
     // Then:
     assertEquals(3, result);
     final String logContent = loggerProvider.getRawLogContents();
-    assertTrue(logContent.endsWith("@metric1 op=CalcService.plus, tStart=1000, tDelta=200" + sep));
+    assertTrue(
+        "Actual content doesn't contain expected metric entry: " + logContent,
+        logContent.endsWith("@metric1 op=CalcService.plus, tStart=1000, tDelta=200" + sep));
   }
 
   @Test
@@ -129,7 +134,9 @@ public final class LapseLoggerAspectTest {
     // Then:
     assertEquals(3, result);
     final String logContent = loggerProvider.getRawLogContents();
-    assertTrue(logContent.endsWith("@metric1 op=TopLevel, tStart=900, tDelta=400" + sep +
-        "\top=CalcService.plus, tStart=1000, tDelta=200" + sep));
+    assertTrue(
+        "Actual content doesn't contain expected metric entry: " + logContent,
+        logContent.endsWith("@metric1 op=TopLevel, tStart=900, tDelta=400" + sep +
+            "\top=CalcService.plus, tStart=1000, tDelta=200" + sep));
   }
 }

@@ -6,6 +6,7 @@ import com.truward.brikar.common.log.metric.Metrics;
 import com.truward.brikar.common.log.metric.MetricsCollection;
 import com.truward.brikar.common.test.log.support.TestServices.CalcService;
 import com.truward.time.TimeSource;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +47,11 @@ public class PropagateLapseLoggerAspectTest {
 
     metricsCollection = new TestMetricsCollection();
     LogUtil.setLocalMetricsCollection(metricsCollection);
+  }
+
+  @After
+  public void cleanup() {
+    LogUtil.setLocalMetricsCollection(null);
   }
 
   @Test
